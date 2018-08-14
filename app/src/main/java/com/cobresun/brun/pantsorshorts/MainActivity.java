@@ -1,12 +1,30 @@
 package com.cobresun.brun.pantsorshorts;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,14 +38,39 @@ public class MainActivity extends AppCompatActivity {
     private float defaultThreshold = 21f;
     private float userThreshold = defaultThreshold;
     private static final String PREFS_NAME = "userPrefs";
+    public static Context context;
+    public static Activity activity;
+    public static FusedLocationProviderClient mFusedLocationClient;
+    private String city;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = getApplicationContext();
+        activity = this;
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           System.out.println("BNOR: no permission");
+        }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            city = getAddress(location.getLatitude(), location.getLongitude());
+                            System.out.println("BNOR: city: " + city);
+                        }
+                    }
+                });
+
         try {
             weather = new Weather();
+            weather.city = city;
             weather.execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -129,6 +172,35 @@ public class MainActivity extends AppCompatActivity {
         }
         else if(id == R.id.buttonHot){
             updateUserPref(HOT);
+        }
+    }
+
+    public String getAddress(double lats, double lons) {
+
+        Geocoder geocoder;
+        double lat = lats;
+        double lon = lons;
+        geocoder = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocation(lat, lon, 1);
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+
+        if (addresses != null) {
+
+            String address = addresses.get(0).getAddressLine(0);
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String country = addresses.get(0).getCountryName();
+            String postalCode = addresses.get(0).getPostalCode();
+            String knownName = addresses.get(0).getFeatureName();
+
+            return city;
+        } else {
+            return "failed";
         }
     }
 }
