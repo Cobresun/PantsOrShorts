@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Weather extends AsyncTask<Void, Void, Void> {
+    private static final double ABS_ZERO = -273.15;
 
     JSONObject data = null;
     private static String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?";
@@ -46,7 +47,9 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             JSONObject list0Obejct = listArray.getJSONObject(0);
             JSONObject mainObject = list0Obejct.getJSONObject("main");
             temp = mainObject.getDouble("temp");
-            temp = temp - 273.15;
+            temp = temp + ABS_ZERO; // Kelvin to celsius
+
+            System.out.println("BNOR: temp today is: " + temp);
 
         } catch (java.io.IOException e) {
             e.printStackTrace();

@@ -13,9 +13,9 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PANTS = 1;
     private static final int SHORTS = 2;
-
     private static final int COLD = 3;
     private static final int HOT = 4;
+
     private Weather weather;
     private float defaultThreshold = 21f;
     private float userThreshold = defaultThreshold;
