@@ -19,8 +19,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        System.out.println("BNOR: The temp is: " + getTemp());
-        System.out.println("BNOR: Wear: " + pantsOrShorts());
+        changeStatus();
     }
 
 
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
-        float temp = 10f;    // TODO: hard-code it here for now
+        float temp = 30f;    // TODO: hard-code it here for now
         return temp;
     }
 
@@ -72,8 +71,7 @@ public class MainActivity extends AppCompatActivity {
         return userThreshold;
     }
 
-    public void onButtonClick(View v){
-        System.out.println("Main Button Pressed");
+    public void changeStatus(){
         ImageView img=(ImageView)findViewById(R.id.imageView);
 
         if(pantsOrShorts() == PANTS){
