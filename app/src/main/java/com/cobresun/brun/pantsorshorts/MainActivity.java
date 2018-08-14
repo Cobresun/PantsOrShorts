@@ -13,12 +13,15 @@ public class MainActivity extends AppCompatActivity {
     private static final int COLD = 3;
     private static final int HOT = 4;
     private float userThreshold = 21f;
+    private Weather weather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        weather = new Weather();
+        weather.getWeatherJSON();
         changeStatus();
     }
 
@@ -28,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
-        float temp = 30f;    // TODO: hard-code it here for now
+        float temp = (float) weather.temp;    // TODO: hard-code it here for now
         return temp;
     }
 
