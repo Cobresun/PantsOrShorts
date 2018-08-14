@@ -23,14 +23,41 @@
         android:layout_width="105dp"
         android:layout_height="95dp"
         android:layout_marginBottom="8dp"
-        android:visibility="visible"
         android:tag="none"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.32999998"
         app:srcCompat="@android:drawable/presence_video_online" />
+
+    <Button
+        android:id="@+id/buttonHot"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:text="Hot"
+        android:background="@android:color/holo_red_light"
+        app:layout_constraintEnd_toStartOf="@id/centerVerticalLine"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <Button
+        android:id="@+id/buttonCold"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:text="Cold"
+        android:background="@android:color/holo_blue_bright"
+        app:layout_constraintStart_toEndOf="@id/centerVerticalLine"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/centerVerticalLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 
 
 </android.support.constraint.ConstraintLayout>
