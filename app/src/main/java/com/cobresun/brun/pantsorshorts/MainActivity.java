@@ -1,9 +1,13 @@
 package com.cobresun.brun.pantsorshorts;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,17 +16,17 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int COLD = 3;
     private static final int HOT = 4;
-    private float userThreshold = 21f;
     private Weather weather;
+    private float defaultThreshold = 21f;
+    private float userThreshold = defaultThreshold;
+    private static final String PREFS_NAME = "userPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        weather = new Weather();
-        weather.getWeatherJSON();
         changeStatus();
+        System.out.println("BNOR: " + "At the beginning of program file says threshold is: " + getUserThreshold());
     }
 
 
@@ -31,6 +35,14 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
+        weather = new Weather();
+        try {
+            weather.getWeatherJSON();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         float temp = (float) weather.temp;    // TODO: hard-code it here for now
         return temp;
     }
@@ -41,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
      * @return static final int SHORTS or PANTS
      */
     private int pantsOrShorts() {
+        System.out.println("BNOR: temp in pantsOrShorts: " + getTemp());
         float currentTemp = getTemp();
         if (currentTemp > getUserThreshold()){
             return SHORTS;
@@ -62,7 +75,21 @@ public class MainActivity extends AppCompatActivity {
         else if (howTheyFelt == HOT && currentTemp < getUserThreshold()){
             userThreshold = currentTemp;
         }
-        // TODO: Eventually save this to phone's hard-drive
+        updateUserPrefFile(userThreshold);
+    }
+
+    /**
+     *
+     * @param userThres
+     */
+    private void updateUserPrefFile(float userThres) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putFloat("userThreshold", userThres);
+        editor.apply();
+        
+        System.out.println("BNOR: " + "Writing: " + userThres);
     }
 
 
@@ -71,7 +98,9 @@ public class MainActivity extends AppCompatActivity {
      * @return float current user threshold
      */
     private float getUserThreshold() {
-        return userThreshold;
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        System.out.println("BNOR: " + "Reading: " + settings.getFloat("userThreshold", defaultThreshold));
+        return settings.getFloat("userThreshold", defaultThreshold);
     }
 
     /**
@@ -80,11 +109,11 @@ public class MainActivity extends AppCompatActivity {
     private void changeStatus(){
         ImageView img = findViewById(R.id.imageView);
 
-        if(pantsOrShorts() == PANTS){
+        if (pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.pants);
         }
-        else if(pantsOrShorts() == SHORTS){
+        else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.shorts);
         }

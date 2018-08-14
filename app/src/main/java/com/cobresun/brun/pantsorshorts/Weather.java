@@ -11,17 +11,18 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class Weather {
 
     JSONObject data = null;
     private static String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?";
-    private static String CITYID = "id=524901"; // TODO: Don't hardcode city
+    private static String CITYID = "id=292223"; // TODO: Don't hardcode city
     private static String APPID = "&APPID=ef157718f460aa11e33cfabcea9f6d01";
     public double temp;
 
     @SuppressLint("StaticFieldLeak")
-    public void getWeatherJSON() {
+    public void getWeatherJSON() throws ExecutionException, InterruptedException {
         new AsyncTask<Void, Void, Void>() {
 
             @Override
