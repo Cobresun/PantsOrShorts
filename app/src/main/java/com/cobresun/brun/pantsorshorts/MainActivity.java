@@ -1,9 +1,16 @@
 package com.cobresun.brun.pantsorshorts;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,7 +19,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int COLD = 3;
     private static final int HOT = 4;
-    private float userThreshold = 21f;
+    private float defaultThreshold = 21f;
+    private float userThreshold = defaultThreshold;
+
+    private static final String PREFS_NAME = "userPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         changeStatus();
+        System.out.println("At the beginning of program file says threshold is: " + getUserThreshold());
     }
 
 
@@ -59,7 +70,21 @@ public class MainActivity extends AppCompatActivity {
         else if (howTheyFelt == HOT && currentTemp < getUserThreshold()){
             userThreshold = currentTemp;
         }
-        // TODO: Eventually save this to phone's hard-drive
+        updateUserPrefFile(userThreshold);
+    }
+
+    /**
+     *
+     * @param userThres
+     */
+    private void updateUserPrefFile(float userThres) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putFloat("userThreshold", userThres);
+        editor.apply();
+        
+        System.out.println("Writing: " + userThres);
     }
 
 
@@ -68,7 +93,9 @@ public class MainActivity extends AppCompatActivity {
      * @return float current user threshold
      */
     private float getUserThreshold() {
-        return userThreshold;
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        System.out.println("Reading: " + settings.getFloat("userThreshold", defaultThreshold));
+        return settings.getFloat("userThreshold", defaultThreshold);
     }
 
     /**
