@@ -33,7 +33,7 @@ public class Weather extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            CITYID = updateCITYID(city);
+//            CITYID = updateCITYID(city);
             URL url = new URL(BASE_URL + CITYID + APPID);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
