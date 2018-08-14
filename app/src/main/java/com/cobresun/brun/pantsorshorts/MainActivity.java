@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
-        float temp = 30f;    // TODO: hard-code it here for now
+        float temp = 10f;    // TODO: hard-code it here for now
         return temp;
     }
 
@@ -76,19 +76,13 @@ public class MainActivity extends AppCompatActivity {
         System.out.println("Main Button Pressed");
         ImageView img=(ImageView)findViewById(R.id.imageView);
 
-        if(img.getTag() == "shorts"){
+        if(pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.pants);
         }
-        else{
+        else if(pantsOrShorts() ==SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.shorts);
         }
-        /*
-        if(img.getVisibility() == View.VISIBLE)
-            img.setVisibility(View.INVISIBLE);
-        else
-            img.setVisibility(View.VISIBLE);
-        */
     }
 }
