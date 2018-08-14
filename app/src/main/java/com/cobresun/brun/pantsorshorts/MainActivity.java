@@ -35,16 +35,15 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
-        weather = new Weather();
         try {
-            weather.getWeatherJSON();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            weather = new Weather();    // TODO: hard-code it here for now
+            weather.execute().get();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
         }
-        float temp = (float) weather.temp;    // TODO: hard-code it here for now
-        return temp;
+        return (float) weather.temp;
     }
 
 
