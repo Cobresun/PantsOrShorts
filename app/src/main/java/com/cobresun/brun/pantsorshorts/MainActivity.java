@@ -2,6 +2,7 @@ package com.cobresun.brun.pantsorshorts;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
@@ -73,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Updates the image to either pants or shorts
      */
-    public void changeStatus(){
+    private void changeStatus(){
         ImageView img = findViewById(R.id.imageView);
 
         if(pantsOrShorts() == PANTS){
@@ -83,6 +84,20 @@ public class MainActivity extends AppCompatActivity {
         else if(pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.shorts);
+        }
+    }
+
+    /**
+     * Sets userThreshold based on Hot or Cold user feedback
+     */
+    public void calibrateThreshold(View view){
+        int id = view.getId();
+        
+        if(id == R.id.buttonCold){
+            updateUserPref(COLD);
+        }
+        else if(id == R.id.buttonHot){
+            updateUserPref(HOT);
         }
     }
 }

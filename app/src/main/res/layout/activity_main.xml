@@ -36,21 +36,23 @@
         android:id="@+id/buttonHot"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:text="Hot"
         android:background="@android:color/holo_red_light"
+        android:onClick="calibrateThreshold"
+        android:text="Hot"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/centerVerticalLine"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/buttonCold"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:text="Cold"
         android:background="@android:color/holo_blue_bright"
-        app:layout_constraintStart_toEndOf="@id/centerVerticalLine"
+        android:onClick="calibrateThreshold"
+        android:text="Cold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintStart_toEndOf="@id/centerVerticalLine" />
 
     <android.support.constraint.Guideline
         android:id="@+id/centerVerticalLine"
