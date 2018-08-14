@@ -15,7 +15,7 @@ public class Weather extends AsyncTask<Void, Void, Void> {
 
     JSONObject data = null;
     private static String BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?";
-    private static String CITYID = "id=5913490"; // TODO: Don't hardcode city
+    private static String CITYID = "id=292223"; // TODO: Don't hardcode city
     private static String APPID = "&APPID=ef157718f460aa11e33cfabcea9f6d01";
     public double temp;
 
@@ -54,17 +54,5 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        if (data != null) {
-            //                JSONObject object = new JSONObject(String.valueOf(data));
-//                JSONArray listArray = object.getJSONArray("list");
-//                JSONObject list0Obejct = listArray.getJSONObject(0);
-//                JSONObject mainObject = list0Obejct.getJSONObject("main");
-//                temp = mainObject.getDouble("temp");
-//                temp = temp - 273.15;
-        }
     }
 }

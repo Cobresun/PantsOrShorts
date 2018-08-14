@@ -25,8 +25,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            weather = new Weather();
+            weather.execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         changeStatus();
-        System.out.println("BNOR: " + "At the beginning of program file says threshold is: " + getUserThreshold());
     }
 
 
@@ -35,14 +44,6 @@ public class MainActivity extends AppCompatActivity {
      * @return float of current temperature
      */
     private float getTemp() {
-        try {
-            weather = new Weather();    // TODO: hard-code it here for now
-            weather.execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
         return (float) weather.temp;
     }
 
@@ -52,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
      * @return static final int SHORTS or PANTS
      */
     private int pantsOrShorts() {
-        System.out.println("BNOR: temp in pantsOrShorts: " + getTemp());
         float currentTemp = getTemp();
         if (currentTemp > getUserThreshold()){
             return SHORTS;
