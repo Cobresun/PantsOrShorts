@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     public static boolean cityFetched = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,18 +81,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         else {
             getLocation();
         }
-
-//        try {
-//            weather = new Weather();
-//            weather.city = city;
-//            weather.execute().get();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-
-//        changeStatus();
     }
 
     @SuppressLint("NewApi")
@@ -126,7 +113,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             textView.setText("Today in " + city + " you should wear");
                             cityFetched = true;
                             textView.invalidate();
-
                             try {
                                 weather = new Weather();
                                 weather.CITY = city;
@@ -136,14 +122,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             } catch (ExecutionException e) {
                                 e.printStackTrace();
                             }
-
                             changeStatus();
-
                         }
                     }
                 });
     }
-
 
     /**
      * Calls the instance of weather and casts the temperature to a float.
@@ -188,13 +171,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void updateUserPrefFile(float userThres) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-
         editor.putFloat("userThreshold", userThres);
         editor.apply();
         
         System.out.println("BNOR: " + "Writing: " + userThres);
     }
-
 
     /**
      *
@@ -211,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      */
     private void changeStatus(){
         ImageView img = findViewById(R.id.imageView);
-
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.pants);
@@ -227,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      */
     public void calibrateThreshold(View view){
         int id = view.getId();
-        
         if(id == R.id.buttonCold){
             updateUserPref(COLD);
         }
@@ -237,28 +216,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     public String getAddress(double lats, double lons) {
-
         Geocoder geocoder;
-        double lat = lats;
-        double lon = lons;
         geocoder = new Geocoder(context, Locale.getDefault());
         List<Address> addresses = null;
         try {
-            addresses = geocoder.getFromLocation(lat, lon, 1);
+            addresses = geocoder.getFromLocation(lats, lons, 1);
         } catch (IOException e) {
 
             e.printStackTrace();
         }
-
         if (addresses != null) {
-
-            String address = addresses.get(0).getAddressLine(0);
             String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
-            String knownName = addresses.get(0).getFeatureName();
-
             return city;
         } else {
             return "failed";
