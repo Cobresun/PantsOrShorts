@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
                             city = getAddress(location.getLatitude(), location.getLongitude());
                             TextView textView = findViewById(R.id.textView);
                             textView.setText("Today in " + city + " you should wear");
+                            textView.invalidate();
                         }
                     }
                 });
