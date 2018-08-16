@@ -10,6 +10,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private static final int PANTS = 1;
     private static final int SHORTS = 2;
@@ -45,10 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String[] INITIAL_PERMS={
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.INTERNET
     };
     private static final int INITIAL_REQUEST=1337;
-
 
 
     @Override
@@ -62,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
-                Toast.makeText(context, "Please restart the app", Toast.LENGTH_LONG).show();
             }
         }
         else {
@@ -80,6 +78,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         changeStatus();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == INITIAL_REQUEST) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission has been granted.
+                getLocation();
+            }
+        }
+
     }
 
     @SuppressLint("MissingPermission")
