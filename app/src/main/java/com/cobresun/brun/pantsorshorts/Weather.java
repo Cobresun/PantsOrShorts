@@ -1,25 +1,12 @@
 package com.cobresun.brun.pantsorshorts;
 
-import android.app.Activity;
 import android.os.AsyncTask;
-import android.util.Log;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashSet;
-import java.util.Set;
-
 public class Weather extends AsyncTask<Void, Void, Void> {
     private static final double ABS_ZERO = -273.15;
 
@@ -56,7 +43,6 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             temp = mainObject.getDouble("temp");
             temp = temp + ABS_ZERO; // Kelvin to celsius
             System.out.println("BNOR: the temp in " + CITY + " " + temp);
-
         }
         catch (java.io.IOException e) {
             e.printStackTrace();
