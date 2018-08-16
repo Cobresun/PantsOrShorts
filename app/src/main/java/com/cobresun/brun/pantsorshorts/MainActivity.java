@@ -182,10 +182,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void updateUserPref(int howTheyFelt) {
         float currentTemp = getTemp();
         if (howTheyFelt == COLD && currentTemp > getUserThreshold()){
-            userThreshold = currentTemp;
+            userThreshold = currentTemp + 1;
         }
         else if (howTheyFelt == HOT && currentTemp < getUserThreshold()){
-            userThreshold = currentTemp;
+            userThreshold = currentTemp - 1;
         }
         updateUserPrefFile(userThreshold);
     }
