@@ -1,3 +1,13 @@
+/**
+ * PANTS OR SHORTS
+ *
+ * App that informs the user whether or not they should wear pants because it is cold,
+ * or shorts if it is hot, depending on the weather of the user's city.
+ *
+ * Produced by Brian Norman and Sunny Nagam
+ * Cobresun - August 2018
+ */
+
 package com.cobresun.brun.pantsorshorts;
 
 import android.Manifest;
@@ -24,8 +34,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Main class by which all app functions are run.
+ *
+ *
+ */
 public class MainActivity extends AppCompatActivity {
-
+    // Integer values corresponding to the various states
     private static final int PANTS = 1;
     private static final int SHORTS = 2;
     private static final int COLD = 3;
@@ -81,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     *
+     * Calls the instance of weather and casts the temperature to a float.
      * @return float of current temperature
      */
     private float getTemp() {
@@ -95,12 +110,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private int pantsOrShorts() {
         float currentTemp = getTemp();
-        if (currentTemp > getUserThreshold()){
-            return SHORTS;
-        }
-        else {
-            return PANTS;
-        }
+        return (currentTemp > getUserThreshold() ? SHORTS : PANTS);
     }
 
     /**
