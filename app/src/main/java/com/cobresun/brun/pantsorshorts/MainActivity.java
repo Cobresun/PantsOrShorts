@@ -214,11 +214,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
-            img.setImageResource(R.drawable.pants);
+            img.setImageResource(R.drawable.sunnyspants);
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
-            img.setImageResource(R.drawable.shorts);
+            img.setImageResource(R.drawable.sunnysshorts);
         }
     }
 
