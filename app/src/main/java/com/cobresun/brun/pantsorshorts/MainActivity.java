@@ -2,7 +2,7 @@
  * PANTS OR SHORTS
  *
  * App that informs the user whether or not they should wear pants because it is cold,
- * or shorts if it is hot, depending on the weather of the user's city.
+ * or shorts if it is hot, depending on the weather of the user's city, based on user preference.
  *
  * Produced by Brian Norman and Sunny Nagam
  * Cobresun - August 2018
@@ -104,14 +104,16 @@ public class MainActivity extends AppCompatActivity {
         return (float) weather.temp;
     }
 
-
     /**
      *
      * @return static final int SHORTS or PANTS
      */
     private int pantsOrShorts() {
         float currentTemp = getTemp();
-        return (currentTemp > getUserThreshold() ? SHORTS : PANTS);
+        if (currentTemp > getUserThreshold())
+            return SHORTS;
+        else
+            return PANTS;
     }
 
     /**
