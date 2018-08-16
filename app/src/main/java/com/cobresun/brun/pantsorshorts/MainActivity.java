@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         changeStatus();
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == INITIAL_REQUEST) {
@@ -87,8 +88,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 // Permission has been granted.
                 getLocation();
             }
-        }
+            else {
+                Toast.makeText(context, "This app won't even work if you don't enable permission...", Toast.LENGTH_LONG).show();
+                requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
 
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
