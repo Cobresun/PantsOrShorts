@@ -20,6 +20,8 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -78,6 +80,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         context = getApplicationContext();
         activity = this;
 
+        if(!isNetworkStatusAvialable (context)) {
+            Toast.makeText(getApplicationContext(), "Internet unavialable, please restart.", Toast.LENGTH_SHORT).show();
+            TextView textView = findViewById(R.id.textView);
+            textView.setText("Internet unavailible, please reconnect and try again.");
+            return;
+        }
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
@@ -86,6 +95,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         else {
             getLocation();
         }
+    }
+
+    public static boolean isNetworkStatusAvialable (Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null)
+        {
+            NetworkInfo netInfos = connectivityManager.getActiveNetworkInfo();
+            if(netInfos != null)
+                if(netInfos.isConnected())
+                    return true;
+        }
+        return false;
     }
 
     @SuppressLint("NewApi")
@@ -161,10 +182,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void updateUserPref(int howTheyFelt) {
         float currentTemp = getTemp();
         if (howTheyFelt == COLD && currentTemp > getUserThreshold()){
-            userThreshold = currentTemp;
+            userThreshold = currentTemp + 1;
         }
         else if (howTheyFelt == HOT && currentTemp < getUserThreshold()){
-            userThreshold = currentTemp;
+            userThreshold = currentTemp - 1;
         }
         updateUserPrefFile(userThreshold);
     }
