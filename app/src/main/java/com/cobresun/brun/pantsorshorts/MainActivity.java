@@ -16,6 +16,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,6 +26,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,6 +39,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+
+import static android.graphics.Color.CYAN;
 
 /**
  * Main class by which all app functions are run.
@@ -57,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     public static Activity activity;
     public static FusedLocationProviderClient mFusedLocationClient;
     private String city;
+    private boolean wearingPants = false;
 
     private static final String[] INITIAL_PERMS={
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -187,18 +192,25 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         return settings.getFloat("userThreshold", defaultThreshold);
     }
 
+
     /**
      * Updates the image to either pants or shorts
      */
     private void changeStatus(){
         ImageView img = findViewById(R.id.imageView);
+        Button button = findViewById(R.id.button);
+
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.sunnyspants);
+            button.setText("I'm wearing pants but I feel too hot");
+            wearingPants = true;
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.sunnysshorts);
+            button.setText("I'm wearing shorts but I feel too cold");
+            wearingPants = false;
         }
     }
 
@@ -206,13 +218,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * Sets userThreshold based on Hot or Cold user feedback
      */
     public void calibrateThreshold(View view){
-        int id = view.getId();
-        if(id == R.id.buttonCold){
+        //view.setBackgroundColor(CYAN);
+        if(!wearingPants){
             updateUserPref(COLD);
         }
-        else if(id == R.id.buttonHot){
+        else if(wearingPants){
             updateUserPref(HOT);
         }
+        changeStatus();
     }
 
     public String getAddress(double lats, double lons) {

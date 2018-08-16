@@ -33,34 +33,37 @@
         app:layout_constraintVertical_bias="0.32999998"
         app:srcCompat="@drawable/sunnyspants" />
 
-    <Button
-        android:id="@+id/buttonHot"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:background="@android:color/holo_red_light"
-        android:onClick="calibrateThreshold"
-        android:text="Hot"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/centerVerticalLine"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/buttonCold"
-        android:layout_width="0dp"
-        android:layout_height="100dp"
-        android:background="@android:color/holo_blue_bright"
-        android:onClick="calibrateThreshold"
-        android:text="Cold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/centerVerticalLine" />
-
     <android.support.constraint.Guideline
-        android:id="@+id/centerVerticalLine"
+        android:id="@+id/leftCenterVerticalLine"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.1" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/rightCenterVerticalLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.9" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/bottomLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:onClick="calibrateThreshold"
+        android:background="@android:color/holo_blue_dark"
+        android:text="I'm wearing this but it doesn't feel right"
+        app:layout_constraintBottom_toBottomOf="@id/bottomLine"
+        app:layout_constraintLeft_toRightOf="@id/leftCenterVerticalLine"
+        app:layout_constraintRight_toLeftOf="@id/rightCenterVerticalLine"/>
 
 
 </android.support.constraint.ConstraintLayout>
