@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     };
     private static final int INITIAL_REQUEST=1337;
 
+    public static boolean cityFetched = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,17 +83,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             getLocation();
         }
 
-        try {
-            weather = new Weather();
-            weather.city = city;
-            weather.execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            weather = new Weather();
+//            weather.city = city;
+//            weather.execute().get();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        } catch (ExecutionException e) {
+//            e.printStackTrace();
+//        }
 
-        changeStatus();
+//        changeStatus();
     }
 
     @SuppressLint("NewApi")
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     @SuppressLint("MissingPermission")
-    private void getLocation(){
+    public void getLocation(){
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
@@ -122,7 +124,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             city = getAddress(location.getLatitude(), location.getLongitude());
                             TextView textView = findViewById(R.id.textView);
                             textView.setText("Today in " + city + " you should wear");
+                            cityFetched = true;
                             textView.invalidate();
+
+                            try {
+                                weather = new Weather();
+                                weather.CITY = city;
+                                weather.execute().get();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            } catch (ExecutionException e) {
+                                e.printStackTrace();
+                            }
+
+                            changeStatus();
+
                         }
                     }
                 });
@@ -143,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      */
     private int pantsOrShorts() {
         float currentTemp = getTemp();
+        System.out.println("BNOR: temp: " + currentTemp);
         if (currentTemp > getUserThreshold())
             return SHORTS;
         else
