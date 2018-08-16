@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         context = getApplicationContext();
         activity = this;
 
-        if(!isNetworkStatusAvialable (getApplicationContext())) {
+        if(!isNetworkStatusAvialable (context)) {
             Toast.makeText(getApplicationContext(), "Internet unavialable, please restart.", Toast.LENGTH_SHORT).show();
             TextView textView = findViewById(R.id.textView);
             textView.setText("Internet unavailible, please reconnect and try again.");
