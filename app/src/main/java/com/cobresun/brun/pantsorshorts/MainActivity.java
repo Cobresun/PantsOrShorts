@@ -203,14 +203,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.sunnyspants);
-            button.setText("I'm wearing pants but I feel too hot");
+            button.setText("It's too hot for pants");
             button.setBackgroundColor(Color.parseColor("#dd3e3e"));
             wearingPants = true;
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.sunnysshorts);
-            button.setText("I'm wearing shorts but I feel too cold");
+            button.setText("It's too cold for shorts");
             button.setBackgroundColor(Color.parseColor("#3e7bdd"));
             wearingPants = false;
         }
