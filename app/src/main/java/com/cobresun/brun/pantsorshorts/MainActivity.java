@@ -204,12 +204,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             img.setTag("pants");
             img.setImageResource(R.drawable.sunnyspants);
             button.setText("I'm wearing pants but I feel too hot");
+            button.setBackgroundColor(Color.parseColor("#dd3e3e"));
             wearingPants = true;
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.sunnysshorts);
             button.setText("I'm wearing shorts but I feel too cold");
+            button.setBackgroundColor(Color.parseColor("#3e7bdd"));
             wearingPants = false;
         }
     }
@@ -218,7 +220,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * Sets userThreshold based on Hot or Cold user feedback
      */
     public void calibrateThreshold(View view){
-        //view.setBackgroundColor(CYAN);
         if(!wearingPants){
             updateUserPref(COLD);
         }
