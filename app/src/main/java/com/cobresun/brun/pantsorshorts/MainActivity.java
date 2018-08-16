@@ -1,6 +1,7 @@
 package com.cobresun.brun.pantsorshorts;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,12 +9,14 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -40,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
     public static FusedLocationProviderClient mFusedLocationClient;
     private String city;
 
+    private static final String[] INITIAL_PERMS={
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET
+    };
+    private static final int INITIAL_REQUEST=1337;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,10 +59,32 @@ public class MainActivity extends AppCompatActivity {
         context = getApplicationContext();
         activity = this;
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-           System.out.println("BNOR: no permission");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(INITIAL_PERMS, INITIAL_REQUEST);
+                Toast.makeText(context, "Please restart the app", Toast.LENGTH_LONG).show();
+            }
         }
+        else {
+            getLocation();
+        }
+
+        try {
+            weather = new Weather();
+            weather.city = city;
+            weather.execute().get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        changeStatus();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getLocation(){
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
@@ -66,18 +98,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        try {
-            weather = new Weather();
-            weather.city = city;
-            weather.execute().get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        changeStatus();
     }
 
 
