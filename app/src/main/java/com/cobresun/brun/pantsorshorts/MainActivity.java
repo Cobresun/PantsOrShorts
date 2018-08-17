@@ -16,7 +16,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -42,8 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
-import static android.graphics.Color.CYAN;
-
 /**
  * Main class by which all app functions are run.
  *
@@ -68,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private static final String[] INITIAL_PERMS={
             Manifest.permission.ACCESS_FINE_LOCATION,
     };
-    private static final int INITIAL_REQUEST=1337;
+    private static final int INITIAL_REQUEST = 1337;
 
     public static boolean cityFetched = false;
 
@@ -83,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         if(!isNetworkStatusAvialable (context)) {
             Toast.makeText(getApplicationContext(), "Internet unavialable, please restart.", Toast.LENGTH_SHORT).show();
             TextView textView = findViewById(R.id.textView);
-            textView.setText("Internet unavailible, please reconnect and try again.");
+            textView.setText("Internet unavailable, please reconnect and try again.");
             return;
         }
 
@@ -225,15 +223,17 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             img.setTag("pants");
             img.setImageResource(R.drawable.sunnyspants);
             button.setText("It's too hot for pants");
-//            button.setBackgroundColor(Color.parseColor("#dd3e3e"));
             button.setBackgroundResource(R.drawable.my_button_red);
+            Drawable sun = context.getResources().getDrawable(R.drawable.ic_wb_sunny);
+            button.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null);
             wearingPants = true;
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.sunnysshorts);
             button.setText("It's too cold for shorts");
-//            button.setBackgroundColor(Color.parseColor("#3e7bdd"));
+            Drawable snow = context.getResources().getDrawable(R.drawable.ic_ac_unit);
+            button.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null);
             button.setBackgroundResource(R.drawable.my_button_blue);
             wearingPants = false;
         }
@@ -243,10 +243,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
      * Sets userThreshold based on Hot or Cold user feedback
      */
     public void calibrateThreshold(View view){
-        if(!wearingPants){
+        if (!wearingPants){
             updateUserPref(COLD);
         }
-        else if(wearingPants){
+        else {
             updateUserPref(HOT);
         }
         changeStatus();

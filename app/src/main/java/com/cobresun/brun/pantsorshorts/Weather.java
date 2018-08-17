@@ -12,7 +12,7 @@ public class Weather extends AsyncTask<Void, Void, Void> {
 
     JSONObject data = null;
     private static String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
-    public static String CITY = "Calgary"; // TODO: currently some random hardcoded city in case we can't find user's city
+    public static String CITY = "Calgary"; // Hardcoded city in case we can't find user's city
     private static String APPID = "&APPID=ef157718f460aa11e33cfabcea9f6d01";
     public double temp;
 
