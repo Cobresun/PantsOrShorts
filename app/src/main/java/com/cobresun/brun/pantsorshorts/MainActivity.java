@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         else if (howTheyFelt == HOT && currentTemp < getUserThreshold()){
             userThreshold = currentTemp - 1;
         }
+        Toast.makeText(getApplicationContext(), "Pants or Shorts will remember that.", Toast.LENGTH_SHORT).show();
         updateUserPrefFile(userThreshold);
     }
 
