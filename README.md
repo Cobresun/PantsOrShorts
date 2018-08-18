@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="300" height="300" src="logo.png">
+</p>
+
 # PantsOrShorts
 Should you wear pants or shorts today...? We got you covered!
 
@@ -8,5 +12,4 @@ Tells you whether you should wear pants or shorts today based on the local weath
 [Download app here](https://www.google.com/url?q=https://play.google.com/store/apps/details?id%3Dcom.cobresun.brun.pantsorshorts%26hl%3Den&sa=D&source=hangouts&ust=1534533207151000&usg=AFQjCNHb_o1nbltB5LcUo-0HMprYiz_VbA). 
 
 ## Official iOS Port 
-Download app pending...
-[Repo](https://github.com/Cobresun/PantsOrShorts-iOS)
+[PantsOrShorts-iOS Repository](https://github.com/Cobresun/PantsOrShorts-iOS)
