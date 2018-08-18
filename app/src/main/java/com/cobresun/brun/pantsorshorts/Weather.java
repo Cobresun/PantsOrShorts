@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+
 public class Weather extends AsyncTask<Void, Void, Void> {
     private static final double ABS_ZERO = -273.15;
 
@@ -19,7 +20,7 @@ public class Weather extends AsyncTask<Void, Void, Void> {
     public int lat;
     public int lon;
 
-    public double temp;
+    public int temp;
 
     @Override
     protected Void doInBackground(Void... voids) {
@@ -48,8 +49,8 @@ public class Weather extends AsyncTask<Void, Void, Void> {
 
             JSONObject object = new JSONObject(String.valueOf(data));
             JSONObject mainObject = object.getJSONObject("main");
-            temp = mainObject.getDouble("temp");
-            temp = temp + ABS_ZERO; // Kelvin to celsius
+            temp = (int) mainObject.getDouble("temp");
+            temp = (int) (temp + ABS_ZERO); // Kelvin to celsius
             System.out.println("BNOR: the temp is " + temp);
         }
         catch (java.io.IOException e) {

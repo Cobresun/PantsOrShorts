@@ -28,8 +28,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -136,15 +134,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             city = getAddress(location.getLatitude(), location.getLongitude());
-                            TextView textView = findViewById(R.id.textView);
-                            textView.setText("Today in " + city + " you should wear");
+                            TextView cityNameText = findViewById(R.id.city_name);
+                            cityNameText.setText(city);
                             cityFetched = true;
-                            textView.invalidate();
+                            cityNameText.invalidate();
                             try {
                                 weather = new Weather();
                                 weather.lat = (int) location.getLatitude();
                                 weather.lon = (int) location.getLongitude();
                                 weather.execute().get();
+                                TextView tempText = findViewById(R.id.temperature);
+                                String degreeSymbol = "\u2103" ;
+                                tempText.setText(weather.temp + " " + degreeSymbol);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             } catch (ExecutionException e) {
@@ -223,11 +224,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void changeStatus(){
         ImageView img = findViewById(R.id.imageView);
         Button button = findViewById(R.id.button);
+        TextView textView = findViewById(R.id.textView);
 
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
             img.setImageResource(R.drawable.sunnyspants);
             button.setText("It's too hot for pants");
+            textView.setText("You should wear pants today");
             button.setBackgroundResource(R.drawable.my_button_red);
             Drawable sun = context.getResources().getDrawable(R.drawable.ic_wb_sunny);
             button.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null);
@@ -236,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
             img.setImageResource(R.drawable.sunnysshorts);
+            textView.setText("You should wear shorts today");
             button.setText("It's too cold for shorts");
             Drawable snow = context.getResources().getDrawable(R.drawable.ic_ac_unit);
             button.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null);
