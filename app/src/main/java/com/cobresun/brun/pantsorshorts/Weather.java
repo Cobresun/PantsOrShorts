@@ -11,15 +11,23 @@ public class Weather extends AsyncTask<Void, Void, Void> {
     private static final double ABS_ZERO = -273.15;
 
     JSONObject data = null;
-    private static String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?q=";
-    public static String CITY = "Calgary"; // Hardcoded city in case we can't find user's city
-    private static String APPID = "&APPID=ef157718f460aa11e33cfabcea9f6d01";
+    private static String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?";
+    private static String LATITUDE_STRING = "&lat=";
+    private static String LONGITUDE_STRING = "&lon=";
+    private static String APPID = "appid=ef157718f460aa11e33cfabcea9f6d01";
+
+    public int lat;
+    public int lon;
+
     public double temp;
 
     @Override
     protected Void doInBackground(Void... voids) {
         try {
-            URL url = new URL(BASE_URL + CITY + APPID);
+            LATITUDE_STRING = LATITUDE_STRING + lat;
+            LONGITUDE_STRING = LONGITUDE_STRING + lon;
+
+            URL url = new URL(BASE_URL + APPID + LONGITUDE_STRING + LATITUDE_STRING);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -42,7 +50,7 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             JSONObject mainObject = object.getJSONObject("main");
             temp = mainObject.getDouble("temp");
             temp = temp + ABS_ZERO; // Kelvin to celsius
-            System.out.println("BNOR: the temp in " + CITY + " " + temp);
+            System.out.println("BNOR: the temp is " + temp);
         }
         catch (java.io.IOException e) {
             e.printStackTrace();

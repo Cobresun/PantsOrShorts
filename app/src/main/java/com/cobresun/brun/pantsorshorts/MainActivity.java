@@ -28,6 +28,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_main);
 
         context = getApplicationContext();
@@ -139,7 +142,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                             textView.invalidate();
                             try {
                                 weather = new Weather();
-                                weather.CITY = city;
+                                weather.lat = (int) location.getLatitude();
+                                weather.lon = (int) location.getLongitude();
                                 weather.execute().get();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
