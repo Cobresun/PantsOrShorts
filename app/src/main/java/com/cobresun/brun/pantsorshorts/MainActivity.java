@@ -144,8 +144,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                                 weather.lon = (int) location.getLongitude();
                                 weather.execute().get();
                                 TextView tempText = findViewById(R.id.temperature);
-                                String degreeSymbol = "\u2103" ;
-//                                tempText.setText(weather.temp + " " + degreeSymbol);
                                 tempText.setText(weather.temp + "\u00B0" + "C");
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
