@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
         if (pantsOrShorts() == PANTS){
             img.setTag("pants");
-            img.setImageResource(R.drawable.sunnyspants);
+            img.setImageResource(R.drawable.pants);
             button.setText("It's too hot for pants");
             textView.setText("You should wear pants today");
             button.setBackgroundResource(R.drawable.my_button_red);
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
         else if (pantsOrShorts() == SHORTS){
             img.setTag("shorts");
-            img.setImageResource(R.drawable.sunnysshorts);
+            img.setImageResource(R.drawable.shorts);
             textView.setText("You should wear shorts today");
             button.setText("It's too cold for shorts");
             Drawable snow = context.getResources().getDrawable(R.drawable.ic_ac_unit);
