@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         presenter.loadUserThreshold();
         presenter.checkInternet();
         presenter.getLocation(this);
-        presenter.calibrateThreshold();
+        presenter.updateClothing();
     }
 
     @Override
@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void requestPermissions() {
-//        requestPermissions(MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST);
         ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST);
     }
 

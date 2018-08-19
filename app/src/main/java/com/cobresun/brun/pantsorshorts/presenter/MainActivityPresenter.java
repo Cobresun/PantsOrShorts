@@ -74,6 +74,10 @@ public class MainActivityPresenter {
         } else {
             updateUserThreshold(SharedPrefsUserDataRepository.HOT, currentTemp);
         }
+        updateClothing();
+    }
+
+    public void updateClothing(){
         changeClothingInView(pantsOrShorts(currentTemp));
     }
 
