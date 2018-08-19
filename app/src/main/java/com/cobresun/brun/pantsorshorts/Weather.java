@@ -19,7 +19,6 @@ public class Weather extends AsyncTask<Void, Void, Void> {
 
     public int lat;
     public int lon;
-
     public int temp;
 
     @Override
