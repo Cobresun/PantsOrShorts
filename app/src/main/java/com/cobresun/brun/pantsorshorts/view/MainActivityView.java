@@ -19,4 +19,6 @@ public interface MainActivityView {
     void requestPermissions();
 
     void displayNoPermissionsEnabled();
+
+    void updateView();
 }

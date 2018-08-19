@@ -10,9 +10,12 @@
 
 package com.cobresun.brun.pantsorshorts;
 
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -42,10 +45,16 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         button = findViewById(R.id.button);
         textView = findViewById(R.id.textView);
 
+        updateView();
+    }
+
+    @Override
+    public void updateView() {
         presenter = new MainActivityPresenter(this, new SharedPrefsUserDataRepository(getApplicationContext()), getApplicationContext());
         presenter.loadUserThreshold();
         presenter.checkInternet();
         presenter.getLocation(this);
+        presenter.calibrateThreshold();
     }
 
     @Override
@@ -57,12 +66,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void displayCity(String city) {
         TextView cityNameText = findViewById(R.id.city_name);
         cityNameText.setText(city);
+        cityNameText.invalidate();
     }
 
     @Override
     public void displayTemperature(float temperature) {
         TextView tempText = findViewById(R.id.temperature);
         tempText.setText(temperature + "\u00B0" + "C");
+        tempText.invalidate();
     }
 
     @Override
@@ -73,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         else if (clothing == MainActivityPresenter.SHORTS) {
             textView.setText("You should wear shorts today");
         }
+        textView.invalidate();
     }
 
     @Override
@@ -85,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             img.setTag("shorts");
             img.setImageResource(R.drawable.shorts);
         }
+        img.invalidate();
     }
 
     @Override
@@ -101,17 +114,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             button.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null);
             button.setBackgroundResource(R.drawable.my_button_blue);
         }
+        button.invalidate();
     }
 
     @Override
     public void displayNoInternet() {
-        Toast.makeText(getApplicationContext(), "Internet unavialable, please restart.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Internet unavialable, please connect.", Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void requestPermissions() {
-        requestPermissions(MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST);
+//        requestPermissions(MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST);
+        ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST);
     }
 
     @Override
@@ -122,5 +137,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void onButtonClick(View view) {
         presenter.calibrateThreshold();
         Toast.makeText(getApplicationContext(), "Pants or Shorts will remember that.", Toast.LENGTH_SHORT).show();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == MainActivityPresenter.INITIAL_REQUEST) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission has been granted.
+                updateView();
+            }
+            else {
+                displayNoPermissionsEnabled();
+                requestPermissions();
+            }
+        }
     }
 }

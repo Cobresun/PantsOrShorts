@@ -1,7 +1,6 @@
 package com.cobresun.brun.pantsorshorts.presenter;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -10,7 +9,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
@@ -30,7 +28,7 @@ import java.util.concurrent.ExecutionException;
 import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.COLD;
 import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.HOT;
 
-public class MainActivityPresenter implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MainActivityPresenter {
 
     public static final int PANTS = 1;
     public static final int SHORTS = 2;
@@ -56,10 +54,9 @@ public class MainActivityPresenter implements ActivityCompat.OnRequestPermission
     }
 
     private void updateUserThreshold(int howTheyFelt, float currentTemp) {
-        if (howTheyFelt == COLD && currentTemp > userDataRepository.readUserThreshold()){
+        if (howTheyFelt == COLD && currentTemp > userDataRepository.readUserThreshold()) {
             userDataRepository.writeUserThreshold(currentTemp + 1);
-        }
-        else if (howTheyFelt == HOT && currentTemp < userDataRepository.readUserThreshold()){
+        } else if (howTheyFelt == HOT && currentTemp < userDataRepository.readUserThreshold()) {
             userDataRepository.writeUserThreshold(currentTemp - 1);
         }
     }
@@ -71,11 +68,10 @@ public class MainActivityPresenter implements ActivityCompat.OnRequestPermission
             return PANTS;
     }
 
-    public void calibrateThreshold(){
+    public void calibrateThreshold() {
         if (!wearingPants) {
             updateUserThreshold(SharedPrefsUserDataRepository.COLD, currentTemp);
-        }
-        else {
+        } else {
             updateUserThreshold(SharedPrefsUserDataRepository.HOT, currentTemp);
         }
         changeClothingInView(pantsOrShorts(currentTemp));
@@ -88,9 +84,11 @@ public class MainActivityPresenter implements ActivityCompat.OnRequestPermission
         view.displayYouShouldWearText(clothing);
     }
 
-    @SuppressLint("MissingPermission")
-    public void getLocation(Activity activity){
+    public void getLocation(Activity activity) {
         FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            view.requestPermissions();
+        }
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
                     @Override
@@ -130,37 +128,23 @@ public class MainActivityPresenter implements ActivityCompat.OnRequestPermission
 
     public void checkInternet() {
         if (!isNetworkStatusAvialable (mContext)) {
-            return;
-        }
-
-        if (ActivityCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(mContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                view.requestPermissions();
-            }
-        }
-        else {
-//            getLocation();
+            view.displayNoInternet();
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == INITIAL_REQUEST) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission has been granted.
-//                getLocation();
-            }
-            else {
-                view.displayNoPermissionsEnabled();
-                view.requestPermissions();
-
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        if (requestCode == INITIAL_REQUEST) {
+//            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission has been granted.
+//                view.updateView();
+//            }
+//            else {
+//                view.displayNoPermissionsEnabled();
+//                view.requestPermissions();
+//            }
+//        }
+//    }
 
     private static boolean isNetworkStatusAvialable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
