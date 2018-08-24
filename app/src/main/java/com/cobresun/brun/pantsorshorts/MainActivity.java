@@ -64,9 +64,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     public void displayCity(String city) {
-        TextView cityNameText = findViewById(R.id.city_name);
-        cityNameText.setText(city);
-        cityNameText.invalidate();
+        if (city != null && !city.equals("failed")) {
+            TextView cityNameText = findViewById(R.id.city_name);
+            cityNameText.setText(city);
+            cityNameText.invalidate();
+        }
+        else {
+            presenter.getLocation(this);
+        }
     }
 
     @Override
