@@ -6,9 +6,12 @@ android {
         applicationId "com.cobresun.brun.pantsorshorts"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 5
-        versionName "1.4"
+        versionCode 6
+        versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // Enabling multidex support.
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -28,4 +31,5 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:15.0.1"
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.android.support:design:26.1.0'
+    implementation 'com.android.support:multidex:1.0.3'
 }
