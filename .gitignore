@@ -101,3 +101,6 @@ fastlane/Preview.html
 fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
+
+# For storing api key
+echo "**/*/res/values/secrets.xml" > .gitignore

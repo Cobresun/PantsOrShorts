@@ -15,11 +15,15 @@ public class Weather extends AsyncTask<Void, Void, Void> {
     private static String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?";
     private static String LATITUDE_STRING = "&lat=";
     private static String LONGITUDE_STRING = "&lon=";
-    private static String APPID = "appid=ef157718f460aa11e33cfabcea9f6d01";
+    private static String APPID;
 
     public int lat;
     public int lon;
     public int temp;
+
+    public Weather(String apiKey) {
+        APPID = "appid=" + apiKey;
+    }
 
     @Override
     protected Void doInBackground(Void... voids) {
