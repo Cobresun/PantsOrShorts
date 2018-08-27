@@ -9,9 +9,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 
+import com.cobresun.brun.pantsorshorts.R;
 import com.cobresun.brun.pantsorshorts.Weather;
 import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
 import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
@@ -35,6 +35,11 @@ public class MainActivityPresenter {
 
     public static final String[] INITIAL_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION,};
     public static final int INITIAL_REQUEST = 1337;
+
+    private static final int SECOND_MILLIS = 1000;
+    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
     private float currentTemp;
     private boolean wearingPants;
@@ -136,20 +141,6 @@ public class MainActivityPresenter {
         }
     }
 
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        if (requestCode == INITIAL_REQUEST) {
-//            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // Permission has been granted.
-//                view.updateView();
-//            }
-//            else {
-//                view.displayNoPermissionsEnabled();
-//                view.requestPermissions();
-//            }
-//        }
-//    }
-
     private static boolean isNetworkStatusAvialable(Context context) {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null) {
@@ -161,11 +152,27 @@ public class MainActivityPresenter {
     }
 
     private void getWeather(Location location) throws ExecutionException, InterruptedException {
-        Weather weather = new Weather();
-        weather.lat = (int) location.getLatitude();
-        weather.lon = (int) location.getLongitude();
-        weather.execute().get();
-        currentTemp = weather.temp;
-        view.displayTemperature(currentTemp);
+        long lastFetched = userDataRepository.readLastTimeFetchedWeather();
+        long currentTime = System.currentTimeMillis();
+        long diff = currentTime - lastFetched;
+
+        boolean isFirstTime = userDataRepository.isFirstTimeLaunching();
+
+        if (diff < MINUTE_MILLIS && !isFirstTime) {
+            currentTemp = userDataRepository.readLastFetchedTemp();
+            view.displayTemperature(currentTemp);
+        }
+        else {
+            String apiKey = mContext.getResources().getString(R.string.open_weather_map);
+            Weather weather = new Weather(apiKey);
+            weather.lat = (int) location.getLatitude();
+            weather.lon = (int) location.getLongitude();
+            weather.execute().get();
+            currentTemp = weather.temp;
+            userDataRepository.writeLastFetchedTemp(currentTemp);
+            userDataRepository.writeLastTimeFetchedWeather(currentTime);
+            view.displayTemperature(currentTemp);
+        }
+
     }
 }
