@@ -1,5 +1,7 @@
 package com.cobresun.brun.pantsorshorts.view;
 
+import android.view.View;
+
 public interface MainActivityView {
 
     void displayUserThreshold(float userThreshold);
@@ -21,4 +23,6 @@ public interface MainActivityView {
     void displayNoPermissionsEnabled();
 
     void updateView();
+
+    void changeTempMode(View view);
 }

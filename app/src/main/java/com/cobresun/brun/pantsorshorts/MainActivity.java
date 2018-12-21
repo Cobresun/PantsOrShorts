@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private ImageView img;
     private Button button;
     private TextView textView;
+    private boolean isCelsius = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +78,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void displayTemperature(float temperature) {
         TextView tempText = findViewById(R.id.temperature);
-        tempText.setText(temperature + "\u00B0" + "C");
+        if (isCelsius) {
+            tempText.setText(temperature + "\u00B0" + "C");
+        }
+        else {
+            float fahrenheit = (temperature * (float)(9/5))+ 32f;
+            tempText.setText(fahrenheit + "\u00B0" + "F");
+        }
         tempText.invalidate();
     }
 
@@ -156,5 +163,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
                 requestPermissions();
             }
         }
+    }
+
+    public void changeTempMode(View view) {
+        isCelsius = !isCelsius;
+        presenter.updateTempMode();
     }
 }

@@ -175,4 +175,8 @@ public class MainActivityPresenter {
         }
 
     }
+
+    public void updateTempMode(){
+        view.displayTemperature(currentTemp);
+    }
 }
