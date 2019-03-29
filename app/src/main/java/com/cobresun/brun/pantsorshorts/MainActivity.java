@@ -28,6 +28,8 @@ import com.cobresun.brun.pantsorshorts.presenter.MainActivityPresenter;
 import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
 import com.cobresun.brun.pantsorshorts.view.MainActivityView;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity implements MainActivityView {
 
     private MainActivityPresenter presenter;
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().hide();
+        Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_main);
 
         img = findViewById(R.id.imageView);
@@ -52,15 +54,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void updateView() {
         presenter = new MainActivityPresenter(this, new SharedPrefsUserDataRepository(getApplicationContext()), getApplicationContext());
-        presenter.loadUserThreshold();
         presenter.checkInternet();
         presenter.getLocation(this);
         presenter.updateClothing();
-    }
-
-    @Override
-    public void displayUserThreshold(float userThreshold) {
-        // do nothing right now
     }
 
     @Override
@@ -131,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     public void displayNoInternet() {
-        Toast.makeText(getApplicationContext(), "Internet unavialable, please connect.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Internet unavailable, please connect.", Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

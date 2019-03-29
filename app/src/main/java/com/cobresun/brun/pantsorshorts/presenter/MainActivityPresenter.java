@@ -53,11 +53,6 @@ public class MainActivityPresenter {
         this.mContext = context;
     }
 
-    public void loadUserThreshold() {
-        float userThreshold = userDataRepository.readUserThreshold();
-        view.displayUserThreshold(userThreshold);
-    }
-
     private void updateUserThreshold(int howTheyFelt, float currentTemp) {
         if (howTheyFelt == COLD && currentTemp > userDataRepository.readUserThreshold()) {
             userDataRepository.writeUserThreshold(currentTemp + 1);

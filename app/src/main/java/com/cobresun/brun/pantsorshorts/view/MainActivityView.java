@@ -4,8 +4,6 @@ import android.view.View;
 
 public interface MainActivityView {
 
-    void displayUserThreshold(float userThreshold);
-
     void displayCity(String city);
 
     void displayTemperature(float temperature);

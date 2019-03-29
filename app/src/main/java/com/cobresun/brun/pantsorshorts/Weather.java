@@ -11,8 +11,6 @@ import java.net.URL;
 public class Weather extends AsyncTask<Void, Void, Void> {
     private static final double ABS_ZERO = -273.15;
 
-    JSONObject data = null;
-    private static String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?";
     private static String LATITUDE_STRING = "&lat=";
     private static String LONGITUDE_STRING = "&lon=";
     private static String APPID;
@@ -31,20 +29,21 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             LATITUDE_STRING = LATITUDE_STRING + lat;
             LONGITUDE_STRING = LONGITUDE_STRING + lon;
 
+            String BASE_URL = "http://api.openweathermap.org/data/2.5/weather?";
             URL url = new URL(BASE_URL + APPID + LONGITUDE_STRING + LATITUDE_STRING);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
-            StringBuffer json = new StringBuffer(1024);
-            String tmp = "";
+            StringBuilder json = new StringBuilder(1024);
+            String tmp;
 
             while ((tmp = reader.readLine()) != null) {
                 json.append(tmp).append("\n");
             }
             reader.close();
 
-            data = new JSONObject(json.toString());
+            JSONObject data = new JSONObject(json.toString());
 
             if (data.getInt("cod") != 200) {
                 System.out.println("Cancelled");
@@ -52,9 +51,8 @@ public class Weather extends AsyncTask<Void, Void, Void> {
 
             JSONObject object = new JSONObject(String.valueOf(data));
             JSONObject mainObject = object.getJSONObject("main");
-            temp = (int) mainObject.getDouble("temp");
-            temp = (int) (temp + ABS_ZERO); // Kelvin to celsius
-            System.out.println("BNOR: the temp is " + temp);
+            double tempKelvin = mainObject.getDouble("temp") + 0.5; // + 0.5 for rounding purposes, since (int) cast drops it
+            temp = (int) (tempKelvin + ABS_ZERO); // Kelvin to celsius
         }
         catch (java.io.IOException e) {
             e.printStackTrace();

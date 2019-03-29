@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.cobresun.brun.pantsorshorts"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 26
         versionCode 7
         versionName "1.6"
