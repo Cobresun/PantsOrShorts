@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             tempText.setText(temperature + "\u00B0" + "C");
         }
         else {
-            float fahrenheit = (temperature * (float)(9/5))+ 32f;
+            float fahrenheit = (int)(temperature * (float)(9.0/5.0))+ 32f;
             tempText.setText(fahrenheit + "\u00B0" + "F");
         }
         tempText.invalidate();
