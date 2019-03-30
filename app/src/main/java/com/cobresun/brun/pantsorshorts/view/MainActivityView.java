@@ -23,4 +23,6 @@ public interface MainActivityView {
     void updateView();
 
     void changeTempMode(View view);
+
+    void displayNightMode(boolean isNightMode);
 }

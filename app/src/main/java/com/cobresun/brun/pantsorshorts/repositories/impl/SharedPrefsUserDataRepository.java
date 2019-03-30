@@ -66,9 +66,8 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
 
     @Override
     public boolean isFirstTimeLaunching() {
-        boolean defaultIsFirstTime = true;
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean isFirstTime =  settings.getBoolean("isFirstTime", defaultIsFirstTime);
+        boolean isFirstTime =  settings.getBoolean("isFirstTime", true);
 
         if (isFirstTime) {
             SharedPreferences.Editor editor = settings.edit();
@@ -77,6 +76,20 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
         }
 
         return isFirstTime;
+    }
+
+    @Override
+    public boolean isNightMode() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return settings.getBoolean("isNightMode", false);
+    }
+
+    @Override
+    public void writeNightMode(boolean nightMode) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("isNightMode", nightMode);
+        editor.apply();
     }
 
 

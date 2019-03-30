@@ -11,15 +11,19 @@
 package com.cobresun.brun.pantsorshorts;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,9 +37,12 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity implements MainActivityView {
 
     private MainActivityPresenter presenter;
-    private ImageView img;
-    private Button button;
-    private TextView textView;
+    private ConstraintLayout rootLayout;
+    private ImageView clothingImageView;
+    private Button mainButton;
+    private TextView shouldWearTextView;
+    private TextView cityNameView;
+    private ImageButton nightModeButton;
     private boolean isCelsius = true;
 
     @Override
@@ -44,9 +51,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_main);
 
-        img = findViewById(R.id.imageView);
-        button = findViewById(R.id.button);
-        textView = findViewById(R.id.textView);
+        clothingImageView = findViewById(R.id.clothingImageView);
+        mainButton = findViewById(R.id.mainButton);
+        shouldWearTextView = findViewById(R.id.shouldWearTextView);
+        rootLayout = findViewById(R.id.rootLayout);
+        cityNameView = findViewById(R.id.city_name);
+        nightModeButton = findViewById(R.id.nightModeButton);
 
         updateView();
     }
@@ -57,14 +67,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         presenter.checkInternet();
         presenter.getLocation(this);
         presenter.updateClothing();
+        presenter.setupNightMode();
     }
 
     @Override
     public void displayCity(String city) {
         if (city != null && !city.equals("failed")) {
-            TextView cityNameText = findViewById(R.id.city_name);
-            cityNameText.setText(city);
-            cityNameText.invalidate();
+            cityNameView.setText(city);
+            cityNameView.invalidate();
         }
         else {
             presenter.getLocation(this);
@@ -87,42 +97,42 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void displayYouShouldWearText(int clothing) {
         if (clothing == MainActivityPresenter.PANTS) {
-            textView.setText("You should wear pants today");
+            shouldWearTextView.setText("You should wear pants today");
         }
         else if (clothing == MainActivityPresenter.SHORTS) {
-            textView.setText("You should wear shorts today");
+            shouldWearTextView.setText("You should wear shorts today");
         }
-        textView.invalidate();
+        shouldWearTextView.invalidate();
     }
 
     @Override
     public void displayClothingImage(int clothing) {
         if (clothing == MainActivityPresenter.PANTS) {
-            img.setTag("pants");
-            img.setImageResource(R.drawable.pants);
+            clothingImageView.setTag("pants");
+            clothingImageView.setImageResource(R.drawable.pants);
         }
         else if (clothing == MainActivityPresenter.SHORTS) {
-            img.setTag("shorts");
-            img.setImageResource(R.drawable.shorts);
+            clothingImageView.setTag("shorts");
+            clothingImageView.setImageResource(R.drawable.shorts);
         }
-        img.invalidate();
+        clothingImageView.invalidate();
     }
 
     @Override
     public void displayButton(int clothing) {
         if (clothing == MainActivityPresenter.PANTS) {
-            button.setText("It's too hot for pants");
-            button.setBackgroundResource(R.drawable.my_button_red);
+            mainButton.setText("It's too hot for pants");
+            mainButton.setBackgroundResource(R.drawable.my_button_red);
             Drawable sun = getApplicationContext().getResources().getDrawable(R.drawable.ic_wb_sunny);
-            button.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null);
+            mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null);
         }
         else if (clothing == MainActivityPresenter.SHORTS) {
-            button.setText("It's too cold for shorts");
+            mainButton.setText("It's too cold for shorts");
             Drawable snow = getApplicationContext().getResources().getDrawable(R.drawable.ic_ac_unit);
-            button.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null);
-            button.setBackgroundResource(R.drawable.my_button_blue);
+            mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null);
+            mainButton.setBackgroundResource(R.drawable.my_button_blue);
         }
-        button.invalidate();
+        mainButton.invalidate();
     }
 
     @Override
@@ -164,5 +174,27 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void changeTempMode(View view) {
         isCelsius = !isCelsius;
         presenter.updateTempMode();
+    }
+
+    @Override
+    public void displayNightMode(boolean isNightMode) {
+        String darkColor = "#212121";
+        String lightColor = "#FAFAFA";
+        if (isNightMode) {
+            rootLayout.setBackgroundColor(Color.parseColor(darkColor));
+            cityNameView.setTextColor(Color.parseColor(lightColor));
+            shouldWearTextView.setTextColor(Color.parseColor(lightColor));
+            nightModeButton.setColorFilter(Color.parseColor(lightColor));
+        }
+        else {
+            rootLayout.setBackgroundColor(Color.parseColor(lightColor));
+            cityNameView.setTextColor(Color.parseColor(darkColor));
+            shouldWearTextView.setTextColor(Color.parseColor(darkColor));
+            nightModeButton.setColorFilter(Color.parseColor(darkColor));
+        }
+    }
+
+    public void onNightModeClicked(View view) {
+        presenter.toggleNightMode();
     }
 }

@@ -15,4 +15,8 @@ public interface UserDataRepository {
     void writeLastFetchedTemp(float temp);
 
     boolean isFirstTimeLaunching();
+
+    boolean isNightMode();
+
+    void writeNightMode(boolean nightMode);
 }

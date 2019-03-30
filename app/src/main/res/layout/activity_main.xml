@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <android.support.constraint.ConstraintLayout
+    android:id="@+id/rootLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,7 +10,7 @@
     tools:context="com.cobresun.brun.pantsorshorts.MainActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/shouldWearTextView"
         android:layout_width="wrap_content"
         android:layout_height="26dp"
         android:layout_marginBottom="30dp"
@@ -20,7 +21,7 @@
         android:text="You should wear something today"
         android:textAppearance="@android:style/TextAppearance.Material.Body1"
         android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/imageView"
+        app:layout_constraintBottom_toTopOf="@+id/clothingImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.04"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -31,7 +32,7 @@
 
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/clothingImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
@@ -48,7 +49,7 @@
         app:srcCompat="@drawable/pants" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/mainButton"
         android:background="@drawable/my_button_red"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -61,7 +62,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintTop_toBottomOf="@+id/clothingImageView" />
 
     <TextView
         android:id="@+id/city_name"
@@ -76,7 +77,7 @@
         android:text="CITYNAME"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,25 +86,41 @@
 
     <TextView
         android:id="@+id/temperature"
-        android:clickable="true"
-        android:onClick="changeTempMode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="17dp"
-        android:layout_marginEnd="241dp"
-        android:layout_marginLeft="55dp"
-        android:layout_marginRight="241dp"
         android:layout_marginStart="55dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="241dp"
+        android:layout_marginBottom="17dp"
+        android:clickable="true"
         android:fontFamily="@font/roboto_slab_thin"
+        android:onClick="changeTempMode"
         android:text="TEMP"
         android:textColor="@color/colorAccent"
         android:textSize="30sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/city_name"
         app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/nightModeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@null"
+        android:onClick="onNightModeClicked"
+        app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/city_name"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_brightness_contrast"
+        tools:ignore="VectorDrawableCompat" />
 
 </android.support.constraint.ConstraintLayout>

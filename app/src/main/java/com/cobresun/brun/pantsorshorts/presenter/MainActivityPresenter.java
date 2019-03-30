@@ -10,6 +10,7 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 
 import com.cobresun.brun.pantsorshorts.R;
 import com.cobresun.brun.pantsorshorts.Weather;
@@ -173,5 +174,17 @@ public class MainActivityPresenter {
 
     public void updateTempMode(){
         view.displayTemperature(currentTemp);
+    }
+
+    public void setupNightMode() {
+        boolean isNightMode = userDataRepository.isNightMode();
+        userDataRepository.writeNightMode(isNightMode);
+        view.displayNightMode(isNightMode);
+    }
+
+    public void toggleNightMode() {
+        boolean isNightMode = userDataRepository.isNightMode();
+        userDataRepository.writeNightMode(!isNightMode);
+        view.displayNightMode(!isNightMode);
     }
 }
