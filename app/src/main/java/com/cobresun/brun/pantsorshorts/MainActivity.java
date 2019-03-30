@@ -12,7 +12,6 @@ package com.cobresun.brun.pantsorshorts;
 
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -23,7 +22,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private Button mainButton;
     private TextView shouldWearTextView;
     private TextView cityNameView;
-    private ImageButton nightModeButton;
     private boolean isCelsius = true;
+    private ImageView nightModeImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         shouldWearTextView = findViewById(R.id.shouldWearTextView);
         rootLayout = findViewById(R.id.rootLayout);
         cityNameView = findViewById(R.id.city_name);
-        nightModeButton = findViewById(R.id.nightModeButton);
+        nightModeImage = findViewById(R.id.nightModeImage);
 
         updateView();
     }
@@ -178,23 +176,25 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     public void displayNightMode(boolean isNightMode) {
-        String darkColor = "#212121";
-        String lightColor = "#FAFAFA";
+        int darkColor = Color.parseColor("#FAFAFA");
+        int lightColor = Color.parseColor("#212121");
         if (isNightMode) {
-            rootLayout.setBackgroundColor(Color.parseColor(darkColor));
-            cityNameView.setTextColor(Color.parseColor(lightColor));
-            shouldWearTextView.setTextColor(Color.parseColor(lightColor));
-            nightModeButton.setColorFilter(Color.parseColor(lightColor));
+            rootLayout.setBackgroundColor(darkColor);
+            cityNameView.setTextColor(lightColor);
+            shouldWearTextView.setTextColor(lightColor);
+            nightModeImage.setColorFilter(lightColor);
         }
         else {
-            rootLayout.setBackgroundColor(Color.parseColor(lightColor));
-            cityNameView.setTextColor(Color.parseColor(darkColor));
-            shouldWearTextView.setTextColor(Color.parseColor(darkColor));
-            nightModeButton.setColorFilter(Color.parseColor(darkColor));
+            rootLayout.setBackgroundColor(lightColor);
+            cityNameView.setTextColor(darkColor);
+            shouldWearTextView.setTextColor(darkColor);
+            nightModeImage.setColorFilter(darkColor);
         }
     }
 
-    public void onNightModeClicked(View view) {
+    public void onNightModeSwitchd(View view) {
         presenter.toggleNightMode();
     }
+
+
 }

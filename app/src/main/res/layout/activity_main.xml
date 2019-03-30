@@ -106,21 +106,26 @@
         app:layout_constraintTop_toBottomOf="@+id/city_name"
         app:layout_constraintVertical_bias="0.0" />
 
-    <ImageButton
-        android:id="@+id/nightModeButton"
+
+    <Switch
+        android:id="@+id/nightModeSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@null"
-        android:onClick="onNightModeClicked"
-        app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
+        android:layout_marginEnd="32dp"
+        android:onClick="onNightModeSwitchd"
+        android:drawablePadding="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/city_name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/city_name"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_brightness_contrast"
-        tools:ignore="VectorDrawableCompat" />
+        app:layout_constraintTop_toTopOf="@+id/city_name" />
+
+    <ImageView
+        android:id="@+id/nightModeImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/nightModeSwitch"
+        app:layout_constraintEnd_toStartOf="@+id/nightModeSwitch"
+        app:layout_constraintTop_toTopOf="@+id/nightModeSwitch"
+        app:srcCompat="@drawable/ic_brightness_contrast" />
 
 </android.support.constraint.ConstraintLayout>
