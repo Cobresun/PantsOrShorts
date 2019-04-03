@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private TextView cityNameView;
     private boolean isCelsius = true;
     private ImageView nightModeImage;
+    private Switch nightModeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         rootLayout = findViewById(R.id.rootLayout);
         cityNameView = findViewById(R.id.city_name);
         nightModeImage = findViewById(R.id.nightModeImage);
+        nightModeSwitch = findViewById(R.id.nightModeSwitch);
 
         updateView();
     }
@@ -176,15 +179,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
 
     @Override
     public void displayNightMode(boolean isNightMode) {
-        int darkColor = Color.parseColor("#FAFAFA");
-        int lightColor = Color.parseColor("#212121");
+        int darkColor = Color.parseColor("#212121");
+        int lightColor = Color.parseColor("#FAFAFA");
         if (isNightMode) {
+            nightModeSwitch.setChecked(true);
             rootLayout.setBackgroundColor(darkColor);
             cityNameView.setTextColor(lightColor);
             shouldWearTextView.setTextColor(lightColor);
             nightModeImage.setColorFilter(lightColor);
         }
         else {
+            nightModeSwitch.setChecked(false);
             rootLayout.setBackgroundColor(lightColor);
             cityNameView.setTextColor(darkColor);
             shouldWearTextView.setTextColor(darkColor);
