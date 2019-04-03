@@ -2,7 +2,10 @@ package com.cobresun.brun.pantsorshorts.presenter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,8 +13,8 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 
+import com.cobresun.brun.pantsorshorts.NotificationReceiver;
 import com.cobresun.brun.pantsorshorts.R;
 import com.cobresun.brun.pantsorshorts.Weather;
 import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
@@ -22,6 +25,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -44,14 +48,14 @@ public class MainActivityPresenter {
 
     private float currentTemp;
     private boolean wearingPants;
-    private Context mContext;
+    private Context context;
     private MainActivityView view;
     private UserDataRepository userDataRepository;
 
     public MainActivityPresenter(MainActivityView view, UserDataRepository userDataRepository, Context context) {
         this.view = view;
         this.userDataRepository = userDataRepository;
-        this.mContext = context;
+        this.context = context;
     }
 
     private void updateUserThreshold(int howTheyFelt, float currentTemp) {
@@ -90,8 +94,8 @@ public class MainActivityPresenter {
     }
 
     public void getLocation(Activity activity) {
-        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             view.requestPermissions();
         }
         mFusedLocationClient.getLastLocation()
@@ -116,7 +120,7 @@ public class MainActivityPresenter {
 
     private String getCity(double lats, double lons) {
         Geocoder geocoder;
-        geocoder = new Geocoder(mContext, Locale.getDefault());
+        geocoder = new Geocoder(context, Locale.getDefault());
         List<Address> addresses = null;
         try {
             addresses = geocoder.getFromLocation(lats, lons, 1);
@@ -132,7 +136,7 @@ public class MainActivityPresenter {
     }
 
     public void checkInternet() {
-        if (!isNetworkStatusAvialable (mContext)) {
+        if (!isNetworkStatusAvialable (context)) {
             view.displayNoInternet();
         }
     }
@@ -159,7 +163,7 @@ public class MainActivityPresenter {
             view.displayTemperature(currentTemp);
         }
         else {
-            String apiKey = mContext.getResources().getString(R.string.open_weather_map);
+            String apiKey = context.getResources().getString(R.string.open_weather_map);
             Weather weather = new Weather(apiKey);
             weather.lat = (int) location.getLatitude();
             weather.lon = (int) location.getLongitude();
@@ -186,5 +190,22 @@ public class MainActivityPresenter {
         boolean isNightMode = userDataRepository.isNightMode();
         userDataRepository.writeNightMode(!isNightMode);
         view.displayNightMode(!isNightMode);
+    }
+
+    public void setUpNotification() {
+        boolean isFirstTime = userDataRepository.isFirstTimeLaunching();
+        if (isFirstTime) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, 6);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            Intent intent = new Intent(context, NotificationReceiver.class);
+
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(context, NotificationReceiver.REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
     }
 }

@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         presenter.getLocation(this);
         presenter.updateClothing();
         presenter.setupNightMode();
+        presenter.setUpNotification();
     }
 
     @Override
