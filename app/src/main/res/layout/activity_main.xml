@@ -50,15 +50,15 @@
 
     <Button
         android:id="@+id/mainButton"
-        android:background="@drawable/my_button_red"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onButtonClick"
-        android:padding="16dp"
-        android:text="Error"
-        android:textColor="@android:color/white"
+        android:background="@drawable/my_button_red"
         android:drawableLeft="@drawable/ic_wb_sunny"
         android:drawablePadding="8dp"
+        android:onClick="onButtonClick"
+        android:padding="16dp"
+        android:text="Loading"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -112,21 +112,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:onClick="onNightModeSwitchd"
         android:drawablePadding="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/city_name"
+        android:onClick="onNightModeSwitchd"
+        app:layout_constraintBottom_toBottomOf="@+id/nightModeImage"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/city_name" />
+        app:layout_constraintTop_toTopOf="@+id/nightModeImage" />
 
     <ImageView
         android:id="@+id/nightModeImage"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/night_mode_content_desc"
-        app:layout_constraintBottom_toBottomOf="@+id/nightModeSwitch"
+        app:layout_constraintBottom_toBottomOf="@+id/temperature"
         app:layout_constraintEnd_toStartOf="@+id/nightModeSwitch"
-        app:layout_constraintTop_toTopOf="@+id/nightModeSwitch"
+        app:layout_constraintTop_toTopOf="@+id/city_name"
         app:srcCompat="@drawable/ic_brightness_contrast" />
 
 </android.support.constraint.ConstraintLayout>
