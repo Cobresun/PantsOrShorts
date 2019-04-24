@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PantsOrShorts</string>
+    <string name="night_mode_content_desc">This button will make the app dark</string>
 </resources>

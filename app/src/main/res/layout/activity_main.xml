@@ -120,9 +120,10 @@
 
     <ImageView
         android:id="@+id/nightModeImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginEnd="8dp"
+        android:contentDescription="@string/night_mode_content_desc"
         app:layout_constraintBottom_toBottomOf="@+id/nightModeSwitch"
         app:layout_constraintEnd_toStartOf="@+id/nightModeSwitch"
         app:layout_constraintTop_toTopOf="@+id/nightModeSwitch"
