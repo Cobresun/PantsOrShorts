@@ -19,4 +19,8 @@ public interface UserDataRepository {
     boolean isNightMode();
 
     void writeNightMode(boolean nightMode);
+
+    boolean isCelsius();
+
+    void writeIsCelsius(boolean isCelsius);
 }

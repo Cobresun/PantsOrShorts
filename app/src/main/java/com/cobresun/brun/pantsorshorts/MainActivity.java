@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     }
 
     @Override
-    public void displayTemperature(float temperature) {
+    public void displayTemperature(float temperature, boolean isCelsius) {
         TextView tempText = findViewById(R.id.temperature);
         if (isCelsius) {
             tempText.setText(temperature + "\u00B0" + "C");
@@ -173,7 +173,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     }
 
     public void changeTempMode(View view) {
-        isCelsius = !isCelsius;
         presenter.updateTempMode();
     }
 
@@ -200,6 +199,8 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void onNightModeSwitchd(View view) {
         presenter.toggleNightMode();
     }
+
+
 
 
 }

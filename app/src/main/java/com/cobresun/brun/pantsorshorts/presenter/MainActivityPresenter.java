@@ -155,8 +155,10 @@ public class MainActivityPresenter {
         boolean isFirstTime = userDataRepository.isFirstTimeLaunching();
 
         if (diff < MINUTE_MILLIS && !isFirstTime) {
+            boolean isCelsius = userDataRepository.isCelsius();
+
             currentTemp = userDataRepository.readLastFetchedTemp();
-            view.displayTemperature(currentTemp);
+            view.displayTemperature(currentTemp, isCelsius);
         }
         else {
             String apiKey = mContext.getResources().getString(R.string.open_weather_map);
@@ -167,13 +169,16 @@ public class MainActivityPresenter {
             currentTemp = weather.temp;
             userDataRepository.writeLastFetchedTemp(currentTemp);
             userDataRepository.writeLastTimeFetchedWeather(currentTime);
-            view.displayTemperature(currentTemp);
+            userDataRepository.writeIsCelsius(true);
+            view.displayTemperature(currentTemp, true);
         }
 
     }
 
     public void updateTempMode(){
-        view.displayTemperature(currentTemp);
+        boolean isCelsius = userDataRepository.isCelsius();
+        userDataRepository.writeIsCelsius(!isCelsius);
+        view.displayTemperature(currentTemp, !isCelsius);
     }
 
     public void setupNightMode() {

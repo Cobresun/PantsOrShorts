@@ -92,5 +92,18 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
         editor.apply();
     }
 
+    @Override
+    public boolean isCelsius() {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return settings.getBoolean("isCelsius", false);
+    }
+
+    @Override
+    public void writeIsCelsius(boolean isCelsius) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("isCelsius", isCelsius);
+        editor.apply();
+    }
 
 }

@@ -6,7 +6,7 @@ public interface MainActivityView {
 
     void displayCity(String city);
 
-    void displayTemperature(float temperature);
+    void displayTemperature(float temperature, boolean isCelsius);
 
     void displayYouShouldWearText(int clothing);
 
