@@ -43,7 +43,6 @@ public class MainActivityPresenter {
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
     private float currentTemp;
-    private boolean wearingPants;
     private Context mContext;
     private MainActivityView view;
     private UserDataRepository userDataRepository;
@@ -55,9 +54,9 @@ public class MainActivityPresenter {
     }
 
     private void updateUserThreshold(int howTheyFelt, float currentTemp) {
-        if (howTheyFelt == COLD && currentTemp > userDataRepository.readUserThreshold()) {
+        if (howTheyFelt == COLD) {
             userDataRepository.writeUserThreshold(currentTemp + 1);
-        } else if (howTheyFelt == HOT && currentTemp < userDataRepository.readUserThreshold()) {
+        } else if (howTheyFelt == HOT) {
             userDataRepository.writeUserThreshold(currentTemp - 1);
         }
     }
@@ -70,7 +69,7 @@ public class MainActivityPresenter {
     }
 
     public void calibrateThreshold() {
-        if (!wearingPants) {
+        if (pantsOrShorts(currentTemp) == SHORTS) {
             updateUserThreshold(SharedPrefsUserDataRepository.COLD, currentTemp);
         } else {
             updateUserThreshold(SharedPrefsUserDataRepository.HOT, currentTemp);
@@ -79,11 +78,7 @@ public class MainActivityPresenter {
     }
 
     public void updateClothing(){
-        changeClothingInView(pantsOrShorts(currentTemp));
-    }
-
-    private void changeClothingInView(int clothing) {
-        wearingPants = clothing == PANTS;
+        int clothing = pantsOrShorts(currentTemp);
         view.displayClothingImage(clothing);
         view.displayButton(clothing);
         view.displayYouShouldWearText(clothing);
@@ -172,7 +167,7 @@ public class MainActivityPresenter {
             userDataRepository.writeIsCelsius(true);
             view.displayTemperature(currentTemp, true);
         }
-
+        updateClothing();
     }
 
     public void updateTempMode(){

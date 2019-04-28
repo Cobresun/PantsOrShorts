@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         presenter = new MainActivityPresenter(this, new SharedPrefsUserDataRepository(getApplicationContext()), getApplicationContext());
         presenter.checkInternet();
         presenter.getLocation(this);
-        presenter.updateClothing();
         presenter.setupNightMode();
     }
 
