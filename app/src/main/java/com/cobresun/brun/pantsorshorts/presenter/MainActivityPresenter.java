@@ -78,7 +78,6 @@ public class MainActivityPresenter {
     }
 
     public void updateClothing(){
-        System.out.println("SUNJEEP: "+userDataRepository.readUserThreshold());
         int clothing = pantsOrShorts(currentTemp);
         view.displayClothingImage(clothing);
         view.displayButton(clothing);
