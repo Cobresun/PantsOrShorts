@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     private Button mainButton;
     private TextView shouldWearTextView;
     private TextView cityNameView;
-    private boolean isCelsius = true;
     private ImageView nightModeImage;
     private Switch nightModeSwitch;
 
@@ -199,8 +198,4 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void onNightModeSwitchd(View view) {
         presenter.toggleNightMode();
     }
-
-
-
-
 }
