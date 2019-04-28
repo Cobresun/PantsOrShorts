@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">PantsOrShorts</string>
     <string name="night_mode_content_desc">This button will make the app dark</string>
+    <string name="loading">Loading</string>
+    <string name="loading_shouldWear_text">You should wear something today</string>
+    <string name="clothingImage_content_desc">This is the image you should wear</string>
 </resources>
