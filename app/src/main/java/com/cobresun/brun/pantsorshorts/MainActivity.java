@@ -81,14 +81,40 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     }
 
     @Override
-    public void displayTemperature(float temperature, boolean isCelsius) {
+    public void displayTemperature(int temperature, boolean isCelsius) {
         TextView tempText = findViewById(R.id.temperature);
         if (isCelsius) {
             tempText.setText(temperature + "\u00B0" + "C");
         }
         else {
-            float fahrenheit = (int)(temperature * (float)(9.0/5.0))+ 32f;
+            int fahrenheit = (int)(temperature * (float)(9.0/5.0))+ 32;
             tempText.setText(fahrenheit + "\u00B0" + "F");
+        }
+        tempText.invalidate();
+    }
+
+    @Override
+    public void displayHighTemperature(int temperature, boolean isCelsius) {
+        TextView tempText = findViewById(R.id.temperatureHigh);
+        if (isCelsius) {
+            tempText.setText(temperature + "\u00B0");
+        }
+        else {
+            int fahrenheit = (int)(temperature * (float)(9.0/5.0))+ 32;
+            tempText.setText(fahrenheit + "\u00B0");
+        }
+        tempText.invalidate();
+    }
+
+    @Override
+    public void displayLowTemperature(int temperature, boolean isCelsius) {
+        TextView tempText = findViewById(R.id.temperatureLow);
+        if (isCelsius) {
+            tempText.setText(temperature + "\u00B0");
+        }
+        else {
+            int fahrenheit = (int)(temperature * (float)(9.0/5.0))+ 32;
+            tempText.setText(fahrenheit + "\u00B0");
         }
         tempText.invalidate();
     }

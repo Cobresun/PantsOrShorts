@@ -10,9 +10,17 @@ public interface UserDataRepository {
 
     void writeLastTimeFetchedWeather(long time);
 
-    float readLastFetchedTemp();
+    int readLastFetchedTemp();
 
-    void writeLastFetchedTemp(float temp);
+    void writeLastFetchedTemp(int temp);
+
+    int readLastFetchedTempHigh();
+
+    void writeLastFetchedTempHigh(int temp);
+
+    int readLastFetchedTempLow();
+
+    void writeLastFetchedTempLow(int temp);
 
     boolean isFirstTimeLaunching();
 
