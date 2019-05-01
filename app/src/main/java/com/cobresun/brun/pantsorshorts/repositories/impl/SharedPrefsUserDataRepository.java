@@ -50,17 +50,47 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
     }
 
     @Override
-    public float readLastFetchedTemp() {
-        float defaultTemp = 1000;
+    public int readLastFetchedTemp() {
+        int defaultTemp = 1000;
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return settings.getFloat("tempLastFetched", defaultTemp);
+        return settings.getInt("tempLastFetched", defaultTemp);
     }
 
     @Override
-    public void writeLastFetchedTemp(float temp) {
+    public void writeLastFetchedTemp(int temp) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat("tempLastFetched", temp);
+        editor.putInt("tempLastFetched", temp);
+        editor.apply();
+    }
+
+    @Override
+    public int readLastFetchedTempHigh() {
+        int defaultTemp = 1000;
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return settings.getInt("tempHighLastFetched", defaultTemp);
+    }
+
+    @Override
+    public void writeLastFetchedTempHigh(int temp) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("tempHighLastFetched", temp);
+        editor.apply();
+    }
+
+    @Override
+    public int readLastFetchedTempLow() {
+        int defaultTemp = 1000;
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return settings.getInt("tempLowLastFetched", defaultTemp);
+    }
+
+    @Override
+    public void writeLastFetchedTempLow(int temp) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("tempLowLastFetched", temp);
         editor.apply();
     }
 

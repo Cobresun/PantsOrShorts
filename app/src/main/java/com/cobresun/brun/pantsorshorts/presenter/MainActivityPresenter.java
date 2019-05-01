@@ -42,7 +42,10 @@ public class MainActivityPresenter {
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
-    private float currentTemp;
+    private int currentTemp;
+    private int highTemp;
+    private int lowTemp;
+
     private Context mContext;
     private MainActivityView view;
     private UserDataRepository userDataRepository;
@@ -153,19 +156,30 @@ public class MainActivityPresenter {
             boolean isCelsius = userDataRepository.isCelsius();
 
             currentTemp = userDataRepository.readLastFetchedTemp();
+            highTemp = userDataRepository.readLastFetchedTempHigh();
+            lowTemp = userDataRepository.readLastFetchedTempLow();
             view.displayTemperature(currentTemp, isCelsius);
+            view.displayHighTemperature(highTemp, isCelsius);
+            view.displayLowTemperature(lowTemp, isCelsius);
         }
         else {
-            String apiKey = mContext.getResources().getString(R.string.open_weather_map);
+            String apiKey = mContext.getResources().getString(R.string.dark_sky);
             Weather weather = new Weather(apiKey);
-            weather.lat = (int) location.getLatitude();
-            weather.lon = (int) location.getLongitude();
+            weather.lat = location.getLatitude();
+            weather.lon = location.getLongitude();
             weather.execute().get();
             currentTemp = weather.temp;
+            highTemp = weather.tempHigh;
+            lowTemp = weather.tempLow;
+
             userDataRepository.writeLastFetchedTemp(currentTemp);
+            userDataRepository.writeLastFetchedTempHigh(highTemp);
+            userDataRepository.writeLastFetchedTempLow(lowTemp);
             userDataRepository.writeLastTimeFetchedWeather(currentTime);
             userDataRepository.writeIsCelsius(true);
             view.displayTemperature(currentTemp, true);
+            view.displayHighTemperature(highTemp, true);
+            view.displayLowTemperature(lowTemp, true);
         }
         updateClothing();
     }
@@ -174,6 +188,8 @@ public class MainActivityPresenter {
         boolean isCelsius = userDataRepository.isCelsius();
         userDataRepository.writeIsCelsius(!isCelsius);
         view.displayTemperature(currentTemp, !isCelsius);
+        view.displayHighTemperature(highTemp, !isCelsius);
+        view.displayLowTemperature(lowTemp, !isCelsius);
     }
 
     public void setupNightMode() {
