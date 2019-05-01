@@ -9,11 +9,11 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.cobresun.brun.pantsorshorts.R;
-import com.cobresun.brun.pantsorshorts.Weather;
 import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
 import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
 import com.cobresun.brun.pantsorshorts.view.MainActivityView;
@@ -24,7 +24,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.COLD;
 import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.HOT;
@@ -39,8 +44,6 @@ public class MainActivityPresenter {
 
     private static final int SECOND_MILLIS = 1000;
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
-    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
     private int currentTemp;
     private int highTemp;
@@ -80,7 +83,7 @@ public class MainActivityPresenter {
         updateClothing();
     }
 
-    public void updateClothing(){
+    private void updateClothing(){
         int clothing = pantsOrShorts(currentTemp);
         view.displayClothingImage(clothing);
         view.displayButton(clothing);
@@ -100,13 +103,7 @@ public class MainActivityPresenter {
                         if (location != null) {
                             String city = getCity(location.getLatitude(), location.getLongitude());
                             view.displayCity(city);
-                            try {
-                                getWeather(location);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            } catch (ExecutionException e) {
-                                e.printStackTrace();
-                            }
+                            getWeather(location);
                         }
                     }
                 });
@@ -145,12 +142,13 @@ public class MainActivityPresenter {
         return false;
     }
 
-    private void getWeather(Location location) throws ExecutionException, InterruptedException {
+    private void getWeather(Location location) {
         long lastFetched = userDataRepository.readLastTimeFetchedWeather();
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         long diff = currentTime - lastFetched;
 
         boolean isFirstTime = userDataRepository.isFirstTimeLaunching();
+        String apiKey = mContext.getResources().getString(R.string.dark_sky);
 
         if (diff < MINUTE_MILLIS && !isFirstTime) {
             boolean isCelsius = userDataRepository.isCelsius();
@@ -161,27 +159,40 @@ public class MainActivityPresenter {
             view.displayTemperature(currentTemp, isCelsius);
             view.displayHighTemperature(highTemp, isCelsius);
             view.displayLowTemperature(lowTemp, isCelsius);
+            updateClothing();
         }
         else {
-            String apiKey = mContext.getResources().getString(R.string.dark_sky);
-            Weather weather = new Weather(apiKey);
-            weather.lat = location.getLatitude();
-            weather.lon = location.getLongitude();
-            weather.execute().get();
-            currentTemp = weather.temp;
-            highTemp = weather.tempHigh;
-            lowTemp = weather.tempLow;
+            Retrofit retrofit = new Retrofit.Builder()
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .baseUrl("https://api.darksky.net/")
+                    .build();
 
-            userDataRepository.writeLastFetchedTemp(currentTemp);
-            userDataRepository.writeLastFetchedTempHigh(highTemp);
-            userDataRepository.writeLastFetchedTempLow(lowTemp);
-            userDataRepository.writeLastTimeFetchedWeather(currentTime);
-            userDataRepository.writeIsCelsius(true);
-            view.displayTemperature(currentTemp, true);
-            view.displayHighTemperature(highTemp, true);
-            view.displayLowTemperature(lowTemp, true);
+            WeatherAPIService service = retrofit.create(WeatherAPIService.class);
+            service.getTemp(apiKey, location.getLatitude(), location.getLongitude()).enqueue(new Callback<ForecastResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<ForecastResponse> call, @NonNull Response<ForecastResponse> response) {
+                    assert response.body() != null;
+                    currentTemp = round(response.body().currently.temperature);
+                    highTemp = round(response.body().daily.data.get(0).temperatureMax);
+                    lowTemp = round(response.body().daily.data.get(0).temperatureMin);
+
+                    userDataRepository.writeLastFetchedTemp(currentTemp);
+                    userDataRepository.writeLastFetchedTempHigh(highTemp);
+                    userDataRepository.writeLastFetchedTempLow(lowTemp);
+                    userDataRepository.writeLastTimeFetchedWeather(currentTime);
+                    userDataRepository.writeIsCelsius(true);
+                    view.displayTemperature(currentTemp, true);
+                    view.displayHighTemperature(highTemp, true);
+                    view.displayLowTemperature(lowTemp, true);
+                    updateClothing();
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ForecastResponse> call, @NonNull Throwable t) {
+                    Log.d("BNORTAG", String.valueOf(t));
+                }
+            });
         }
-        updateClothing();
     }
 
     public void updateTempMode(){
@@ -202,5 +213,14 @@ public class MainActivityPresenter {
         boolean isNightMode = userDataRepository.isNightMode();
         userDataRepository.writeNightMode(!isNightMode);
         view.displayNightMode(!isNightMode);
+    }
+
+    private int round(double a) {
+        if (a > 0) {
+            return (int) (a + 0.5);
+        } else if (a < 0) {
+            return (int) (a - 0.5);
+        }
+        return (int) a;
     }
 }
