@@ -49,14 +49,14 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             JSONObject currentlyObject = object.getJSONObject("currently");
             JSONObject daily = object.getJSONObject("daily");
 
-            temp = (int) (currentlyObject.getDouble("temperature") + 0.5); // + 0.5 for rounding purposes, since (int) cast drops it
+            temp = round(currentlyObject.getDouble("temperature")); // + 0.5 for rounding purposes, since (int) cast drops it
 
             JSONArray dailyData = daily.getJSONArray("data");
             JSONObject today = dailyData.getJSONObject(0);
 
-            tempHigh = (int) (today.getDouble("temperatureHigh") + 0.5);
+            tempHigh = round(today.getDouble("temperatureMax"));
 
-            tempLow = (int) (today.getDouble("temperatureLow") + 0.5);
+            tempLow = round(today.getDouble("temperatureMin"));
         }
         catch (java.io.IOException e) {
             e.printStackTrace();
@@ -65,5 +65,14 @@ public class Weather extends AsyncTask<Void, Void, Void> {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private int round(double a) {
+        if (a > 0) {
+            return (int) (a + 0.5);
+        } else if (a < 0) {
+            return (int) (a - 0.5);
+        }
+        return (int) a;
     }
 }
