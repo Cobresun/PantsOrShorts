@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -57,6 +58,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         cityNameView = findViewById(R.id.city_name);
         nightModeImage = findViewById(R.id.nightModeImage);
         nightModeSwitch = findViewById(R.id.nightModeSwitch);
+
+        nightModeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // On startup setChecked() is done programmatically in displayNightMode() so this avoids a double toggle
+                if (!buttonView.isPressed()) {
+                    return;
+                }
+
+                presenter.toggleNightMode();
+            }
+        });
 
         updateView();
     }
@@ -205,22 +218,18 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
         int darkColor = Color.parseColor("#212121");
         int lightColor = Color.parseColor("#FAFAFA");
         if (isNightMode) {
-            nightModeSwitch.setChecked(true);
             rootLayout.setBackgroundColor(darkColor);
             cityNameView.setTextColor(lightColor);
             shouldWearTextView.setTextColor(lightColor);
             nightModeImage.setColorFilter(lightColor);
         }
         else {
-            nightModeSwitch.setChecked(false);
             rootLayout.setBackgroundColor(lightColor);
             cityNameView.setTextColor(darkColor);
             shouldWearTextView.setTextColor(darkColor);
             nightModeImage.setColorFilter(darkColor);
         }
+        nightModeSwitch.setChecked(isNightMode);
     }
 
-    public void onNightModeSwitchd(View view) {
-        presenter.toggleNightMode();
-    }
 }
