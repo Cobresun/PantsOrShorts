@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     public void updateView() {
         presenter = new MainActivityPresenter(this, new SharedPrefsUserDataRepository(getApplicationContext()), getApplicationContext());
         presenter.checkInternet();
-        presenter.getLocation(this);
+        presenter.createLocationRequest(this);
         presenter.setupNightMode();
     }
 
@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
             cityNameView.invalidate();
         }
         else {
-            presenter.getLocation(this);
+            presenter.createLocationRequest(this);
         }
     }
 

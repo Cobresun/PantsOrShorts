@@ -3,6 +3,7 @@ package com.cobresun.brun.pantsorshorts.presenter;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -17,9 +18,18 @@ import com.cobresun.brun.pantsorshorts.R;
 import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
 import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
 import com.cobresun.brun.pantsorshorts.view.MainActivityView;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
 import java.util.List;
@@ -52,6 +62,7 @@ public class MainActivityPresenter {
     private Context mContext;
     private MainActivityView view;
     private UserDataRepository userDataRepository;
+    static FusedLocationProviderClient fusedLocationProviderClient;
 
     public MainActivityPresenter(MainActivityView view, UserDataRepository userDataRepository, Context context) {
         this.view = view;
@@ -90,23 +101,67 @@ public class MainActivityPresenter {
         view.displayYouShouldWearText(clothing);
     }
 
-    public void getLocation(Activity activity) {
-        FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(mContext);
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            view.requestPermissions();
-        }
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(activity, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            String city = getCity(location.getLatitude(), location.getLongitude());
-                            view.displayCity(city);
-                            getWeather(location);
-                        }
+    public void createLocationRequest(final Activity activity) {
+        LocationCallback locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    if (location != null) {
+                        Log.d("BNORTAG", "Successfully got location");
+                        String city = getCity(location.getLatitude(), location.getLongitude());
+                        view.displayCity(city);
+                        getWeather(location);
                     }
-                });
+                    else {
+                        Log.d("BNORTAG", "Location fetch failed!");
+                    }
+                }
+            };
+        };
+        final int REQUEST_CHECK_SETTINGS = 8888;
+        final LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        SettingsClient client = LocationServices.getSettingsClient(mContext);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        final LocationCallback finalLocationCallback = locationCallback;
+        task.addOnSuccessListener(activity, new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                // All location settings are satisfied. The client can initialize location requests here.
+                fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext);
+                if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    view.requestPermissions();
+                }
+                fusedLocationProviderClient.requestLocationUpdates(locationRequest, finalLocationCallback, null);
+            }
+        });
+        task.addOnFailureListener(activity, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    // Location settings are not satisfied, but this can be fixed
+                    // by showing the user a dialog.
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        ResolvableApiException resolvable = (ResolvableApiException) e;
+                        resolvable.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        });
     }
 
     private String getCity(double lats, double lons) {
