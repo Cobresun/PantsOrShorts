@@ -3,6 +3,7 @@ package com.cobresun.brun.pantsorshorts.repositories.impl;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.cobresun.brun.pantsorshorts.presenter.MainActivityPresenter;
 import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
 
 public class SharedPrefsUserDataRepository implements UserDataRepository {
@@ -20,17 +21,17 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
     }
 
     @Override
-    public float readUserThreshold() {
-        float defaultThreshold = 21f;
+    public int readUserThreshold() {
+        int defaultThreshold = 21;
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return settings.getFloat("userThreshold", defaultThreshold);
+        return settings.getInt("userThreshold", defaultThreshold);
     }
 
     @Override
-    public void writeUserThreshold(float threshold) {
+    public void writeUserThreshold(int threshold) {
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putFloat("userThreshold", threshold);
+        editor.putInt("userThreshold", threshold);
         editor.apply();
     }
 
@@ -91,6 +92,27 @@ public class SharedPrefsUserDataRepository implements UserDataRepository {
         SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("tempLowLastFetched", temp);
+        editor.apply();
+    }
+
+    @Override
+    public int[] readLastFetchedHourlyTemps() {
+        int defaultTemp = 10000;
+        int[] temps = new int[24 + MainActivityPresenter.HOURS_SPENT_OUT + 1];
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        for (int i = 0; i < temps.length; i++){
+            temps[i] = settings.getInt("tempHourlyLastFetched" + i, defaultTemp);
+        }
+        return temps;
+    }
+
+    @Override
+    public void writeLastFetchedHourlyTemps(int[] temps) {
+        SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+        for (int i = 0; i < temps.length; i++){
+            editor.putInt("tempHourlyLastFetched" + i, temps[i]);
+        }
         editor.apply();
     }
 

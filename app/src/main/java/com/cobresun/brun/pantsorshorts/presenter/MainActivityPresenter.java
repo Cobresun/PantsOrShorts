@@ -12,6 +12,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.util.Log;
 
 import com.cobresun.brun.pantsorshorts.R;
@@ -32,6 +33,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -49,6 +51,9 @@ public class MainActivityPresenter {
     public static final int PANTS = 1;
     public static final int SHORTS = 2;
 
+    public static final int HOURS_SPENT_OUT = 4;
+    public static final int AVERAGE_HOME_TIME = 18;
+
     public static final String[] INITIAL_PERMS = {Manifest.permission.ACCESS_FINE_LOCATION,};
     public static final int INITIAL_REQUEST = 1337;
 
@@ -58,6 +63,12 @@ public class MainActivityPresenter {
     private int currentTemp;
     private int highTemp;
     private int lowTemp;
+
+    private int clothingSuggestion;
+
+    private boolean weatherCallInProgress;
+
+    private int[] hourlyTemps = new int[24 + HOURS_SPENT_OUT + 1];
 
     private Context mContext;
     private MainActivityView view;
@@ -70,32 +81,60 @@ public class MainActivityPresenter {
         this.mContext = context;
     }
 
-    private void updateUserThreshold(int howTheyFelt, float currentTemp) {
+    private void updateUserThreshold(int howTheyFelt) {
         if (howTheyFelt == COLD) {
-            userDataRepository.writeUserThreshold(currentTemp + 1);
+            int curPreference = userDataRepository.readUserThreshold();
+            while (pantsOrShorts(curPreference) == SHORTS){
+                curPreference++;
+            }
+            userDataRepository.writeUserThreshold(curPreference);
         } else if (howTheyFelt == HOT) {
-            userDataRepository.writeUserThreshold(currentTemp - 1);
+            int curPreference = userDataRepository.readUserThreshold();
+            while (pantsOrShorts(curPreference) == PANTS){
+                curPreference--;
+            }
+            userDataRepository.writeUserThreshold(curPreference);
         }
     }
 
-    private int pantsOrShorts(float currentTemp) {
-        if (currentTemp > userDataRepository.readUserThreshold())
+    private int pantsOrShorts(int preference) {
+        int curTime = getHour();
+        int average = 0;
+
+        int dayEnd = Math.max(AVERAGE_HOME_TIME, curTime+HOURS_SPENT_OUT);
+
+        for (int i = curTime; i < dayEnd; i++){
+            if (hourlyTemps[i] >= preference) {
+                average++;
+            } else {
+                average--;
+            }
+        }
+
+        if (average >= 0){
             return SHORTS;
-        else
+        } else {
             return PANTS;
+        }
+    }
+
+    private int getHour() {
+        Calendar c = Calendar.getInstance();
+        return c.get(Calendar.HOUR_OF_DAY);
     }
 
     public void calibrateThreshold() {
-        if (pantsOrShorts(currentTemp) == SHORTS) {
-            updateUserThreshold(SharedPrefsUserDataRepository.COLD, currentTemp);
+        if (clothingSuggestion == SHORTS) {
+            updateUserThreshold(SharedPrefsUserDataRepository.COLD);
         } else {
-            updateUserThreshold(SharedPrefsUserDataRepository.HOT, currentTemp);
+            updateUserThreshold(SharedPrefsUserDataRepository.HOT);
         }
         updateClothing();
     }
 
     private void updateClothing(){
-        int clothing = pantsOrShorts(currentTemp);
+        int clothing = pantsOrShorts(userDataRepository.readUserThreshold());
+        clothingSuggestion = clothing;
         view.displayClothingImage(clothing);
         view.displayButton(clothing);
         view.displayYouShouldWearText(clothing);
@@ -198,6 +237,9 @@ public class MainActivityPresenter {
     }
 
     private void getWeather(Location location) {
+        if (weatherCallInProgress){
+            return;
+        }
         long lastFetched = userDataRepository.readLastTimeFetchedWeather();
         final long currentTime = System.currentTimeMillis();
         long diff = currentTime - lastFetched;
@@ -211,12 +253,15 @@ public class MainActivityPresenter {
             currentTemp = userDataRepository.readLastFetchedTemp();
             highTemp = userDataRepository.readLastFetchedTempHigh();
             lowTemp = userDataRepository.readLastFetchedTempLow();
+            hourlyTemps = userDataRepository.readLastFetchedHourlyTemps();
+
             view.displayTemperature(currentTemp, isCelsius);
             view.displayHighTemperature(highTemp, isCelsius);
             view.displayLowTemperature(lowTemp, isCelsius);
             updateClothing();
         }
         else {
+            weatherCallInProgress = true;
             Retrofit retrofit = new Retrofit.Builder()
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl("https://api.darksky.net/")
@@ -227,19 +272,25 @@ public class MainActivityPresenter {
                 @Override
                 public void onResponse(@NonNull Call<ForecastResponse> call, @NonNull Response<ForecastResponse> response) {
                     assert response.body() != null;
-                    currentTemp = round(response.body().currently.temperature);
-                    highTemp = round(response.body().daily.data.get(0).temperatureMax);
-                    lowTemp = round(response.body().daily.data.get(0).temperatureMin);
+                    currentTemp = round(response.body().currently.apparentTemperature);
+                    highTemp = round(response.body().daily.data.get(0).apparentTemperatureMax);
+                    lowTemp = round(response.body().daily.data.get(0).apparentTemperatureMin);
+
+                    for (int i = 0; i < 24 + HOURS_SPENT_OUT + 1; i++){
+                        hourlyTemps[i] = round(response.body().hourly.data.get(i).apparentTemperature);
+                    }
 
                     userDataRepository.writeLastFetchedTemp(currentTemp);
                     userDataRepository.writeLastFetchedTempHigh(highTemp);
                     userDataRepository.writeLastFetchedTempLow(lowTemp);
+                    userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps);
                     userDataRepository.writeLastTimeFetchedWeather(currentTime);
                     userDataRepository.writeIsCelsius(true);
                     view.displayTemperature(currentTemp, true);
                     view.displayHighTemperature(highTemp, true);
                     view.displayLowTemperature(lowTemp, true);
                     updateClothing();
+                    weatherCallInProgress = false;
                 }
 
                 @Override
