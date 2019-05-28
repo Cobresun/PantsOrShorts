@@ -135,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView 
     @Override
     public void displayYouShouldWearText(int clothing) {
         if (clothing == MainActivityPresenter.PANTS) {
-            shouldWearTextView.setText("You should wear pants today");
+            shouldWearTextView.setText("For the next few hours, it feels like pants weather");
         }
         else if (clothing == MainActivityPresenter.SHORTS) {
-            shouldWearTextView.setText("You should wear shorts today");
+            shouldWearTextView.setText("For the next few hours, it feels like shorts weather");
         }
         shouldWearTextView.invalidate();
     }

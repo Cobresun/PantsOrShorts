@@ -12,7 +12,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.util.Log;
 
 import com.cobresun.brun.pantsorshorts.R;
@@ -68,7 +67,7 @@ public class MainActivityPresenter {
 
     private boolean weatherCallInProgress;
 
-    private int[] hourlyTemps = new int[24 + HOURS_SPENT_OUT + 1];
+    private int[] hourlyTemps = new int[24];
 
     private Context mContext;
     private MainActivityView view;
@@ -101,9 +100,9 @@ public class MainActivityPresenter {
         int curTime = getHour();
         int average = 0;
 
-        int dayEnd = Math.max(AVERAGE_HOME_TIME, curTime+HOURS_SPENT_OUT);
+        int hoursToInclude = Math.max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - curTime);
 
-        for (int i = curTime; i < dayEnd; i++){
+        for (int i = 0; i < hoursToInclude; i++){
             if (hourlyTemps[i] >= preference) {
                 average++;
             } else {
@@ -276,7 +275,7 @@ public class MainActivityPresenter {
                     highTemp = round(response.body().daily.data.get(0).apparentTemperatureMax);
                     lowTemp = round(response.body().daily.data.get(0).apparentTemperatureMin);
 
-                    for (int i = 0; i < 24 + HOURS_SPENT_OUT + 1; i++){
+                    for (int i = 0; i < hourlyTemps.length; i++){
                         hourlyTemps[i] = round(response.body().hourly.data.get(i).apparentTemperature);
                     }
 
