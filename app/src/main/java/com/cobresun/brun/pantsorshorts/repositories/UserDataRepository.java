@@ -2,9 +2,9 @@ package com.cobresun.brun.pantsorshorts.repositories;
 
 public interface UserDataRepository {
 
-    float readUserThreshold();
+    int readUserThreshold();
 
-    void writeUserThreshold(float threshold);
+    void writeUserThreshold(int threshold);
 
     long readLastTimeFetchedWeather();
 
@@ -21,6 +21,10 @@ public interface UserDataRepository {
     int readLastFetchedTempLow();
 
     void writeLastFetchedTempLow(int temp);
+
+    int[] readLastFetchedHourlyTemps();
+
+    void writeLastFetchedHourlyTemps(int[] temps);
 
     boolean isFirstTimeLaunching();
 
