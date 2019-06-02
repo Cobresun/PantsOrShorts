@@ -10,30 +10,26 @@
 
     <TextView
         android:id="@+id/shouldWearTextView"
-        android:layout_width="319dp"
-        android:layout_height="75dp"
-        android:layout_marginStart="55dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="30dp"
         android:text="@string/loading_shouldWear_text"
+        android:textAlignment="viewStart"
         android:textAppearance="@android:style/TextAppearance.Material.Body1"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/clothingImageView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/nightModeSwitch"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.968" />
+        app:layout_constraintStart_toStartOf="@+id/temperature" />
 
 
     <ImageView
         android:id="@+id/clothingImageView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="60dp"
         android:contentDescription="@string/clothingImage_content_desc"
         android:tag="none"
         android:visibility="visible"
@@ -67,7 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="55dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="18dp"
         android:layout_marginEnd="149dp"
         android:layout_marginBottom="33dp"
         android:text="@string/loading"
