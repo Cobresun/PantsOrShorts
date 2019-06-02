@@ -328,4 +328,12 @@ public class MainActivityPresenter {
         }
         return (int) a;
     }
+
+    // ***** This function exists to catch a crash ***** \\
+    public void clearThresholdIfUserUpdatedOrFirstTimeLaunch() {
+        if (userDataRepository.hasUserUpdated()) {
+            userDataRepository.clearUserThreshold();
+            userDataRepository.writeHasUserUpdated(false);
+        }
+    }
 }

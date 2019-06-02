@@ -2,6 +2,12 @@ package com.cobresun.brun.pantsorshorts.repositories;
 
 public interface UserDataRepository {
 
+    boolean hasUserUpdated();
+
+    void writeHasUserUpdated(boolean userUpdated);
+
+    void clearUserThreshold();
+
     int readUserThreshold();
 
     void writeUserThreshold(int threshold);
