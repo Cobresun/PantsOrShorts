@@ -175,5 +175,4 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         }
         nightModeSwitch.isChecked = isNightMode
     }
-
 }
