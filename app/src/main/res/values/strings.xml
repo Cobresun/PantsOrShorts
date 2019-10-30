@@ -5,4 +5,8 @@
     <string name="loading_highLow">NA</string>
     <string name="loading_shouldWear_text">You should wear something today</string>
     <string name="clothingImage_content_desc">This is the image you should wear</string>
+    <string name="feels_like_pants">For the next few hours, it feels like pants weather</string>
+    <string name="feels_like_shorts">For the next few hours, it feels like shorts weather</string>
+    <string name="too_hot">It\'s too hot for pants</string>
+    <string name="too_cold">It\'s too cold for shorts</string>
 </resources>

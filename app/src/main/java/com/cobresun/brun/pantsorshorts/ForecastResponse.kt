@@ -1,31 +1,31 @@
 package com.cobresun.brun.pantsorshorts
 
-class ForecastResponse {
-    var currently: CurrentlyResponse? = null
-    var daily: DailyResponse? = null
+data class ForecastResponse (
+    var currently: CurrentlyResponse? = null,
+    var daily: DailyResponse? = null,
     var hourly: HourlyResponse? = null
-}
+)
 
-class CurrentlyResponse {
-    var temperature: Double? = null
+data class CurrentlyResponse (
+    var temperature: Double? = null,
     var apparentTemperature: Double? = null
-}
+)
 
-class DailyResponse {
+data class DailyResponse (
     var data: List<DayResponse>? = null
-}
+)
 
-class HourlyResponse {
+data class HourlyResponse (
     var data: List<HourResponse>? = null
-}
+)
 
-class HourResponse {
+data class HourResponse (
     var apparentTemperature: Double? = null
-}
+)
 
-class DayResponse {
-    var temperatureMax: Double? = null
-    var temperatureMin: Double? = null
-    var apparentTemperatureMax: Double? = null
+data class DayResponse (
+    var temperatureMax: Double? = null,
+    var temperatureMin: Double? = null,
+    var apparentTemperatureMax: Double? = null,
     var apparentTemperatureMin: Double? = null
-}
+)
