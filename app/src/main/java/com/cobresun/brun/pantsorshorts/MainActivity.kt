@@ -15,134 +15,118 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : AppCompatActivity(), MainActivityView {
 
-    private var presenter: MainActivityPresenter? = null
-    private var rootLayout: ConstraintLayout? = null
-    private var clothingImageView: ImageView? = null
-    private var mainButton: Button? = null
-    private var shouldWearTextView: TextView? = null
-    private var cityNameView: TextView? = null
-    private var nightModeImage: ImageView? = null
-    private var nightModeSwitch: Switch? = null
+    private val presenter: MainActivityPresenter by lazy { MainActivityPresenter(this, SharedPrefsUserDataRepository(applicationContext), applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
         setContentView(R.layout.activity_main)
 
-        clothingImageView = findViewById(R.id.clothingImageView)
-        mainButton = findViewById(R.id.mainButton)
-        shouldWearTextView = findViewById(R.id.shouldWearTextView)
-        rootLayout = findViewById(R.id.rootLayout)
-        cityNameView = findViewById(R.id.city_name)
-        nightModeImage = findViewById(R.id.nightModeImage)
-        nightModeSwitch = findViewById(R.id.nightModeSwitch)
-
-        nightModeSwitch!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, _ ->
-            // On startup setChecked() is done programmatically in displayNightMode() so this avoids a double toggle
-            if (!buttonView.isPressed) {
-                return@OnCheckedChangeListener
+        nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
+            if (buttonView.isPressed) {
+                presenter.toggleNightMode()
             }
+        }
 
-            presenter!!.toggleNightMode()
-        })
+        mainButton.setOnClickListener {
+            presenter.calibrateThreshold()
+            Toast.makeText(applicationContext, "Pants or Shorts will remember that.", Toast.LENGTH_SHORT).show()
+        }
 
         updateView()
     }
 
     override fun updateView() {
-        presenter = MainActivityPresenter(this, SharedPrefsUserDataRepository(applicationContext), applicationContext)
         // ***** Hacky fix to solve current crash, can probably remove in the future  ***** \\
-        presenter!!.clearThresholdIfUserUpdatedOrFirstTimeLaunch()
-        presenter!!.checkInternet()
-        presenter!!.createLocationRequest(this)
-        presenter!!.setupNightMode()
+        presenter.clearThresholdIfUserUpdatedOrFirstTimeLaunch()
+
+        presenter.checkInternet()
+        presenter.createLocationRequest(this)
+        presenter.setupNightMode()
     }
 
     override fun displayCity(city: String) {
         if (city != "failed") {
-            cityNameView!!.text = city
-            cityNameView!!.invalidate()
+            city_name.text = city
+            city_name.invalidate()
         } else {
-            presenter!!.createLocationRequest(this)
+            presenter.createLocationRequest(this)
         }
     }
 
-    override fun displayTemperature(temperature: Int, isCelsius: Boolean) {
-        val tempText = findViewById<TextView>(R.id.temperature)
+    override fun displayTemperature(tempInt: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            tempText.text = "$temperature\u00B0C"
+            temperature.text = "$tempInt\u00B0C"
         } else {
-            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-            tempText.text = "$fahrenheit\u00B0F"
+            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperature.text = "$fahrenheit\u00B0F"
         }
-        tempText.invalidate()
+        temperature.invalidate()
     }
 
-    override fun displayHighTemperature(temperature: Int, isCelsius: Boolean) {
-        val tempText = findViewById<TextView>(R.id.temperatureHigh)
+    override fun displayHighTemperature(tempInt: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            tempText.text = temperature.toString() + "\u00B0"
+            temperatureHigh.text = tempInt.toString() + "\u00B0"
         } else {
-            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-            tempText.text = fahrenheit.toString() + "\u00B0"
+            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperatureHigh.text = fahrenheit.toString() + "\u00B0"
         }
-        tempText.invalidate()
+        temperatureHigh.invalidate()
     }
 
-    override fun displayLowTemperature(temperature: Int, isCelsius: Boolean) {
-        val tempText = findViewById<TextView>(R.id.temperatureLow)
+    override fun displayLowTemperature(tempInt: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            tempText.text = temperature.toString() + "\u00B0"
+            temperatureLow.text = tempInt.toString() + "\u00B0"
         } else {
-            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-            tempText.text = fahrenheit.toString() + "\u00B0"
+            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperatureLow.text = fahrenheit.toString() + "\u00B0"
         }
-        tempText.invalidate()
+        temperatureLow.invalidate()
     }
 
     override fun displayYouShouldWearText(clothing: Int) {
         if (clothing == MainActivityPresenter.PANTS) {
-            shouldWearTextView!!.text = getString(R.string.feels_like_pants)
+            shouldWearTextView.text = getString(R.string.feels_like_pants)
         } else if (clothing == MainActivityPresenter.SHORTS) {
-            shouldWearTextView!!.text = getString(R.string.feels_like_shorts)
+            shouldWearTextView.text = getString(R.string.feels_like_shorts)
         }
-        shouldWearTextView!!.invalidate()
+        shouldWearTextView.invalidate()
     }
 
     override fun displayClothingImage(clothing: Int) {
         if (clothing == MainActivityPresenter.PANTS) {
-            clothingImageView!!.tag = "pants"
-            clothingImageView!!.setImageResource(R.drawable.pants)
+            clothingImageView.tag = "pants"
+            clothingImageView.setImageResource(R.drawable.pants)
         } else if (clothing == MainActivityPresenter.SHORTS) {
-            clothingImageView!!.tag = "shorts"
-            clothingImageView!!.setImageResource(R.drawable.shorts)
+            clothingImageView.tag = "shorts"
+            clothingImageView.setImageResource(R.drawable.shorts)
         }
-        clothingImageView!!.invalidate()
+        clothingImageView.invalidate()
     }
 
     override fun displayButton(clothing: Int) {
         if (clothing == MainActivityPresenter.PANTS) {
-            mainButton!!.text = getString(R.string.too_hot)
-            mainButton!!.setBackgroundResource(R.drawable.my_button_red)
+            mainButton.text = getString(R.string.too_hot)
+            mainButton.setBackgroundResource(R.drawable.my_button_red)
             val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny)
-            mainButton!!.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
+            mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
         } else if (clothing == MainActivityPresenter.SHORTS) {
-            mainButton!!.text = getString(R.string.too_cold)
+            mainButton.text = getString(R.string.too_cold)
             val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit)
-            mainButton!!.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
-            mainButton!!.setBackgroundResource(R.drawable.my_button_blue)
+            mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
+            mainButton.setBackgroundResource(R.drawable.my_button_blue)
         }
-        mainButton!!.invalidate()
+        mainButton.invalidate()
     }
 
     override fun displayNoInternet() {
@@ -156,11 +140,6 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
     override fun displayNoPermissionsEnabled() {
         Toast.makeText(applicationContext, "This app won't even work if you don't enable permission...", Toast.LENGTH_LONG).show()
-    }
-
-    fun onButtonClick(view: View) {
-        presenter!!.calibrateThreshold()
-        Toast.makeText(applicationContext, "Pants or Shorts will remember that.", Toast.LENGTH_SHORT).show()
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -177,24 +156,24 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
     override fun changeTempMode(view: View) {
-        presenter!!.updateTempMode()
+        presenter.updateTempMode()
     }
 
     override fun displayNightMode(isNightMode: Boolean) {
         val darkColor = Color.parseColor("#212121")
         val lightColor = Color.parseColor("#FAFAFA")
         if (isNightMode) {
-            rootLayout!!.setBackgroundColor(darkColor)
-            cityNameView!!.setTextColor(lightColor)
-            shouldWearTextView!!.setTextColor(lightColor)
-            nightModeImage!!.setColorFilter(lightColor)
+            rootLayout.setBackgroundColor(darkColor)
+            city_name.setTextColor(lightColor)
+            shouldWearTextView.setTextColor(lightColor)
+            nightModeImage.setColorFilter(lightColor)
         } else {
-            rootLayout!!.setBackgroundColor(lightColor)
-            cityNameView!!.setTextColor(darkColor)
-            shouldWearTextView!!.setTextColor(darkColor)
-            nightModeImage!!.setColorFilter(darkColor)
+            rootLayout.setBackgroundColor(lightColor)
+            city_name.setTextColor(darkColor)
+            shouldWearTextView.setTextColor(darkColor)
+            nightModeImage.setColorFilter(darkColor)
         }
-        nightModeSwitch!!.isChecked = isNightMode
+        nightModeSwitch.isChecked = isNightMode
     }
 
 }
