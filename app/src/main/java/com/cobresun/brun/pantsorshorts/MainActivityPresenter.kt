@@ -11,8 +11,8 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.COLD
-import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.HOT
+import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.Companion.COLD
+import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.Companion.HOT
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import retrofit2.Call
@@ -208,12 +208,12 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
             service.getTemp(apiKey, location!!.latitude, location.longitude).enqueue(object : Callback<ForecastResponse> {
                 override fun onResponse(call: Call<ForecastResponse>, response: Response<ForecastResponse>) {
                     assert(response.body() != null)
-                    currentTemp = round(response.body()!!.currently.apparentTemperature)
-                    highTemp = round(response.body()!!.daily.data[0].apparentTemperatureMax)
-                    lowTemp = round(response.body()!!.daily.data[0].apparentTemperatureMin)
+                    currentTemp = response.body()!!.currently?.apparentTemperature?.let { round(it) }!!
+                    highTemp = response.body()!!.daily?.data!![0].apparentTemperatureMax?.let { round(it) }!!
+                    lowTemp = response.body()!!.daily?.data?.get(0)?.apparentTemperatureMin?.let { round(it) }!!
 
                     for (i in hourlyTemps.indices) {
-                        hourlyTemps[i] = round(response.body()!!.hourly.data[i].apparentTemperature)
+                        hourlyTemps[i] = response.body()!!.hourly?.data?.get(i)?.apparentTemperature?.let { round(it) }!!
                     }
 
                     userDataRepository.writeLastFetchedTemp(currentTemp)
@@ -258,10 +258,10 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
 
     private fun round(a: Double): Int {
         if (a > 0) {
-            return (a + 0.5).toInt()
-        } else if (a < 0) {
-            return (a - 0.5).toInt()
-        }
+                return (a + 0.5).toInt()
+            } else if (a < 0) {
+                return (a - 0.5).toInt()
+            }
         return a.toInt()
     }
 
