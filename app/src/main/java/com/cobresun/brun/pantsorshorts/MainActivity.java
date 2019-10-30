@@ -28,10 +28,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cobresun.brun.pantsorshorts.presenter.MainActivityPresenter;
-import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
-import com.cobresun.brun.pantsorshorts.view.MainActivityView;
-
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements MainActivityView {

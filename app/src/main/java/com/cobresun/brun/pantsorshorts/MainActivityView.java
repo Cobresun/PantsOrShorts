@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.view;
+package com.cobresun.brun.pantsorshorts;
 
 import android.view.View;
 

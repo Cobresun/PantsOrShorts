@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.presenter;
+package com.cobresun.brun.pantsorshorts;
 
 import android.Manifest;
 import android.app.Activity;
@@ -14,10 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
-import com.cobresun.brun.pantsorshorts.R;
-import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
-import com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository;
-import com.cobresun.brun.pantsorshorts.view.MainActivityView;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -42,8 +38,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.COLD;
-import static com.cobresun.brun.pantsorshorts.repositories.impl.SharedPrefsUserDataRepository.HOT;
+import static com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.COLD;
+import static com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.HOT;
 
 public class MainActivityPresenter {
 

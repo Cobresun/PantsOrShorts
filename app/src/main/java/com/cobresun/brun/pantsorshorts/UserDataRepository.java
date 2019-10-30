@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.repositories;
+package com.cobresun.brun.pantsorshorts;
 
 public interface UserDataRepository {
 

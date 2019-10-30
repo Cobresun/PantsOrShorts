@@ -1,9 +1,9 @@
-package com.cobresun.brun.pantsorshorts.repositories.impl;
+package com.cobresun.brun.pantsorshorts;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.cobresun.brun.pantsorshorts.repositories.UserDataRepository;
+import com.cobresun.brun.pantsorshorts.UserDataRepository;
 
 import static android.content.Context.MODE_PRIVATE;
 

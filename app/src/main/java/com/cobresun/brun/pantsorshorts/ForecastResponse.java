@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.presenter;
+package com.cobresun.brun.pantsorshorts;
 
 import java.util.List;
 

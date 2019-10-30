@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.presenter;
+package com.cobresun.brun.pantsorshorts;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
