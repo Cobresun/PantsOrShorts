@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         nightModeImage = findViewById(R.id.nightModeImage)
         nightModeSwitch = findViewById(R.id.nightModeSwitch)
 
-        nightModeSwitch!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+        nightModeSwitch!!.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { buttonView, _ ->
             // On startup setChecked() is done programmatically in displayNightMode() so this avoids a double toggle
             if (!buttonView.isPressed) {
                 return@OnCheckedChangeListener
@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
     override fun displayCity(city: String) {
-        if (city != null && city != "failed") {
+        if (city != "failed") {
             cityNameView!!.text = city
             cityNameView!!.invalidate()
         } else {
@@ -112,9 +112,9 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
     override fun displayYouShouldWearText(clothing: Int) {
         if (clothing == MainActivityPresenter.PANTS) {
-            shouldWearTextView!!.text = "For the next few hours, it feels like pants weather"
+            shouldWearTextView!!.text = getString(R.string.feels_like_pants)
         } else if (clothing == MainActivityPresenter.SHORTS) {
-            shouldWearTextView!!.text = "For the next few hours, it feels like shorts weather"
+            shouldWearTextView!!.text = getString(R.string.feels_like_shorts)
         }
         shouldWearTextView!!.invalidate()
     }
@@ -132,12 +132,12 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
     override fun displayButton(clothing: Int) {
         if (clothing == MainActivityPresenter.PANTS) {
-            mainButton!!.text = "It's too hot for pants"
+            mainButton!!.text = getString(R.string.too_hot)
             mainButton!!.setBackgroundResource(R.drawable.my_button_red)
             val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny)
             mainButton!!.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
         } else if (clothing == MainActivityPresenter.SHORTS) {
-            mainButton!!.text = "It's too cold for shorts"
+            mainButton!!.text = getString(R.string.too_cold)
             val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit)
             mainButton!!.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
             mainButton!!.setBackgroundResource(R.drawable.my_button_blue)

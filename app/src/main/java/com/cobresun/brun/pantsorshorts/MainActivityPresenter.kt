@@ -22,6 +22,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
+import kotlin.math.max
 
 class MainActivityPresenter(private val view: MainActivityView, private val userDataRepository: UserDataRepository, private val mContext: Context) {
 
@@ -61,7 +62,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
         val curTime = hour
         var average = 0
 
-        val hoursToInclude = Math.max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - curTime)
+        val hoursToInclude = max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - curTime)
 
         for (i in 0 until hoursToInclude) {
             if (hourlyTemps[i] >= preference) {
@@ -80,9 +81,9 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
 
     fun calibrateThreshold() {
         if (clothingSuggestion == SHORTS) {
-            updateUserThreshold(SharedPrefsUserDataRepository.COLD)
+            updateUserThreshold(COLD)
         } else {
-            updateUserThreshold(SharedPrefsUserDataRepository.HOT)
+            updateUserThreshold(HOT)
         }
         updateClothing()
     }
@@ -114,7 +115,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                 }
             }
         }
-        val REQUEST_CHECK_SETTINGS = 8888
+
         val locationRequest = LocationRequest.create()
         locationRequest.interval = 10000
         locationRequest.fastestInterval = 5000
@@ -151,8 +152,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
     }
 
     private fun getCity(lats: Double, lons: Double): String {
-        val geocoder: Geocoder
-        geocoder = Geocoder(mContext, Locale.getDefault())
+        val geocoder = Geocoder(mContext, Locale.getDefault())
         var addresses: List<Address>? = null
         try {
             addresses = geocoder.getFromLocation(lats, lons, 1)
@@ -169,7 +169,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
     }
 
     fun checkInternet() {
-        if (!isNetworkStatusAvialable(mContext)) {
+        if (!isNetworkStatusAvailable(mContext)) {
             view.displayNoInternet()
         }
     }
@@ -275,25 +275,24 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
 
     companion object {
 
-        val PANTS = 1
-        val SHORTS = 2
+        const val PANTS = 1
+        const val SHORTS = 2
 
-        val HOURS_SPENT_OUT = 4
-        val AVERAGE_HOME_TIME = 18
+        const val HOURS_SPENT_OUT = 4
+        const val AVERAGE_HOME_TIME = 18
 
         val INITIAL_PERMS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        val INITIAL_REQUEST = 1337
+        const val INITIAL_REQUEST = 1337
+        const val REQUEST_CHECK_SETTINGS = 8888
 
-        private val SECOND_MILLIS = 1000
-        private val MINUTE_MILLIS = 60 * SECOND_MILLIS
+        private const val SECOND_MILLIS = 1000
+        private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
 
-        private fun isNetworkStatusAvialable(context: Context): Boolean {
+        private fun isNetworkStatusAvailable(context: Context): Boolean {
             val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            if (connectivityManager != null) {
-                val netInfos = connectivityManager.activeNetworkInfo
-                if (netInfos != null)
-                    return netInfos.isConnected
-            }
+            val networkInfo = connectivityManager.activeNetworkInfo
+            if (networkInfo != null)
+                return networkInfo.isConnected
             return false
         }
     }
