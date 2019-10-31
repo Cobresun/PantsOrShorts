@@ -130,10 +130,11 @@ class SharedPrefsUserDataRepository(private val context: Context) : UserDataRepo
     }
 
     companion object {
-
+        // TODO: Turn this into an enum
         // int HowTheyFelt types
         const val COLD = 1
         const val HOT = 2
+
         private const val PREFS_NAME = "userPrefs"
     }
 
