@@ -38,13 +38,6 @@ class SharedPrefsUserDataRepository(private val context: Context) : UserDataRepo
         return settings.getBoolean("hasUserUpdated", true)
     }
 
-    override fun writeHasUserUpdated(userUpdated: Boolean) {
-        val settings = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = settings.edit()
-        editor.putBoolean("hasUserUpdated", userUpdated)
-        editor.apply()
-    }
-
     override fun clearUserThreshold() {
         val defaultThreshold = 21
         val pref = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)

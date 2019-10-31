@@ -10,8 +10,6 @@ interface UserDataRepository {
 
     fun hasUserUpdated(): Boolean
 
-    fun writeHasUserUpdated(userUpdated: Boolean)
-
     fun clearUserThreshold()
 
     fun readUserThreshold(): Int
