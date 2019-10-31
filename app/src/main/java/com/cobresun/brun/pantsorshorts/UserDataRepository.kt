@@ -8,10 +8,6 @@ interface UserDataRepository {
 
     val isCelsius: Boolean
 
-    fun hasUserUpdated(): Boolean
-
-    fun clearUserThreshold()
-
     fun readUserThreshold(): Int
 
     fun writeUserThreshold(threshold: Int)

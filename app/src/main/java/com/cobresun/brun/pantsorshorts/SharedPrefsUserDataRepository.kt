@@ -31,23 +31,6 @@ class SharedPrefsUserDataRepository(private val context: Context) : UserDataRepo
             return settings.getBoolean("isCelsius", false)
         }
 
-    // ***** These functions exist purely to escape a current crash ***** \\
-
-    override fun hasUserUpdated(): Boolean {
-        val settings = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        return settings.getBoolean("hasUserUpdated", true)
-    }
-
-    override fun clearUserThreshold() {
-        val defaultThreshold = 21
-        val pref = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        val editor = pref.edit()
-        editor.putInt("userThreshold", defaultThreshold)
-        editor.apply()
-    }
-
-    // ***** These functions exist purely to escape a current crash ***** \\
-
     override fun readUserThreshold(): Int {
         val defaultThreshold = 21
         val settings = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
