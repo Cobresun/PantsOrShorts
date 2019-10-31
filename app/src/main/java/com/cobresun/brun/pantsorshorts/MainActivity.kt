@@ -12,11 +12,9 @@ package com.cobresun.brun.pantsorshorts
 
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -61,65 +59,65 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         }
     }
 
-    override fun displayTemperature(tempInt: Int, isCelsius: Boolean) {
+    override fun displayTemperature(temperature: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            temperature.text = "$tempInt\u00B0C"
+            temperatureTextView.text = "$temperature\u00B0C"
         } else {
-            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
-            temperature.text = "$fahrenheit\u00B0F"
+            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperatureTextView.text = "$fahrenheit\u00B0F"
         }
-        temperature.invalidate()
+        temperatureTextView.invalidate()
     }
 
-    override fun displayHighTemperature(tempInt: Int, isCelsius: Boolean) {
+    override fun displayHighTemperature(temperature: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            temperatureHigh.text = tempInt.toString() + "\u00B0"
+            temperatureHighTextView.text = temperature.toString() + "\u00B0"
         } else {
-            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
-            temperatureHigh.text = fahrenheit.toString() + "\u00B0"
+            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperatureHighTextView.text = fahrenheit.toString() + "\u00B0"
         }
-        temperatureHigh.invalidate()
+        temperatureHighTextView.invalidate()
     }
 
-    override fun displayLowTemperature(tempInt: Int, isCelsius: Boolean) {
+    override fun displayLowTemperature(temperature: Int, isCelsius: Boolean) {
         if (isCelsius) {
-            temperatureLow.text = tempInt.toString() + "\u00B0"
+            temperatureLowTextView.text = temperature.toString() + "\u00B0"
         } else {
-            val fahrenheit = (tempInt * (9.0 / 5.0).toFloat()).toInt() + 32
-            temperatureLow.text = fahrenheit.toString() + "\u00B0"
+            val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
+            temperatureLowTextView.text = fahrenheit.toString() + "\u00B0"
         }
-        temperatureLow.invalidate()
+        temperatureLowTextView.invalidate()
     }
 
-    override fun displayYouShouldWearText(clothing: Int) {
-        if (clothing == MainActivityPresenter.PANTS) {
+    override fun displayYouShouldWearText(clothing: Clothing) {
+        if (clothing == Clothing.PANTS) {
             shouldWearTextView.text = getString(R.string.feels_like_pants)
-        } else if (clothing == MainActivityPresenter.SHORTS) {
+        } else if (clothing == Clothing.SHORTS) {
             shouldWearTextView.text = getString(R.string.feels_like_shorts)
         }
         shouldWearTextView.invalidate()
     }
 
-    override fun displayClothingImage(clothing: Int) {
-        if (clothing == MainActivityPresenter.PANTS) {
+    override fun displayClothingImage(clothing: Clothing) {
+        if (clothing == Clothing.PANTS) {
             clothingImageView.tag = "pants"
             clothingImageView.setImageResource(R.drawable.pants)
-        } else if (clothing == MainActivityPresenter.SHORTS) {
+        } else if (clothing == Clothing.SHORTS) {
             clothingImageView.tag = "shorts"
             clothingImageView.setImageResource(R.drawable.shorts)
         }
         clothingImageView.invalidate()
     }
 
-    override fun displayButton(clothing: Int) {
-        if (clothing == MainActivityPresenter.PANTS) {
+    override fun displayButton(clothing: Clothing) {
+        if (clothing == Clothing.PANTS) {
             mainButton.text = getString(R.string.too_hot)
             mainButton.setBackgroundResource(R.drawable.my_button_red)
-            val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny)
+            val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny, null)
             mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
-        } else if (clothing == MainActivityPresenter.SHORTS) {
+        } else if (clothing == Clothing.SHORTS) {
             mainButton.text = getString(R.string.too_cold)
-            val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit)
+            val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit, null)
             mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
             mainButton.setBackgroundResource(R.drawable.my_button_blue)
         }
@@ -130,7 +128,6 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         Toast.makeText(applicationContext, "Internet unavailable, please connect.", Toast.LENGTH_SHORT).show()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     override fun requestPermissions() {
         ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST)
     }
@@ -139,7 +136,6 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         Toast.makeText(applicationContext, "This app won't even work if you don't enable permission...", Toast.LENGTH_LONG).show()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == MainActivityPresenter.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

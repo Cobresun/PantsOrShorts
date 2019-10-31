@@ -12,11 +12,11 @@ interface MainActivityView {
 
     fun displayLowTemperature(temperature: Int, isCelsius: Boolean)
 
-    fun displayYouShouldWearText(clothing: Int)
+    fun displayYouShouldWearText(clothing: Clothing)
 
-    fun displayClothingImage(clothing: Int)
+    fun displayClothingImage(clothing: Clothing)
 
-    fun displayButton(clothing: Int)
+    fun displayButton(clothing: Clothing)
 
     fun displayNoInternet()
 

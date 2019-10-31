@@ -23,6 +23,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 class MainActivityPresenter(private val view: MainActivityView, private val userDataRepository: UserDataRepository, private val mContext: Context) {
 
@@ -30,7 +31,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
     private var highTemp: Int = 0
     private var lowTemp: Int = 0
 
-    private var clothingSuggestion: Int = 0
+    private var clothingSuggestion: Clothing = Clothing.UNKNOWN
 
     private var weatherCallInProgress: Boolean = false
 
@@ -45,20 +46,20 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
     private fun updateUserThreshold(howTheyFelt: Int) {
         if (howTheyFelt == COLD) {
             var curPreference = userDataRepository.readUserThreshold()
-            while (pantsOrShorts(curPreference) == SHORTS) {
+            while (pantsOrShorts(curPreference) == Clothing.SHORTS) {
                 curPreference++
             }
             userDataRepository.writeUserThreshold(curPreference)
         } else if (howTheyFelt == HOT) {
             var curPreference = userDataRepository.readUserThreshold()
-            while (pantsOrShorts(curPreference) == PANTS) {
+            while (pantsOrShorts(curPreference) == Clothing.PANTS) {
                 curPreference--
             }
             userDataRepository.writeUserThreshold(curPreference)
         }
     }
 
-    private fun pantsOrShorts(preference: Int): Int {
+    private fun pantsOrShorts(preference: Int): Clothing {
         val curTime = hour
         var average = 0
 
@@ -73,14 +74,14 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
         }
 
         return if (average >= 0) {
-            SHORTS
+            Clothing.SHORTS
         } else {
-            PANTS
+            Clothing.PANTS
         }
     }
 
     fun calibrateThreshold() {
-        if (clothingSuggestion == SHORTS) {
+        if (clothingSuggestion == Clothing.SHORTS) {
             updateUserThreshold(COLD)
         } else {
             updateUserThreshold(HOT)
@@ -97,7 +98,6 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
     }
 
     fun createLocationRequest(activity: Activity) {
-        var fusedLocationProviderClient: FusedLocationProviderClient
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult?) {
                 if (locationResult == null) {
@@ -110,7 +110,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                         view.displayCity(city)
                         getWeather(location)
                     } else {
-                        Log.d(this@MainActivityPresenter.toString(), "Location fetch failed!")
+                        Log.e(this@MainActivityPresenter.toString(), "Location fetch failed!")
                     }
                 }
             }
@@ -121,19 +121,19 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
         locationRequest.fastestInterval = 5000
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
 
-        val builder = LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest)
-
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
         val client = LocationServices.getSettingsClient(mContext)
         val task = client.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener(activity) {
             // All location settings are satisfied. The client can initialize location requests here.
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext)
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 view.requestPermissions()
             }
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null)
+
+             LocationServices
+                 .getFusedLocationProviderClient(mContext)
+                 .requestLocationUpdates(locationRequest, locationCallback, null)
         }
         task.addOnFailureListener(activity) { e ->
             if (e is ResolvableApiException) {
@@ -144,7 +144,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                     // and check the result in onActivityResult().
                     e.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
                 } catch (sendEx: IntentSender.SendIntentException) {
-                    // Ignore the error.
+                    Log.e(this@MainActivityPresenter.toString(), sendEx.toString())
                 }
 
             }
@@ -157,24 +157,32 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
         try {
             addresses = geocoder.getFromLocation(lats, lons, 1)
         } catch (e: IOException) {
-
             e.printStackTrace()
         }
 
         return if (addresses != null) {
             addresses[0].locality
         } else {
-            "failed"
+            "failed" // TODO: This is so weird...
         }
     }
 
+    private fun isNetworkStatusAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.activeNetworkInfo?.let { return it.isConnected }
+        return false
+    }
+
+    // TODO: The problem with doing this is: if they connect after opening the app, we don't respond!
+    //  They stay disconnected until they restart the app
     fun checkInternet() {
         if (!isNetworkStatusAvailable(mContext)) {
             view.displayNoInternet()
         }
     }
 
-    private fun getWeather(location: Location?) {
+    // TODO: This should really be abstracted away into some reusable reactive utility
+    private fun getWeather(location: Location) {
         if (weatherCallInProgress) {
             return
         }
@@ -205,15 +213,14 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                     .build()
 
             val service = retrofit.create(WeatherAPIService::class.java)
-            service.getTemp(apiKey, location!!.latitude, location.longitude).enqueue(object : Callback<ForecastResponse> {
+            service.getTemp(apiKey, location.latitude, location.longitude).enqueue(object : Callback<ForecastResponse> {
                 override fun onResponse(call: Call<ForecastResponse>, response: Response<ForecastResponse>) {
-                    assert(response.body() != null)
-                    currentTemp = response.body()!!.currently?.apparentTemperature?.let { round(it) }!!
-                    highTemp = response.body()!!.daily?.data!![0].apparentTemperatureMax?.let { round(it) }!!
-                    lowTemp = response.body()!!.daily?.data?.get(0)?.apparentTemperatureMin?.let { round(it) }!!
+                    currentTemp = response.body()?.currently?.apparentTemperature?.roundToInt()!!
+                    highTemp = response.body()?.daily?.data?.get(0)?.apparentTemperatureMax?.roundToInt()!!
+                    lowTemp = response.body()?.daily?.data?.get(0)?.apparentTemperatureMin?.roundToInt()!!
 
                     for (i in hourlyTemps.indices) {
-                        hourlyTemps[i] = response.body()!!.hourly?.data?.get(i)?.apparentTemperature?.let { round(it) }!!
+                        hourlyTemps[i] = response.body()?.hourly?.data?.get(i)?.apparentTemperature?.roundToInt()!!
                     }
 
                     userDataRepository.writeLastFetchedTemp(currentTemp)
@@ -256,20 +263,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
         view.displayNightMode(!isNightMode)
     }
 
-    private fun round(a: Double): Int {
-        if (a > 0) {
-                return (a + 0.5).toInt()
-            } else if (a < 0) {
-                return (a - 0.5).toInt()
-            }
-        return a.toInt()
-    }
-
     companion object {
-
-        const val PANTS = 1
-        const val SHORTS = 2
-
         const val HOURS_SPENT_OUT = 4
         const val AVERAGE_HOME_TIME = 18
 
@@ -279,13 +273,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
 
         private const val SECOND_MILLIS = 1000
         private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
-
-        private fun isNetworkStatusAvailable(context: Context): Boolean {
-            val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val networkInfo = connectivityManager.activeNetworkInfo
-            if (networkInfo != null)
-                return networkInfo.isConnected
-            return false
-        }
     }
 }
+
+enum class Clothing { PANTS, SHORTS, UNKNOWN }

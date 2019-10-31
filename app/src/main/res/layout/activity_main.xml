@@ -22,7 +22,7 @@
         app:layout_constraintBottom_toTopOf="@+id/clothingImageView"
         app:layout_constraintEnd_toEndOf="@+id/nightModeSwitch"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/temperature" />
+        app:layout_constraintStart_toStartOf="@+id/temperatureTextView" />
 
 
     <ImageView
@@ -49,7 +49,6 @@
         android:background="@drawable/my_button_red"
         android:drawableStart="@drawable/ic_wb_sunny"
         android:drawablePadding="8dp"
-        android:onClick="onButtonClick"
         android:padding="16dp"
         android:text="@string/loading"
         android:textColor="@android:color/white"
@@ -77,7 +76,7 @@
         app:layout_constraintVertical_bias="0.39" />
 
     <TextView
-        android:id="@+id/temperature"
+        android:id="@+id/temperatureTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="55dp"
@@ -100,7 +99,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/temperatureLow"
+        android:id="@+id/temperatureLowTextView"
         android:layout_width="wrap_content"
         android:layout_height="29dp"
         android:layout_marginStart="55dp"
@@ -116,7 +115,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/temperature"
+        app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
         app:layout_constraintVertical_bias="0.062"
         tools:textAlignment="center" />
 
@@ -140,13 +139,13 @@
         app:layout_constraintBottom_toTopOf="@+id/shouldWearTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/temperatureLow"
-        app:layout_constraintTop_toTopOf="@+id/temperature"
+        app:layout_constraintStart_toEndOf="@+id/temperatureLowTextView"
+        app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
         app:layout_constraintVertical_bias="0.111"
         tools:textAlignment="center" />
 
     <TextView
-        android:id="@+id/temperatureHigh"
+        android:id="@+id/temperatureHighTextView"
         android:layout_width="wrap_content"
         android:layout_height="28dp"
         android:layout_marginTop="45dp"
@@ -164,7 +163,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/slash"
-        app:layout_constraintTop_toTopOf="@+id/temperature"
+        app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
         app:layout_constraintVertical_bias="0.111"
         tools:textAlignment="center" />
 
@@ -187,7 +186,7 @@
         android:contentDescription="@string/night_mode_content_desc"
         app:layout_constraintBottom_toBottomOf="@+id/slash"
         app:layout_constraintEnd_toStartOf="@+id/nightModeSwitch"
-        app:layout_constraintTop_toTopOf="@+id/temperature"
+        app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
         app:srcCompat="@drawable/ic_brightness_contrast" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
