@@ -47,9 +47,6 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
     override fun updateView() {
-        // ***** Hacky fix to solve current crash, can probably remove in the future  ***** \\
-        presenter.clearThresholdIfUserUpdatedOrFirstTimeLaunch()
-
         presenter.checkInternet()
         presenter.createLocationRequest(this)
         presenter.setupNightMode()

@@ -105,12 +105,12 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                 }
                 for (location in locationResult.locations) {
                     if (location != null) {
-                        Log.d("BNORTAG", "Successfully got location")
+                        Log.d(this@MainActivityPresenter.toString(), "Successfully got location")
                         val city = getCity(location.latitude, location.longitude)
                         view.displayCity(city)
                         getWeather(location)
                     } else {
-                        Log.d("BNORTAG", "Location fetch failed!")
+                        Log.d(this@MainActivityPresenter.toString(), "Location fetch failed!")
                     }
                 }
             }
@@ -230,7 +230,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                 }
 
                 override fun onFailure(call: Call<ForecastResponse>, t: Throwable) {
-                    Log.d("BNORTAG", t.toString())
+                    Log.e(this@MainActivityPresenter.toString(), t.toString())
                 }
             })
         }
@@ -263,14 +263,6 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
                 return (a - 0.5).toInt()
             }
         return a.toInt()
-    }
-
-    // ***** This function exists to catch a crash ***** \\
-    fun clearThresholdIfUserUpdatedOrFirstTimeLaunch() {
-        if (userDataRepository.hasUserUpdated()) {
-            userDataRepository.clearUserThreshold()
-            userDataRepository.writeHasUserUpdated(false)
-        }
     }
 
     companion object {

@@ -11,8 +11,6 @@ android {
         versionCode 14
         versionName "2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        // Enabling multidex support.
         multiDexEnabled true
     }
     buildTypes {
@@ -49,7 +47,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.squareup.retrofit2:retrofit:2.6.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
-    compile "androidx.core:core-ktx:+"
+    implementation "androidx.core:core-ktx:1.1.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 repositories {
