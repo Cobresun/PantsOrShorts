@@ -16,9 +16,7 @@ import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -96,7 +94,7 @@ class MainActivityPresenter(
             override fun onLocationResult(locationResult: LocationResult) {
                 val city = getCity(locationResult.lastLocation)
                 view.displayCity(city)
-                getWeather(locationResult.lastLocation)
+                runBlocking { getWeather(locationResult.lastLocation) }
             }
         }
 
@@ -172,7 +170,7 @@ class MainActivityPresenter(
     }
 
     // TODO: This should really be abstracted away into some reusable reactive utility
-    private fun getWeather(location: Location) {
+    private suspend fun getWeather(location: Location) {
         if (weatherCallInProgress) {
             return
         }
@@ -203,36 +201,26 @@ class MainActivityPresenter(
                     .build()
 
             val service = retrofit.create(WeatherAPIService::class.java)
-            service.getTemp(apiKey, location.latitude, location.longitude).enqueue(object : Callback<ForecastResponse> {
-                override fun onResponse(call: Call<ForecastResponse>, response: Response<ForecastResponse>) {
-                    val responseBody = response.body()
-                    responseBody?.let {
-                        currentTemp = it.currently.apparentTemperature.roundToInt()
-                        highTemp = it.daily.data[0].apparentTemperatureMax.roundToInt()
-                        lowTemp = it.daily.data[0].apparentTemperatureMin.roundToInt()
+            val forecastResponse = service.getForecastResponse(apiKey, location.latitude, location.longitude)
 
-                        for (i in hourlyTemps.indices) {
-                            hourlyTemps[i] = it.hourly.data[i].apparentTemperature.roundToInt()
-                        }
-                    }
+            currentTemp = forecastResponse.currently.apparentTemperature.roundToInt()
+            highTemp = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
+            lowTemp = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
+            for (i in hourlyTemps.indices) {
+                hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
+            }
 
-                    userDataRepository.writeLastFetchedTemp(currentTemp)
-                    userDataRepository.writeLastFetchedTempHigh(highTemp)
-                    userDataRepository.writeLastFetchedTempLow(lowTemp)
-                    userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
-                    userDataRepository.writeLastTimeFetchedWeather(currentTime)
-                    userDataRepository.writeIsCelsius(true)
-                    view.displayTemperature(currentTemp, true)
-                    view.displayHighTemperature(highTemp, true)
-                    view.displayLowTemperature(lowTemp, true)
-                    updateClothing()
-                    weatherCallInProgress = false
-                }
-
-                override fun onFailure(call: Call<ForecastResponse>, t: Throwable) {
-                    Log.e(this@MainActivityPresenter.toString(), t.toString())
-                }
-            })
+            userDataRepository.writeLastFetchedTemp(currentTemp)
+            userDataRepository.writeLastFetchedTempHigh(highTemp)
+            userDataRepository.writeLastFetchedTempLow(lowTemp)
+            userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
+            userDataRepository.writeLastTimeFetchedWeather(currentTime)
+            userDataRepository.writeIsCelsius(true)
+            view.displayTemperature(currentTemp, true)
+            view.displayHighTemperature(highTemp, true)
+            view.displayLowTemperature(lowTemp, true)
+            updateClothing()
+            weatherCallInProgress = false
         }
     }
 
