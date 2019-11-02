@@ -11,8 +11,9 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.Companion.COLD
-import com.cobresun.brun.pantsorshorts.SharedPrefsUserDataRepository.Companion.HOT
+import com.cobresun.brun.pantsorshorts.Clothing.*
+import com.cobresun.brun.pantsorshorts.Feeling.COLD
+import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import retrofit2.Call
@@ -20,8 +21,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -35,7 +34,7 @@ class MainActivityPresenter(
     private var highTemp: Int = 0
     private var lowTemp: Int = 0
 
-    private var clothingSuggestion: Clothing = Clothing.UNKNOWN
+    private var clothingSuggestion: Clothing = UNKNOWN
 
     private var weatherCallInProgress: Boolean = false
 
@@ -46,19 +45,11 @@ class MainActivityPresenter(
             return Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         }
 
-    private fun updateUserThreshold(howTheyFelt: Int) {
-        if (howTheyFelt == COLD) {
-            var curPreference = userDataRepository.readUserThreshold()
-            while (pantsOrShorts(curPreference) == Clothing.SHORTS) {
-                curPreference++
-            }
-            userDataRepository.writeUserThreshold(curPreference)
-        } else if (howTheyFelt == HOT) {
-            var curPreference = userDataRepository.readUserThreshold()
-            while (pantsOrShorts(curPreference) == Clothing.PANTS) {
-                curPreference--
-            }
-            userDataRepository.writeUserThreshold(curPreference)
+    private fun updateUserThreshold(howTheyFelt: Feeling) {
+        val currentPreference = userDataRepository.readUserThreshold()
+        when (howTheyFelt) {
+            COLD -> userDataRepository.writeUserThreshold(currentPreference + 1)
+            HOT -> userDataRepository.writeUserThreshold(currentPreference - 1)
         }
     }
 
@@ -77,17 +68,17 @@ class MainActivityPresenter(
         }
 
         return if (average >= 0) {
-            Clothing.SHORTS
+            SHORTS
         } else {
-            Clothing.PANTS
+            PANTS
         }
     }
 
     fun calibrateThreshold() {
-        if (clothingSuggestion == Clothing.SHORTS) {
-            updateUserThreshold(COLD)
-        } else {
-            updateUserThreshold(HOT)
+        when (clothingSuggestion) {
+            PANTS -> updateUserThreshold(HOT)
+            SHORTS -> updateUserThreshold(COLD)
+            UNKNOWN -> Log.e(this.toString(), "calibrateThreshold() but current suggestion unknown")
         }
         updateClothing()
     }
@@ -102,31 +93,26 @@ class MainActivityPresenter(
 
     fun createLocationRequest(activity: Activity) {
         val locationCallback: LocationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult?) {
-                if (locationResult == null) {
-                    return
-                }
-                for (location in locationResult.locations) {
-                    if (location != null) {
-                        Log.d(this@MainActivityPresenter.toString(), "Successfully got location")
-                        val city = getCity(location)
-                        view.displayCity(city)
-                        getWeather(location)
-                    } else {
-                        Log.e(this@MainActivityPresenter.toString(), "Location fetch failed!")
-                    }
-                }
+            override fun onLocationResult(locationResult: LocationResult) {
+                val city = getCity(locationResult.lastLocation)
+                view.displayCity(city)
+                getWeather(locationResult.lastLocation)
             }
         }
 
-        val locationRequest = LocationRequest.create()
-        locationRequest.interval = 10000
-        locationRequest.fastestInterval = 5000
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        val locationRequest = LocationRequest
+                .create()
+                .setInterval(1000)
+                .setFastestInterval(5000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val builder = LocationSettingsRequest
+                .Builder()
+                .addLocationRequest(locationRequest)
+                .build()
+
         val client = LocationServices.getSettingsClient(mContext)
-        val task = client.checkLocationSettings(builder.build())
+        val task = client.checkLocationSettings(builder)
 
         task.addOnSuccessListener(activity) {
             // All location settings are satisfied. The client can initialize location requests here.
@@ -287,3 +273,5 @@ class MainActivityPresenter(
 }
 
 enum class Clothing { PANTS, SHORTS, UNKNOWN }
+
+enum class Feeling {COLD, HOT}
