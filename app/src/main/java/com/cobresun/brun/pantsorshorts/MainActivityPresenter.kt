@@ -21,6 +21,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -108,7 +109,7 @@ class MainActivityPresenter(
                 for (location in locationResult.locations) {
                     if (location != null) {
                         Log.d(this@MainActivityPresenter.toString(), "Successfully got location")
-                        val city = getCity(location.latitude, location.longitude)
+                        val city = getCity(location)
                         view.displayCity(city)
                         getWeather(location)
                     } else {
@@ -129,8 +130,10 @@ class MainActivityPresenter(
 
         task.addOnSuccessListener(activity) {
             // All location settings are satisfied. The client can initialize location requests here.
-            if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                view.requestPermissions()
+            if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    view.requestPermissions()
+                }
             }
 
              LocationServices
@@ -153,19 +156,21 @@ class MainActivityPresenter(
         }
     }
 
-    private fun getCity(lats: Double, lons: Double): String {
+    private fun getCity(location: Location): String? {
         val geocoder = Geocoder(mContext, Locale.getDefault())
-        var addresses: List<Address>? = null
+        var addresses: List<Address> = emptyList()
+
         try {
-            addresses = geocoder.getFromLocation(lats, lons, 1)
-        } catch (e: IOException) {
-            e.printStackTrace()
+            addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
+        } catch (e: Exception) {
+            Log.e(this@MainActivityPresenter.toString(), e.toString())
         }
 
-        return if (addresses != null) {
-            addresses[0].locality
+        return if (addresses.isEmpty()) {
+            Log.e(this@MainActivityPresenter.toString(), "No location found")
+            null
         } else {
-            "failed" // TODO: This is so weird...
+            addresses[0].locality
         }
     }
 

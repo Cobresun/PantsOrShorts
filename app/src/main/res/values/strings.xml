@@ -9,4 +9,10 @@
     <string name="feels_like_shorts">For the next few hours, it feels like shorts weather</string>
     <string name="too_hot">It\'s too hot for pants</string>
     <string name="too_cold">It\'s too cold for shorts</string>
+    <string name="remember_that">Pants or Shorts will remember that.</string>
+    <string name="internet_unavailable">Internet unavailable, please connect.</string>
+    <string name="enable_permission">This app won\'t even work if you don\'t enable permission…</string>
+    <string name="pants">pants</string>
+    <string name="shorts">shorts</string>
+    <string name="slash">/</string>
 </resources>
