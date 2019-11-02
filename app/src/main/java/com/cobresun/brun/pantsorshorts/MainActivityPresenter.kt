@@ -106,40 +106,38 @@ class MainActivityPresenter(
                 .setFastestInterval(5000)
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
-        val builder = LocationSettingsRequest
+        val locationSettingsRequest = LocationSettingsRequest
                 .Builder()
                 .addLocationRequest(locationRequest)
                 .build()
 
-        val client = LocationServices.getSettingsClient(mContext)
-        val task = client.checkLocationSettings(builder)
-
-        task.addOnSuccessListener(activity) {
-            // All location settings are satisfied. The client can initialize location requests here.
-            if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    view.requestPermissions()
+        LocationServices
+                .getSettingsClient(mContext)
+                .checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener {
+                    // All location settings are satisfied. The client can initialize location requests here.
+                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            view.requestPermissions()
+                        }
+                    }
+                    LocationServices
+                            .getFusedLocationProviderClient(mContext)
+                            .requestLocationUpdates(locationRequest, locationCallback, null)
                 }
-            }
-
-             LocationServices
-                 .getFusedLocationProviderClient(mContext)
-                 .requestLocationUpdates(locationRequest, locationCallback, null)
-        }
-        task.addOnFailureListener(activity) { e ->
-            if (e is ResolvableApiException) {
-                // Location settings are not satisfied, but this can be fixed
-                // by showing the user a dialog.
-                try {
-                    // Show the dialog by calling startResolutionForResult(),
-                    // and check the result in onActivityResult().
-                    e.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    Log.e(this@MainActivityPresenter.toString(), sendEx.toString())
+                .addOnFailureListener { e ->
+                    if (e is ResolvableApiException) {
+                        // Location settings are not satisfied, but this can be fixed
+                        // by showing the user a dialog.
+                        try {
+                            // Show the dialog by calling startResolutionForResult(),
+                            // and check the result in onActivityResult().
+                            e.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
+                        } catch (sendEx: IntentSender.SendIntentException) {
+                            Log.e(this@MainActivityPresenter.toString(), sendEx.toString())
+                        }
+                    }
                 }
-
-            }
-        }
     }
 
     private fun getCity(location: Location): String? {
@@ -166,8 +164,7 @@ class MainActivityPresenter(
         return false
     }
 
-    // TODO: The problem with doing this is: if they connect after opening the app, we don't respond!
-    //  They stay disconnected until they restart the app
+    // TODO: If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
     fun checkInternet() {
         if (!isNetworkStatusAvailable(mContext)) {
             view.displayNoInternet()
@@ -274,4 +271,4 @@ class MainActivityPresenter(
 
 enum class Clothing { PANTS, SHORTS, UNKNOWN }
 
-enum class Feeling {COLD, HOT}
+enum class Feeling { COLD, HOT }
