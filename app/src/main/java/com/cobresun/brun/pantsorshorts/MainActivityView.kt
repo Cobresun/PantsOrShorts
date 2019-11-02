@@ -4,7 +4,7 @@ import android.view.View
 
 interface MainActivityView {
 
-    fun displayCity(city: String)
+    fun displayCity(city: String?)
 
     fun displayTemperature(temperature: Int, isCelsius: Boolean)
 

@@ -132,7 +132,7 @@
         android:focusable="true"
         android:fontFamily="@font/roboto_slab_thin"
         android:onClick="changeTempMode"
-        android:text="/"
+        android:text="@string/slash"
         android:textColor="#616161"
         android:textSize="20sp"
         android:textStyle="bold"

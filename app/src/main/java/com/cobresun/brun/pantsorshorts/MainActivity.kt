@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
         mainButton.setOnClickListener {
             presenter.calibrateThreshold()
-            Toast.makeText(applicationContext, "Pants or Shorts will remember that.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
         }
 
         updateView()
@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         presenter.setupNightMode()
     }
 
-    override fun displayCity(city: String) {
-        if (city != "failed") {
+    override fun displayCity(city: String?) {
+        if (city != null) {
             city_name.text = city
             city_name.invalidate()
         } else {
@@ -100,10 +100,10 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
     override fun displayClothingImage(clothing: Clothing) {
         if (clothing == Clothing.PANTS) {
-            clothingImageView.tag = "pants"
+            clothingImageView.tag = getString(R.string.pants)
             clothingImageView.setImageResource(R.drawable.pants)
         } else if (clothing == Clothing.SHORTS) {
-            clothingImageView.tag = "shorts"
+            clothingImageView.tag = getString(R.string.shorts)
             clothingImageView.setImageResource(R.drawable.shorts)
         }
         clothingImageView.invalidate()
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
     override fun displayNoInternet() {
-        Toast.makeText(applicationContext, "Internet unavailable, please connect.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(applicationContext, getString(R.string.internet_unavailable), Toast.LENGTH_SHORT).show()
     }
 
     override fun requestPermissions() {
@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
     }
 
     override fun displayNoPermissionsEnabled() {
-        Toast.makeText(applicationContext, "This app won't even work if you don't enable permission...", Toast.LENGTH_LONG).show()
+        Toast.makeText(applicationContext, getString(R.string.enable_permission), Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -152,6 +152,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         presenter.updateTempMode()
     }
 
+    // TODO: Replace with material theming
     override fun displayNightMode(isNightMode: Boolean) {
         val darkColor = Color.parseColor("#212121")
         val lightColor = Color.parseColor("#FAFAFA")
