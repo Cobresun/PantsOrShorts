@@ -25,7 +25,10 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class MainActivityPresenter(private val view: MainActivityView, private val userDataRepository: UserDataRepository, private val mContext: Context) {
+class MainActivityPresenter(
+        private val view: MainActivityView,
+        private val userDataRepository: UserDataRepository,
+        private val mContext: Context) {
 
     private var currentTemp: Int = 0
     private var highTemp: Int = 0
@@ -39,8 +42,7 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
 
     private val hour: Int
         get() {
-            val c = Calendar.getInstance()
-            return c.get(Calendar.HOUR_OF_DAY)
+            return Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         }
 
     private fun updateUserThreshold(howTheyFelt: Int) {
@@ -215,12 +217,15 @@ class MainActivityPresenter(private val view: MainActivityView, private val user
             val service = retrofit.create(WeatherAPIService::class.java)
             service.getTemp(apiKey, location.latitude, location.longitude).enqueue(object : Callback<ForecastResponse> {
                 override fun onResponse(call: Call<ForecastResponse>, response: Response<ForecastResponse>) {
-                    currentTemp = response.body()?.currently?.apparentTemperature?.roundToInt()!!
-                    highTemp = response.body()?.daily?.data?.get(0)?.apparentTemperatureMax?.roundToInt()!!
-                    lowTemp = response.body()?.daily?.data?.get(0)?.apparentTemperatureMin?.roundToInt()!!
+                    val responseBody = response.body()
+                    responseBody?.let {
+                        currentTemp = it.currently.apparentTemperature.roundToInt()
+                        highTemp = it.daily.data[0].apparentTemperatureMax.roundToInt()
+                        lowTemp = it.daily.data[0].apparentTemperatureMin.roundToInt()
 
-                    for (i in hourlyTemps.indices) {
-                        hourlyTemps[i] = response.body()?.hourly?.data?.get(i)?.apparentTemperature?.roundToInt()!!
+                        for (i in hourlyTemps.indices) {
+                            hourlyTemps[i] = it.hourly.data[i].apparentTemperature.roundToInt()
+                        }
                     }
 
                     userDataRepository.writeLastFetchedTemp(currentTemp)
