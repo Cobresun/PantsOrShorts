@@ -83,6 +83,7 @@ class MainActivityPresenter(
     }
 
     private fun updateClothing() {
+//        val clothing = pantsOrShorts(userDataRepository.readUserThreshold())
         val clothing = pantsOrShorts(userDataRepository.readUserThreshold())
         clothingSuggestion = clothing
         view.displayClothingImage(clothing)
