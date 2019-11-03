@@ -174,7 +174,7 @@ class MainActivityPresenter(
         return false
     }
 
-    // TODO: If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
+    // TODO: BUG - If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
     fun checkInternet() {
         if (!isNetworkStatusAvailable(mContext)) {
             view.displayNoInternet()
@@ -183,10 +183,11 @@ class MainActivityPresenter(
 
     private fun shouldFetchWeather(): Boolean {
         val lastFetched = userDataRepository.readLastTimeFetchedWeather()
-        val diff = System.currentTimeMillis() - lastFetched
+        val timeSinceFetched = System.currentTimeMillis() - lastFetched
         val isFirstTime = userDataRepository.isFirstTimeLaunching
 
-        return !(diff < MINUTE_MILLIS && !isFirstTime)
+        // Rate limiting to fetching only after 10 minutes
+        return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
     }
 
     private suspend fun fetchWeather(location: Location) {
@@ -213,7 +214,10 @@ class MainActivityPresenter(
         userDataRepository.writeLastFetchedTempLow(lowTemp)
         userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
         userDataRepository.writeLastTimeFetchedWeather(System.currentTimeMillis())
+        // BUG - So the fahrenheit setting only persists till next fetch, at which point we reset it back to celsius...
+        // TODO: Map weather to correct degree by reading isCelsius from repo first!
         userDataRepository.writeIsCelsius(true)
+
         view.displayTemperature(currentTemp, true)
         view.displayHighTemperature(highTemp, true)
         view.displayLowTemperature(lowTemp, true)
