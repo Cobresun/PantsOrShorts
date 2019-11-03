@@ -37,8 +37,6 @@ class MainActivityPresenter(
 
     private var clothingSuggestion: Clothing = UNKNOWN
 
-    private var weatherCallInProgress: Boolean = false
-
     private var hourlyTemps = IntArray(24)
 
     private val hour: Int
@@ -95,10 +93,21 @@ class MainActivityPresenter(
     fun createLocationRequest(activity: Activity) {
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
+                LocationServices
+                        .getFusedLocationProviderClient(mContext)
+                        .removeLocationUpdates(this)
+
                 val city = getCity(locationResult.lastLocation)
                 view.displayCity(city)
-                CoroutineScope(Dispatchers.Main).launch {
-                    getWeather(locationResult.lastLocation)
+
+                when (shouldFetchWeather()) {
+                    true -> {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            fetchWeather(locationResult.lastLocation)
+                            writeAndDisplayNewData()
+                        }
+                    }
+                    false -> loadAndDisplayPreviousData()
                 }
             }
         }
@@ -124,17 +133,15 @@ class MainActivityPresenter(
                             view.requestPermissions()
                         }
                     }
-                    LocationServices
-                            .getFusedLocationProviderClient(mContext)
-                            .requestLocationUpdates(locationRequest, locationCallback, null)
+                    else {
+                        LocationServices
+                                .getFusedLocationProviderClient(mContext)
+                                .requestLocationUpdates(locationRequest, locationCallback, null)
+                    }
                 }
                 .addOnFailureListener { e ->
                     if (e is ResolvableApiException) {
-                        // Location settings are not satisfied, but this can be fixed
-                        // by showing the user a dialog.
                         try {
-                            // Show the dialog by calling startResolutionForResult(),
-                            // and check the result in onActivityResult().
                             e.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
                         } catch (sendEx: IntentSender.SendIntentException) {
                             Log.e(this@MainActivityPresenter.toString(), sendEx.toString())
@@ -174,38 +181,29 @@ class MainActivityPresenter(
         }
     }
 
-    // TODO: This should really be abstracted away into some reusable reactive utility
-    private suspend fun getWeather(location: Location) {
-        if (weatherCallInProgress) {
-            return
-        }
+    private fun shouldFetchWeather(): Boolean {
         val lastFetched = userDataRepository.readLastTimeFetchedWeather()
         val diff = System.currentTimeMillis() - lastFetched
-
         val isFirstTime = userDataRepository.isFirstTimeLaunching
+
+        return !(diff < MINUTE_MILLIS && !isFirstTime)
+    }
+
+    private suspend fun fetchWeather(location: Location) {
+        val retrofit = Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("https://api.darksky.net/")
+                .build()
+
+        val service = retrofit.create(WeatherAPIService::class.java)
         val apiKey = mContext.resources.getString(R.string.dark_sky)
+        val forecastResponse = service.getForecastResponse(apiKey, location.latitude, location.longitude)
 
-        if (diff < MINUTE_MILLIS && !isFirstTime) {
-            loadAndDisplayPreviousData()
-        } else {
-            weatherCallInProgress = true
-            val retrofit = Retrofit.Builder()
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .baseUrl("https://api.darksky.net/")
-                    .build()
-
-            val service = retrofit.create(WeatherAPIService::class.java)
-            val forecastResponse = service.getForecastResponse(apiKey, location.latitude, location.longitude)
-
-            currentTemp = forecastResponse.currently.apparentTemperature.roundToInt()
-            highTemp = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
-            lowTemp = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
-            for (i in hourlyTemps.indices) {
-                hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
-            }
-
-            writeAndDisplayNewData()
-            weatherCallInProgress = false
+        currentTemp = forecastResponse.currently.apparentTemperature.roundToInt()
+        highTemp = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
+        lowTemp = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
+        for (i in hourlyTemps.indices) {
+            hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
         }
     }
 
