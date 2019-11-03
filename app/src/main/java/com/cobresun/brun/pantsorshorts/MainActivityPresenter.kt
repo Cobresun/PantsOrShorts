@@ -1,22 +1,25 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.Manifest
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.app.Activity
 import android.content.Context
 import android.content.IntentSender
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.net.ConnectivityManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.checkSelfPermission
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -94,7 +97,9 @@ class MainActivityPresenter(
             override fun onLocationResult(locationResult: LocationResult) {
                 val city = getCity(locationResult.lastLocation)
                 view.displayCity(city)
-                runBlocking { getWeather(locationResult.lastLocation) }
+                CoroutineScope(Dispatchers.Main).launch {
+                    getWeather(locationResult.lastLocation)
+                }
             }
         }
 
@@ -114,8 +119,8 @@ class MainActivityPresenter(
                 .checkLocationSettings(locationSettingsRequest)
                 .addOnSuccessListener {
                     // All location settings are satisfied. The client can initialize location requests here.
-                    if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    if (checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
+                        if (checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
                             view.requestPermissions()
                         }
                     }
@@ -175,24 +180,13 @@ class MainActivityPresenter(
             return
         }
         val lastFetched = userDataRepository.readLastTimeFetchedWeather()
-        val currentTime = System.currentTimeMillis()
-        val diff = currentTime - lastFetched
+        val diff = System.currentTimeMillis() - lastFetched
 
         val isFirstTime = userDataRepository.isFirstTimeLaunching
         val apiKey = mContext.resources.getString(R.string.dark_sky)
 
         if (diff < MINUTE_MILLIS && !isFirstTime) {
-            val isCelsius = userDataRepository.isCelsius
-
-            currentTemp = userDataRepository.readLastFetchedTemp()
-            highTemp = userDataRepository.readLastFetchedTempHigh()
-            lowTemp = userDataRepository.readLastFetchedTempLow()
-            hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
-
-            view.displayTemperature(currentTemp, isCelsius)
-            view.displayHighTemperature(highTemp, isCelsius)
-            view.displayLowTemperature(lowTemp, isCelsius)
-            updateClothing()
+            loadAndDisplayPreviousData()
         } else {
             weatherCallInProgress = true
             val retrofit = Retrofit.Builder()
@@ -210,18 +204,36 @@ class MainActivityPresenter(
                 hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
             }
 
-            userDataRepository.writeLastFetchedTemp(currentTemp)
-            userDataRepository.writeLastFetchedTempHigh(highTemp)
-            userDataRepository.writeLastFetchedTempLow(lowTemp)
-            userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
-            userDataRepository.writeLastTimeFetchedWeather(currentTime)
-            userDataRepository.writeIsCelsius(true)
-            view.displayTemperature(currentTemp, true)
-            view.displayHighTemperature(highTemp, true)
-            view.displayLowTemperature(lowTemp, true)
-            updateClothing()
+            writeAndDisplayNewData()
             weatherCallInProgress = false
         }
+    }
+
+    private fun writeAndDisplayNewData() {
+        userDataRepository.writeLastFetchedTemp(currentTemp)
+        userDataRepository.writeLastFetchedTempHigh(highTemp)
+        userDataRepository.writeLastFetchedTempLow(lowTemp)
+        userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
+        userDataRepository.writeLastTimeFetchedWeather(System.currentTimeMillis())
+        userDataRepository.writeIsCelsius(true)
+        view.displayTemperature(currentTemp, true)
+        view.displayHighTemperature(highTemp, true)
+        view.displayLowTemperature(lowTemp, true)
+        updateClothing()
+    }
+
+    private fun loadAndDisplayPreviousData() {
+        val isCelsius = userDataRepository.isCelsius
+
+        currentTemp = userDataRepository.readLastFetchedTemp()
+        highTemp = userDataRepository.readLastFetchedTempHigh()
+        lowTemp = userDataRepository.readLastFetchedTempLow()
+        hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
+
+        view.displayTemperature(currentTemp, isCelsius)
+        view.displayHighTemperature(highTemp, isCelsius)
+        view.displayLowTemperature(lowTemp, isCelsius)
+        updateClothing()
     }
 
     fun updateTempMode() {
@@ -248,7 +260,7 @@ class MainActivityPresenter(
         const val HOURS_SPENT_OUT = 4
         const val AVERAGE_HOME_TIME = 18
 
-        val INITIAL_PERMS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        val INITIAL_PERMS = arrayOf(ACCESS_FINE_LOCATION)
         const val INITIAL_REQUEST = 1337
         const val REQUEST_CHECK_SETTINGS = 8888
 
