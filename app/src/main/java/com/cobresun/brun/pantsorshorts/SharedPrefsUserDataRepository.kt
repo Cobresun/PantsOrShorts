@@ -21,9 +21,11 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
             return isFirstTime
         }
 
-    override val isNightMode = sharedPreferences.getBoolean("isNightMode", false)
+    override val isNightMode: Boolean
+        get() { return sharedPreferences.getBoolean("isNightMode", false) }
 
-    override val isCelsius = sharedPreferences.getBoolean("isCelsius", false)
+    override val isCelsius: Boolean
+        get() { return sharedPreferences.getBoolean("isCelsius", false) }
 
     override fun readUserThreshold() = sharedPreferences.getInt("userThreshold", 21)
 
