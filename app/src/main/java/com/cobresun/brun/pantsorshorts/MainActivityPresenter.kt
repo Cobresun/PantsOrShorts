@@ -39,11 +39,6 @@ class MainActivityPresenter(
 
     private var hourlyTemps = IntArray(24)
 
-    private val hour: Int
-        get() {
-            return Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        }
-
     private fun updateUserThreshold(howTheyFelt: Feeling) {
         val currentPreference = userDataRepository.userThreshold
         when (howTheyFelt) {
@@ -53,23 +48,21 @@ class MainActivityPresenter(
     }
 
     private fun pantsOrShorts(preference: Int): Clothing {
-        val curTime = hour
+        val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var average = 0
 
-        val hoursToInclude = max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - curTime)
+        val hoursToInclude = max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - currentHour)
 
         for (i in 0 until hoursToInclude) {
-            if (hourlyTemps[i] >= preference) {
-                average++
-            } else {
-                average--
+            when {
+                hourlyTemps[i] >= preference -> average++
+                else -> average--
             }
         }
 
-        return if (average >= 0) {
-            SHORTS
-        } else {
-            PANTS
+        return when {
+            average >= 0 -> SHORTS
+            else -> PANTS
         }
     }
 
