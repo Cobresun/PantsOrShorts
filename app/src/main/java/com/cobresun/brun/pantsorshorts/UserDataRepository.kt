@@ -4,35 +4,21 @@ interface UserDataRepository {
 
     val isFirstTimeLaunching: Boolean
 
-    val isNightMode: Boolean
+    var isNightMode: Boolean
 
-    val isCelsius: Boolean
+    var isCelsius: Boolean
 
-    fun readUserThreshold(): Int
+    var userThreshold: Int
 
-    fun writeUserThreshold(threshold: Int)
+    var lastTimeFetchedWeather: Long
 
-    fun readLastTimeFetchedWeather(): Long
+    var lastFetchedTemp: Int
 
-    fun writeLastTimeFetchedWeather(time: Long)
+    var lastFetchedTempHigh: Int
 
-    fun readLastFetchedTemp(): Int
-
-    fun writeLastFetchedTemp(temp: Int)
-
-    fun readLastFetchedTempHigh(): Int
-
-    fun writeLastFetchedTempHigh(temp: Int)
-
-    fun readLastFetchedTempLow(): Int
-
-    fun writeLastFetchedTempLow(temp: Int)
+    var lastFetchedTempLow: Int
 
     fun readLastFetchedHourlyTemps(): IntArray
 
     fun writeLastFetchedHourlyTemps(temps: IntArray)
-
-    fun writeNightMode(nightMode: Boolean)
-
-    fun writeIsCelsius(isCelsius: Boolean)
 }

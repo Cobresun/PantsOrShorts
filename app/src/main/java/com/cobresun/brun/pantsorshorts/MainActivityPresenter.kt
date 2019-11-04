@@ -45,10 +45,10 @@ class MainActivityPresenter(
         }
 
     private fun updateUserThreshold(howTheyFelt: Feeling) {
-        val currentPreference = userDataRepository.readUserThreshold()
+        val currentPreference = userDataRepository.userThreshold
         when (howTheyFelt) {
-            COLD -> userDataRepository.writeUserThreshold(currentPreference + 1)
-            HOT -> userDataRepository.writeUserThreshold(currentPreference - 1)
+            COLD -> userDataRepository.userThreshold = currentPreference + 1
+            HOT -> userDataRepository.userThreshold = currentPreference - 1
         }
     }
 
@@ -83,7 +83,7 @@ class MainActivityPresenter(
     }
 
     private fun updateClothing() {
-        val clothing = pantsOrShorts(userDataRepository.readUserThreshold())
+        val clothing = pantsOrShorts(userDataRepository.userThreshold)
         clothingSuggestion = clothing
         view.displayClothingImage(clothing)
         view.displayButton(clothing)
@@ -182,7 +182,7 @@ class MainActivityPresenter(
     }
 
     private fun shouldFetchWeather(): Boolean {
-        val lastFetched = userDataRepository.readLastTimeFetchedWeather()
+        val lastFetched = userDataRepository.lastTimeFetchedWeather
         val timeSinceFetched = System.currentTimeMillis() - lastFetched
         val isFirstTime = userDataRepository.isFirstTimeLaunching
 
@@ -209,14 +209,14 @@ class MainActivityPresenter(
     }
 
     private fun writeAndDisplayNewData() {
-        userDataRepository.writeLastFetchedTemp(currentTemp)
-        userDataRepository.writeLastFetchedTempHigh(highTemp)
-        userDataRepository.writeLastFetchedTempLow(lowTemp)
+        userDataRepository.lastFetchedTemp = currentTemp
+        userDataRepository.lastFetchedTempHigh = highTemp
+        userDataRepository.lastFetchedTempLow = lowTemp
         userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
-        userDataRepository.writeLastTimeFetchedWeather(System.currentTimeMillis())
+        userDataRepository.lastTimeFetchedWeather = System.currentTimeMillis()
         // BUG - So the fahrenheit setting only persists till next fetch, at which point we reset it back to celsius...
         // TODO: Map weather to correct degree by reading isCelsius from repo first!
-        userDataRepository.writeIsCelsius(true)
+        userDataRepository.isCelsius = true
 
         view.displayTemperature(currentTemp, true)
         view.displayHighTemperature(highTemp, true)
@@ -227,9 +227,9 @@ class MainActivityPresenter(
     private fun loadAndDisplayPreviousData() {
         val isCelsius = userDataRepository.isCelsius
 
-        currentTemp = userDataRepository.readLastFetchedTemp()
-        highTemp = userDataRepository.readLastFetchedTempHigh()
-        lowTemp = userDataRepository.readLastFetchedTempLow()
+        currentTemp = userDataRepository.lastFetchedTemp
+        highTemp = userDataRepository.lastFetchedTempHigh
+        lowTemp = userDataRepository.lastFetchedTempLow
         hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
 
         view.displayTemperature(currentTemp, isCelsius)
@@ -240,7 +240,7 @@ class MainActivityPresenter(
 
     fun updateTempMode() {
         val isCelsius = userDataRepository.isCelsius
-        userDataRepository.writeIsCelsius(!isCelsius)
+        userDataRepository.isCelsius = !isCelsius
         view.displayTemperature(currentTemp, !isCelsius)
         view.displayHighTemperature(highTemp, !isCelsius)
         view.displayLowTemperature(lowTemp, !isCelsius)
@@ -248,13 +248,13 @@ class MainActivityPresenter(
 
     fun setupNightMode() {
         val isNightMode = userDataRepository.isNightMode
-        userDataRepository.writeNightMode(isNightMode)
+        userDataRepository.isNightMode = isNightMode
         view.displayNightMode(isNightMode)
     }
 
     fun toggleNightMode() {
         val isNightMode = userDataRepository.isNightMode
-        userDataRepository.writeNightMode(!isNightMode)
+        userDataRepository.isNightMode = !isNightMode
         view.displayNightMode(!isNightMode)
     }
 
