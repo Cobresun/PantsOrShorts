@@ -21,31 +21,33 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
             return isFirstTime
         }
 
-    override val isNightMode: Boolean
+    override var isNightMode: Boolean
         get() { return sharedPreferences.getBoolean("isNightMode", false) }
+        set(value) = sharedPreferences.edit { putBoolean("isNightMode", value) }
 
-    override val isCelsius: Boolean
+    override var isCelsius: Boolean
         get() { return sharedPreferences.getBoolean("isCelsius", false) }
+        set(value) = sharedPreferences.edit { putBoolean("isCelsius", value) }
 
-    override fun readUserThreshold() = sharedPreferences.getInt("userThreshold", 21)
+    override var userThreshold: Int
+        get() = sharedPreferences.getInt("userThreshold", 21)
+        set(value) = sharedPreferences.edit { putInt("userThreshold", value) }
 
-    override fun writeUserThreshold(threshold: Int) = sharedPreferences.edit { putInt("userThreshold", threshold) }
+    override var lastTimeFetchedWeather: Long
+        get() = sharedPreferences.getLong("timeLastFetched", System.currentTimeMillis())
+        set(value) = sharedPreferences.edit { putLong("timeLastFetched", value) }
 
-    override fun readLastTimeFetchedWeather() = sharedPreferences.getLong("timeLastFetched", System.currentTimeMillis())
+    override var lastFetchedTemp: Int
+        get() = sharedPreferences.getInt("tempLastFetched", 1000)
+        set(value) = sharedPreferences.edit { putInt("tempLastFetched", value) }
 
-    override fun writeLastTimeFetchedWeather(time: Long) = sharedPreferences.edit { putLong("timeLastFetched", time) }
+    override var lastFetchedTempHigh: Int
+        get() = sharedPreferences.getInt("tempHighLastFetched", 1000)
+        set(value) = sharedPreferences.edit { putInt("tempHighLastFetched", value) }
 
-    override fun readLastFetchedTemp() = sharedPreferences.getInt("tempLastFetched", 1000)
-
-    override fun writeLastFetchedTemp(temp: Int) = sharedPreferences.edit { putInt("tempLastFetched", temp) }
-
-    override fun readLastFetchedTempHigh() = sharedPreferences.getInt("tempHighLastFetched", 1000)
-
-    override fun writeLastFetchedTempHigh(temp: Int) = sharedPreferences.edit { putInt("tempHighLastFetched", temp) }
-
-    override fun readLastFetchedTempLow() = sharedPreferences.getInt("tempLowLastFetched", 1000)
-
-    override fun writeLastFetchedTempLow(temp: Int) = sharedPreferences.edit { putInt("tempLowLastFetched", temp) }
+    override var lastFetchedTempLow: Int
+        get() = sharedPreferences.getInt("tempLowLastFetched", 1000)
+        set(value) = sharedPreferences.edit { putInt("tempLowLastFetched", value) }
 
     override fun readLastFetchedHourlyTemps(): IntArray {
         val defaultTemp = 10000
@@ -63,10 +65,6 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
         }
         editor.apply()
     }
-
-    override fun writeNightMode(nightMode: Boolean) = sharedPreferences.edit { putBoolean("isNightMode", nightMode) }
-
-    override fun writeIsCelsius(isCelsius: Boolean) = sharedPreferences.edit { putBoolean("isCelsius", isCelsius) }
 
     companion object {
         private const val PREFS_NAME = "userPrefs"
