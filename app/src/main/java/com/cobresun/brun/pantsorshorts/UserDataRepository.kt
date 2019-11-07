@@ -6,8 +6,6 @@ interface UserDataRepository {
 
     var isNightMode: Boolean
 
-    var isCelsius: Boolean
-
     var userThreshold: Int
 
     var lastTimeFetchedWeather: Long
