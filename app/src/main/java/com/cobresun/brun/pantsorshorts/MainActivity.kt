@@ -10,19 +10,29 @@
 
 package com.cobresun.brun.pantsorshorts
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.cobresun.brun.pantsorshorts.Clothing.*
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
-class MainActivity : AppCompatActivity(), MainActivityView {
+class MainActivity : AppCompatActivity() {
 
     private val presenter: MainActivityPresenter by lazy {
         MainActivityPresenter(SharedPrefsUserDataRepository(applicationContext), applicationContext)
@@ -44,8 +54,6 @@ class MainActivity : AppCompatActivity(), MainActivityView {
             presenter.calibrateThreshold()
             Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
         }
-
-        /** New Observables to replace interface! */
 
         presenter.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
             it?.let {
@@ -82,7 +90,7 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
         presenter.cityName.observe(this, androidx.lifecycle.Observer {
             when (it) {
-                null -> presenter.createLocationRequest(this)
+                null -> createLocationRequest()
                 else -> {
                     city_name.text = it
                     city_name.invalidate()
@@ -111,26 +119,26 @@ class MainActivity : AppCompatActivity(), MainActivityView {
             temperatureLowTextView.invalidate()
         })
 
-        /** New Observables to replace interface! */
+        presenter.isNightMode.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                displayNightMode(it)
+            }
+        })
 
-        updateView()
-    }
-
-    override fun updateView() {
-        presenter.checkInternet()
-        presenter.createLocationRequest(this)
+        checkInternet(applicationContext)
+        createLocationRequest()
         presenter.setupNightMode()
     }
 
-    override fun displayNoInternet() {
+    private fun displayNoInternet() {
         Toast.makeText(applicationContext, getString(R.string.internet_unavailable), Toast.LENGTH_SHORT).show()
     }
 
-    override fun requestPermissions() {
+    private fun requestPermissions() {
         ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST)
     }
 
-    override fun displayNoPermissionsEnabled() {
+    private fun displayNoPermissionsEnabled() {
         Toast.makeText(applicationContext, getString(R.string.enable_permission), Toast.LENGTH_LONG).show()
     }
 
@@ -138,7 +146,8 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         if (requestCode == MainActivityPresenter.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
-                updateView()
+                checkInternet(applicationContext)
+                createLocationRequest()
             } else {
                 displayNoPermissionsEnabled()
                 requestPermissions()
@@ -146,8 +155,84 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         }
     }
 
+    private fun isNetworkStatusAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.activeNetworkInfo?.let { return it.isConnected }
+        return false
+    }
+
+    // TODO: BUG - If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
+    private fun checkInternet(context: Context) {
+        if (!isNetworkStatusAvailable(context)) {
+            displayNoInternet()
+        }
+    }
+
+    // TODO: Where is the right place for this?
+    private fun createLocationRequest() {
+        val locationCallback: LocationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                LocationServices
+                        .getFusedLocationProviderClient(applicationContext)
+                        .removeLocationUpdates(this)
+
+                val city = presenter.getCity(locationResult.lastLocation)
+                city?.let { presenter.setCityName(city) }
+
+
+                when (presenter.shouldFetchWeather()) {
+                    true -> {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            presenter.fetchWeather(locationResult.lastLocation)
+                            presenter.writeAndDisplayNewData()
+                        }
+                    }
+                    false -> presenter.loadAndDisplayPreviousData()
+                }
+            }
+        }
+
+        val locationRequest = LocationRequest
+                .create()
+                .setInterval(1000)
+                .setFastestInterval(5000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+
+        val locationSettingsRequest = LocationSettingsRequest
+                .Builder()
+                .addLocationRequest(locationRequest)
+                .build()
+
+        LocationServices
+                .getSettingsClient(applicationContext)
+                .checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener {
+                    // All location settings are satisfied. The client can initialize location requests here.
+                    if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions()
+                        }
+                    }
+                    else {
+                        LocationServices
+                                .getFusedLocationProviderClient(applicationContext)
+                                .requestLocationUpdates(locationRequest, locationCallback, null)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    if (e is ResolvableApiException) {
+                        try {
+                            e.startResolutionForResult(this, MainActivityPresenter.REQUEST_CHECK_SETTINGS)
+                        } catch (sendEx: IntentSender.SendIntentException) {
+                            Log.e(this.toString(), sendEx.toString())
+                        }
+                    }
+                }
+    }
+
+
     // TODO: Replace with material theming
-    override fun displayNightMode(isNightMode: Boolean) {
+    private fun displayNightMode(isNightMode: Boolean) {
         val darkColor = Color.parseColor("#212121")
         val lightColor = Color.parseColor("#FAFAFA")
         when {

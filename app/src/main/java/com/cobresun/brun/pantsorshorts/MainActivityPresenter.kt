@@ -1,27 +1,16 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.app.Activity
 import android.content.Context
-import android.content.IntentSender
-import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.net.ConnectivityManager
 import android.util.Log
-import androidx.core.app.ActivityCompat.checkSelfPermission
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
@@ -53,6 +42,10 @@ class MainActivityPresenter(
     private val _cityName: MutableLiveData<String> = MutableLiveData()
     val cityName: LiveData<String>
         get() = _cityName
+
+    private val _isNightMode: MutableLiveData<Boolean> = MutableLiveData()
+    val isNightMode: LiveData<Boolean>
+        get() = _isNightMode
 
     /** New Observables to replace interface! */
 
@@ -99,67 +92,7 @@ class MainActivityPresenter(
         _clothingSuggestion.value = clothing
     }
 
-    fun createLocationRequest(activity: Activity) {
-        val locationCallback: LocationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                LocationServices
-                        .getFusedLocationProviderClient(mContext)
-                        .removeLocationUpdates(this)
-
-                val city = getCity(locationResult.lastLocation)
-                _cityName.value = city
-
-                when (shouldFetchWeather()) {
-                    true -> {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            fetchWeather(locationResult.lastLocation)
-                            writeAndDisplayNewData()
-                        }
-                    }
-                    false -> loadAndDisplayPreviousData()
-                }
-            }
-        }
-
-        val locationRequest = LocationRequest
-                .create()
-                .setInterval(1000)
-                .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-
-        val locationSettingsRequest = LocationSettingsRequest
-                .Builder()
-                .addLocationRequest(locationRequest)
-                .build()
-
-        LocationServices
-                .getSettingsClient(mContext)
-                .checkLocationSettings(locationSettingsRequest)
-                .addOnSuccessListener {
-                    // All location settings are satisfied. The client can initialize location requests here.
-                    if (checkSelfPermission(mContext, ACCESS_FINE_LOCATION) != PERMISSION_GRANTED) {
-                        if (checkSelfPermission(mContext, ACCESS_COARSE_LOCATION) != PERMISSION_GRANTED) {
-//                            view.requestPermissions()
-                        }
-                    }
-                    else {
-                        LocationServices
-                                .getFusedLocationProviderClient(mContext)
-                                .requestLocationUpdates(locationRequest, locationCallback, null)
-                    }
-                }
-                .addOnFailureListener { e ->
-                    if (e is ResolvableApiException) {
-                        try {
-                            e.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS)
-                        } catch (sendEx: IntentSender.SendIntentException) {
-                            Log.e(this@MainActivityPresenter.toString(), sendEx.toString())
-                        }
-                    }
-                }
-    }
-
-    private fun getCity(location: Location): String? {
+    fun getCity(location: Location): String? {
         val geocoder = Geocoder(mContext, Locale.getDefault())
         var addresses: List<Address> = emptyList()
 
@@ -177,20 +110,7 @@ class MainActivityPresenter(
         }
     }
 
-    private fun isNetworkStatusAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.activeNetworkInfo?.let { return it.isConnected }
-        return false
-    }
-
-    // TODO: BUG - If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
-    fun checkInternet() {
-        if (!isNetworkStatusAvailable(mContext)) {
-//            view.displayNoInternet()
-        }
-    }
-
-    private fun shouldFetchWeather(): Boolean {
+    fun shouldFetchWeather(): Boolean {
         val lastFetched = userDataRepository.lastTimeFetchedWeather
         val timeSinceFetched = System.currentTimeMillis() - lastFetched
         val isFirstTime = userDataRepository.isFirstTimeLaunching
@@ -199,7 +119,7 @@ class MainActivityPresenter(
         return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
     }
 
-    private suspend fun fetchWeather(location: Location) {
+    suspend fun fetchWeather(location: Location) {
         val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl("https://api.darksky.net/")
@@ -217,7 +137,7 @@ class MainActivityPresenter(
         }
     }
 
-    private fun writeAndDisplayNewData() {
+    fun writeAndDisplayNewData() {
         userDataRepository.lastFetchedTemp = currentTemp.value!!
         userDataRepository.lastFetchedTempHigh = highTemp.value!!
         userDataRepository.lastFetchedTempLow = lowTemp.value!!
@@ -226,7 +146,7 @@ class MainActivityPresenter(
         updateClothing()
     }
 
-    private fun loadAndDisplayPreviousData() {
+    fun loadAndDisplayPreviousData() {
         _currentTemp.value = userDataRepository.lastFetchedTemp
         _highTemp.value = userDataRepository.lastFetchedTempHigh
         _lowTemp.value = userDataRepository.lastFetchedTempLow
@@ -236,14 +156,17 @@ class MainActivityPresenter(
 
     fun setupNightMode() {
         val isNightMode = userDataRepository.isNightMode
-        userDataRepository.isNightMode = isNightMode
-//        view.displayNightMode(isNightMode)
+        _isNightMode.value = isNightMode
     }
 
     fun toggleNightMode() {
         val isNightMode = userDataRepository.isNightMode
         userDataRepository.isNightMode = !isNightMode
-//        view.displayNightMode(!isNightMode)
+        _isNightMode.value = !isNightMode
+    }
+
+    fun setCityName(city: String) {
+        _cityName.value = city
     }
 
     companion object {
