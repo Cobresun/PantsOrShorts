@@ -16,6 +16,7 @@ import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
@@ -34,8 +35,11 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private val presenter: MainActivityPresenter by lazy {
-        MainActivityPresenter(SharedPrefsUserDataRepository(applicationContext), applicationContext)
+    private val mainViewModel: MainViewModel by lazy {
+        MainViewModel(
+                SharedPrefsUserDataRepository(applicationContext),
+                Geocoder(applicationContext, Locale.getDefault()),
+                applicationContext.resources.getString(R.string.dark_sky))
     }
 
     @SuppressLint("SetTextI18n")
@@ -46,16 +50,16 @@ class MainActivity : AppCompatActivity() {
 
         nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
             if (buttonView.isPressed) {
-                presenter.toggleNightMode()
+                mainViewModel.toggleNightMode()
             }
         }
 
         mainButton.setOnClickListener {
-            presenter.calibrateThreshold()
+            mainViewModel.calibrateThreshold()
             Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
         }
 
-        presenter.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 when (it) {
                     PANTS -> {
@@ -88,7 +92,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        presenter.cityName.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.cityName.observe(this, androidx.lifecycle.Observer {
             when (it) {
                 null -> createLocationRequest()
                 else -> {
@@ -98,28 +102,28 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        presenter.currentTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.currentTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 temperatureTextView.text = "$it\u00B0C"
             }
             temperatureTextView.invalidate()
         })
 
-        presenter.highTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.highTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 temperatureHighTextView.text = "$it\u00B0C"
             }
             temperatureHighTextView.invalidate()
         })
 
-        presenter.lowTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.lowTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 temperatureLowTextView.text = "$it\u00B0C"
             }
             temperatureLowTextView.invalidate()
         })
 
-        presenter.isNightMode.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.isNightMode.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 displayNightMode(it)
             }
@@ -127,7 +131,7 @@ class MainActivity : AppCompatActivity() {
 
         checkInternet(applicationContext)
         createLocationRequest()
-        presenter.setupNightMode()
+        mainViewModel.setupNightMode()
     }
 
     private fun displayNoInternet() {
@@ -135,7 +139,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST)
+        ActivityCompat.requestPermissions(this, MainViewModel.INITIAL_PERMS, MainViewModel.INITIAL_REQUEST)
     }
 
     private fun displayNoPermissionsEnabled() {
@@ -143,7 +147,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == MainActivityPresenter.INITIAL_REQUEST) {
+        if (requestCode == MainViewModel.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
                 checkInternet(applicationContext)
@@ -176,18 +180,18 @@ class MainActivity : AppCompatActivity() {
                         .getFusedLocationProviderClient(applicationContext)
                         .removeLocationUpdates(this)
 
-                val city = presenter.getCity(locationResult.lastLocation)
-                city?.let { presenter.setCityName(city) }
+                val city = mainViewModel.getCity(locationResult.lastLocation)
+                city?.let { mainViewModel.setCityName(city) }
 
 
-                when (presenter.shouldFetchWeather()) {
+                when (mainViewModel.shouldFetchWeather()) {
                     true -> {
                         CoroutineScope(Dispatchers.Main).launch {
-                            presenter.fetchWeather(locationResult.lastLocation)
-                            presenter.writeAndDisplayNewData()
+                            mainViewModel.fetchWeather(locationResult.lastLocation)
+                            mainViewModel.writeAndDisplayNewData()
                         }
                     }
-                    false -> presenter.loadAndDisplayPreviousData()
+                    false -> mainViewModel.loadAndDisplayPreviousData()
                 }
             }
         }
@@ -222,7 +226,7 @@ class MainActivity : AppCompatActivity() {
                 .addOnFailureListener { e ->
                     if (e is ResolvableApiException) {
                         try {
-                            e.startResolutionForResult(this, MainActivityPresenter.REQUEST_CHECK_SETTINGS)
+                            e.startResolutionForResult(this, MainViewModel.REQUEST_CHECK_SETTINGS)
                         } catch (sendEx: IntentSender.SendIntentException) {
                             Log.e(this.toString(), sendEx.toString())
                         }

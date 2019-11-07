@@ -1,7 +1,6 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.Context
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -17,9 +16,10 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class MainActivityPresenter(
+class MainViewModel(
         private val userDataRepository: UserDataRepository,
-        private val mContext: Context) {
+        private val geocoder: Geocoder,
+        private val weatherApiKey: String) {
 
     /** New Observables to replace interface! */
 
@@ -93,17 +93,16 @@ class MainActivityPresenter(
     }
 
     fun getCity(location: Location): String? {
-        val geocoder = Geocoder(mContext, Locale.getDefault())
         var addresses: List<Address> = emptyList()
 
         try {
             addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
         } catch (e: Exception) {
-            Log.e(this@MainActivityPresenter.toString(), e.toString())
+            Log.e(this@MainViewModel.toString(), e.toString())
         }
 
         return if (addresses.isEmpty()) {
-            Log.e(this@MainActivityPresenter.toString(), "No location found")
+            Log.e(this@MainViewModel.toString(), "No location found")
             null
         } else {
             addresses[0].locality
@@ -126,8 +125,7 @@ class MainActivityPresenter(
                 .build()
 
         val service = retrofit.create(WeatherAPIService::class.java)
-        val apiKey = mContext.resources.getString(R.string.dark_sky)
-        val forecastResponse = service.getForecastResponse(apiKey, location.latitude, location.longitude)
+        val forecastResponse = service.getForecastResponse(weatherApiKey, location.latitude, location.longitude)
 
         _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
         _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
