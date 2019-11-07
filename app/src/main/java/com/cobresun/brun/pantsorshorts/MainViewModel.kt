@@ -16,6 +16,7 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+// TODO: Turn into actual ViewModel() instance
 class MainViewModel(
         private val userDataRepository: UserDataRepository,
         private val geocoder: Geocoder,
@@ -118,6 +119,7 @@ class MainViewModel(
         return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
     }
 
+    // TODO: Abstract fetchWeather() behind some WeatherRepository so we can leverage Room for built-in logic to refresh data after it gets stale
     suspend fun fetchWeather(location: Location) {
         val retrofit = Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())

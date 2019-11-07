@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
         }
 
+        // TODO: Use Data Binding to clean up all this observing
         mainViewModel.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
             it?.let {
                 when (it) {
