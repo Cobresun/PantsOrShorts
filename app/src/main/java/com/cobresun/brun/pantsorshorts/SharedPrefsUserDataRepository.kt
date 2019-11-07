@@ -25,10 +25,6 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
         get() { return sharedPreferences.getBoolean("isNightMode", false) }
         set(value) = sharedPreferences.edit { putBoolean("isNightMode", value) }
 
-    override var isCelsius: Boolean
-        get() { return sharedPreferences.getBoolean("isCelsius", false) }
-        set(value) = sharedPreferences.edit { putBoolean("isCelsius", value) }
-
     override var userThreshold: Int
         get() = sharedPreferences.getInt("userThreshold", 21)
         set(value) = sharedPreferences.edit { putInt("userThreshold", value) }

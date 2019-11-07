@@ -10,28 +10,39 @@
 
 package com.cobresun.brun.pantsorshorts
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Geocoder
+import android.net.ConnectivityManager
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.cobresun.brun.pantsorshorts.Clothing.*
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import java.util.*
 
-class MainActivity : AppCompatActivity(), MainActivityView {
+class MainActivity : AppCompatActivity() {
 
-    private val presenter: MainActivityPresenter by lazy {
-        MainActivityPresenter(this, SharedPrefsUserDataRepository(applicationContext), applicationContext)
+    private val mainViewModel: MainViewModel by lazy {
+        MainViewModel(
+                SharedPrefsUserDataRepository(applicationContext),
+                Geocoder(applicationContext, Locale.getDefault()),
+                applicationContext.resources.getString(R.string.dark_sky))
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
@@ -39,130 +50,109 @@ class MainActivity : AppCompatActivity(), MainActivityView {
 
         nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
             if (buttonView.isPressed) {
-                presenter.toggleNightMode()
+                mainViewModel.toggleNightMode()
             }
         }
 
         mainButton.setOnClickListener {
-            presenter.calibrateThreshold()
+            mainViewModel.calibrateThreshold()
             Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
         }
 
-        updateView()
-    }
+        // TODO: Use Data Binding to clean up all this observing
+        mainViewModel.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                when (it) {
+                    PANTS -> {
+                        clothingImageView.tag = getString(R.string.pants)
+                        clothingImageView.setImageResource(R.drawable.pants)
 
-    override fun updateView() {
-        presenter.checkInternet()
-        presenter.createLocationRequest(this)
-        presenter.setupNightMode()
-    }
+                        mainButton.text = getString(R.string.too_hot)
+                        mainButton.setBackgroundResource(R.drawable.my_button_red)
+                        val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny, null)
+                        mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
 
-    override fun displayCity(city: String?) {
-        when (city) {
-            null -> presenter.createLocationRequest(this)
-            else -> {
-                city_name.text = city
-                city_name.invalidate()
+                        shouldWearTextView.text = getString(R.string.feels_like_pants)
+                    }
+                    SHORTS -> {
+                        clothingImageView.tag = getString(R.string.shorts)
+                        clothingImageView.setImageResource(R.drawable.shorts)
+
+                        mainButton.text = getString(R.string.too_cold)
+                        val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit, null)
+                        mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
+                        mainButton.setBackgroundResource(R.drawable.my_button_blue)
+
+                        shouldWearTextView.text = getString(R.string.feels_like_shorts)
+                    }
+                    UNKNOWN -> TODO()
+                }
+                clothingImageView.invalidate()
+                mainButton.invalidate()
+                shouldWearTextView.invalidate()
             }
-        }
+        })
+
+        mainViewModel.cityName.observe(this, androidx.lifecycle.Observer {
+            when (it) {
+                null -> createLocationRequest()
+                else -> {
+                    city_name.text = it
+                    city_name.invalidate()
+                }
+            }
+        })
+
+        mainViewModel.currentTemp.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                temperatureTextView.text = "$it\u00B0C"
+            }
+            temperatureTextView.invalidate()
+        })
+
+        mainViewModel.highTemp.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                temperatureHighTextView.text = "$it\u00B0C"
+            }
+            temperatureHighTextView.invalidate()
+        })
+
+        mainViewModel.lowTemp.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                temperatureLowTextView.text = "$it\u00B0C"
+            }
+            temperatureLowTextView.invalidate()
+        })
+
+        mainViewModel.isNightMode.observe(this, androidx.lifecycle.Observer {
+            it?.let {
+                displayNightMode(it)
+            }
+        })
+
+        checkInternet(applicationContext)
+        createLocationRequest()
+        mainViewModel.setupNightMode()
     }
 
-    @SuppressLint("SetTextI18n")
-    override fun displayTemperature(temperature: Int, isCelsius: Boolean) {
-        when {
-            isCelsius -> temperatureTextView.text = "$temperature\u00B0C"
-            else -> {
-                val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-                temperatureTextView.text = "$fahrenheit\u00B0F"
-            }
-        }
-        temperatureTextView.invalidate()
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun displayHighTemperature(temperature: Int, isCelsius: Boolean) {
-        when {
-            isCelsius -> temperatureHighTextView.text = temperature.toString() + "\u00B0"
-            else -> {
-                val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-                temperatureHighTextView.text = fahrenheit.toString() + "\u00B0"
-            }
-        }
-        temperatureHighTextView.invalidate()
-    }
-
-    @SuppressLint("SetTextI18n")
-    override fun displayLowTemperature(temperature: Int, isCelsius: Boolean) {
-        when {
-            isCelsius -> temperatureLowTextView.text = temperature.toString() + "\u00B0"
-            else -> {
-                val fahrenheit = (temperature * (9.0 / 5.0).toFloat()).toInt() + 32
-                temperatureLowTextView.text = fahrenheit.toString() + "\u00B0"
-            }
-        }
-        temperatureLowTextView.invalidate()
-    }
-
-    override fun displayYouShouldWearText(clothing: Clothing) {
-        when (clothing) {
-            PANTS -> shouldWearTextView.text = getString(R.string.feels_like_pants)
-            SHORTS -> shouldWearTextView.text = getString(R.string.feels_like_shorts)
-            UNKNOWN -> TODO()
-        }
-        shouldWearTextView.invalidate()
-    }
-
-    override fun displayClothingImage(clothing: Clothing) {
-        when (clothing) {
-            PANTS -> {
-                clothingImageView.tag = getString(R.string.pants)
-                clothingImageView.setImageResource(R.drawable.pants)
-            }
-            SHORTS ->{
-                clothingImageView.tag = getString(R.string.shorts)
-                clothingImageView.setImageResource(R.drawable.shorts)
-            }
-            UNKNOWN -> TODO()
-        }
-        clothingImageView.invalidate()
-    }
-
-    override fun displayButton(clothing: Clothing) {
-        when (clothing) {
-            PANTS -> {
-                mainButton.text = getString(R.string.too_hot)
-                mainButton.setBackgroundResource(R.drawable.my_button_red)
-                val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny, null)
-                mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
-            }
-            SHORTS -> {
-                mainButton.text = getString(R.string.too_cold)
-                val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit, null)
-                mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
-                mainButton.setBackgroundResource(R.drawable.my_button_blue)
-            }
-            UNKNOWN -> TODO()
-        }
-        mainButton.invalidate()
-    }
-
-    override fun displayNoInternet() {
+    private fun displayNoInternet() {
         Toast.makeText(applicationContext, getString(R.string.internet_unavailable), Toast.LENGTH_SHORT).show()
     }
 
-    override fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, MainActivityPresenter.INITIAL_PERMS, MainActivityPresenter.INITIAL_REQUEST)
+    private fun requestPermissions() {
+        ActivityCompat.requestPermissions(this, MainViewModel.INITIAL_PERMS, MainViewModel.INITIAL_REQUEST)
     }
 
-    override fun displayNoPermissionsEnabled() {
+    private fun displayNoPermissionsEnabled() {
         Toast.makeText(applicationContext, getString(R.string.enable_permission), Toast.LENGTH_LONG).show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        if (requestCode == MainActivityPresenter.INITIAL_REQUEST) {
+        if (requestCode == MainViewModel.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
-                updateView()
+                checkInternet(applicationContext)
+                createLocationRequest()
             } else {
                 displayNoPermissionsEnabled()
                 requestPermissions()
@@ -170,12 +160,84 @@ class MainActivity : AppCompatActivity(), MainActivityView {
         }
     }
 
-    override fun changeTempMode(view: View) {
-        presenter.updateTempMode()
+    private fun isNetworkStatusAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.activeNetworkInfo?.let { return it.isConnected }
+        return false
     }
 
+    // TODO: BUG - If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
+    private fun checkInternet(context: Context) {
+        if (!isNetworkStatusAvailable(context)) {
+            displayNoInternet()
+        }
+    }
+
+    // TODO: Where is the right place for this?
+    private fun createLocationRequest() {
+        val locationCallback: LocationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                LocationServices
+                        .getFusedLocationProviderClient(applicationContext)
+                        .removeLocationUpdates(this)
+
+                val city = mainViewModel.getCity(locationResult.lastLocation)
+                city?.let { mainViewModel.setCityName(city) }
+
+
+                when (mainViewModel.shouldFetchWeather()) {
+                    true -> {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            mainViewModel.fetchWeather(locationResult.lastLocation)
+                            mainViewModel.writeAndDisplayNewData()
+                        }
+                    }
+                    false -> mainViewModel.loadAndDisplayPreviousData()
+                }
+            }
+        }
+
+        val locationRequest = LocationRequest
+                .create()
+                .setInterval(1000)
+                .setFastestInterval(5000)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+
+        val locationSettingsRequest = LocationSettingsRequest
+                .Builder()
+                .addLocationRequest(locationRequest)
+                .build()
+
+        LocationServices
+                .getSettingsClient(applicationContext)
+                .checkLocationSettings(locationSettingsRequest)
+                .addOnSuccessListener {
+                    // All location settings are satisfied. The client can initialize location requests here.
+                    if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            requestPermissions()
+                        }
+                    }
+                    else {
+                        LocationServices
+                                .getFusedLocationProviderClient(applicationContext)
+                                .requestLocationUpdates(locationRequest, locationCallback, null)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    if (e is ResolvableApiException) {
+                        try {
+                            e.startResolutionForResult(this, MainViewModel.REQUEST_CHECK_SETTINGS)
+                        } catch (sendEx: IntentSender.SendIntentException) {
+                            Log.e(this.toString(), sendEx.toString())
+                        }
+                    }
+                }
+    }
+
+
     // TODO: Replace with material theming
-    override fun displayNightMode(isNightMode: Boolean) {
+    private fun displayNightMode(isNightMode: Boolean) {
         val darkColor = Color.parseColor("#212121")
         val lightColor = Color.parseColor("#FAFAFA")
         when {
