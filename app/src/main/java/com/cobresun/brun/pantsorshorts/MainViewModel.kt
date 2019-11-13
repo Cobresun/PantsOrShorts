@@ -22,33 +22,23 @@ class MainViewModel(
         private val geocoder: Geocoder,
         private val weatherApiKey: String) {
 
-    /** New Observables to replace interface! */
-
     private val _currentTemp: MutableLiveData<Int> = MutableLiveData()
-    val currentTemp: LiveData<Int>
-        get() = _currentTemp
+    val currentTemp: LiveData<Int> = _currentTemp
 
     private val _highTemp: MutableLiveData<Int> = MutableLiveData()
-    val highTemp: LiveData<Int>
-        get() = _highTemp
+    val highTemp: LiveData<Int> = _highTemp
 
     private val _lowTemp: MutableLiveData<Int> = MutableLiveData()
-    val lowTemp: LiveData<Int>
-        get() = _lowTemp
+    val lowTemp: LiveData<Int> = _lowTemp
 
     private val _clothingSuggestion: MutableLiveData<Clothing> = MutableLiveData()
-    val clothingSuggestion: LiveData<Clothing>
-        get() = _clothingSuggestion
+    val clothingSuggestion: LiveData<Clothing> = _clothingSuggestion
 
     private val _cityName: MutableLiveData<String> = MutableLiveData()
-    val cityName: LiveData<String>
-        get() = _cityName
+    val cityName: LiveData<String> = _cityName
 
     private val _isNightMode: MutableLiveData<Boolean> = MutableLiveData()
-    val isNightMode: LiveData<Boolean>
-        get() = _isNightMode
-
-    /** New Observables to replace interface! */
+    val isNightMode: LiveData<Boolean> = _isNightMode
 
     private var hourlyTemps = IntArray(24)
 
