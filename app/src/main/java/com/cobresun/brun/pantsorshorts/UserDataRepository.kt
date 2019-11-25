@@ -8,7 +8,7 @@ interface UserDataRepository {
 
     var userThreshold: Int
 
-    var lastTimeFetchedWeather: Long
+    var lastTimeFetchedWeather: Long    // TODO: Replace with type Duration from kotlin
 
     var lastFetchedTemp: Int
 
