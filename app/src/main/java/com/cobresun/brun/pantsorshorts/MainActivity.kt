@@ -38,8 +38,9 @@ class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainViewModel by lazy {
         MainViewModel(
                 SharedPrefsUserDataRepository(applicationContext),
-                Geocoder(applicationContext, Locale.getDefault()),
-                applicationContext.resources.getString(R.string.dark_sky))
+                WeatherRepository(applicationContext.resources.getString(R.string.dark_sky)),
+                Geocoder(applicationContext, Locale.getDefault())
+        )
     }
 
     @SuppressLint("SetTextI18n")

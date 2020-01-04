@@ -7,20 +7,24 @@ import android.location.Location
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-// TODO: Turn into actual ViewModel() instance
 class MainViewModel(
         private val userDataRepository: UserDataRepository,
-        private val geocoder: Geocoder,
-        private val weatherApiKey: String) {
+        private val weatherRepository: WeatherRepository,
+        private val geocoder: Geocoder) : ViewModel() {
 
     private val _currentTemp: MutableLiveData<Int> = MutableLiveData()
     val currentTemp: LiveData<Int> = _currentTemp
@@ -109,21 +113,19 @@ class MainViewModel(
         return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
     }
 
-    // TODO: Abstract fetchWeather() behind some WeatherRepository so we can leverage Room for built-in logic to refresh data after it gets stale
+    // TODO: Leverage Room for built-in logic to refresh data after it gets stale
     suspend fun fetchWeather(location: Location) {
-        val retrofit = Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create())
-                .baseUrl("https://api.darksky.net/")
-                .build()
 
-        val service = retrofit.create(WeatherAPIService::class.java)
-        val forecastResponse = service.getForecastResponse(weatherApiKey, location.latitude, location.longitude)
-
-        _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
-        _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
-        _lowTemp.value = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
-        for (i in hourlyTemps.indices) {
-            hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
+        viewModelScope.launch {
+            val forecastResponse = withContext(Dispatchers.IO) {
+                weatherRepository.getWeather(location.latitude, location.longitude)
+            }
+            _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
+            _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
+            _lowTemp.value = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
+            for (i in hourlyTemps.indices) {
+                hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
+            }
         }
     }
 
