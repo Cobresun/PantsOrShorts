@@ -115,17 +115,14 @@ class MainViewModel(
 
     // TODO: Leverage Room for built-in logic to refresh data after it gets stale
     suspend fun fetchWeather(location: Location) {
-
-        viewModelScope.launch {
-            val forecastResponse = withContext(Dispatchers.IO) {
-                weatherRepository.getWeather(location.latitude, location.longitude)
-            }
-            _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
-            _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
-            _lowTemp.value = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
-            for (i in hourlyTemps.indices) {
-                hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
-            }
+        val forecastResponse = withContext(Dispatchers.IO) {
+            weatherRepository.getWeather(location.latitude, location.longitude)
+        }
+        _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
+        _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
+        _lowTemp.value = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
+        for (i in hourlyTemps.indices) {
+            hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
         }
     }
 

@@ -185,7 +185,6 @@ class MainActivity : AppCompatActivity() {
                 val city = mainViewModel.getCity(locationResult.lastLocation)
                 city?.let { mainViewModel.setCityName(city) }
 
-
                 when (mainViewModel.shouldFetchWeather()) {
                     true -> {
                         CoroutineScope(Dispatchers.Main).launch {
