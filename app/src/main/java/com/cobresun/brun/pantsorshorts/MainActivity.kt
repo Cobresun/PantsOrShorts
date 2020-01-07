@@ -20,7 +20,6 @@ import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -31,6 +30,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import splitties.toast.longToast
+import splitties.toast.toast
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -57,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         mainButton.setOnClickListener {
             mainViewModel.calibrateThreshold()
-            Toast.makeText(applicationContext, getString(R.string.remember_that), Toast.LENGTH_SHORT).show()
+            toast(R.string.remember_that)
         }
 
         // TODO: Use Data Binding to clean up all this observing
@@ -137,7 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayNoInternet() {
-        Toast.makeText(applicationContext, getString(R.string.internet_unavailable), Toast.LENGTH_SHORT).show()
+        toast(R.string.internet_unavailable)
     }
 
     private fun requestPermissions() {
@@ -145,7 +146,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun displayNoPermissionsEnabled() {
-        Toast.makeText(applicationContext, getString(R.string.enable_permission), Toast.LENGTH_LONG).show()
+        longToast(R.string.enable_permission)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

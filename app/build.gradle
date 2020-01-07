@@ -57,6 +57,9 @@ dependencies {
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-rc03"
+
+    // Splitties
+    implementation "com.louiscad.splitties:splitties-toast:3.0.0-alpha06"
 }
 repositories {
     mavenCentral()
