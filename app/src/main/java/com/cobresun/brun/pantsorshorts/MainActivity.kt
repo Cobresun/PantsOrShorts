@@ -24,9 +24,9 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.cobresun.brun.pantsorshorts.Clothing.*
+import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -35,6 +35,8 @@ import splitties.toast.toast
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
 
     private val mainViewModel: MainViewModel by lazy {
         MainViewModel(
@@ -47,16 +49,19 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Objects.requireNonNull<ActionBar>(supportActionBar).hide()
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
+        Objects.requireNonNull<ActionBar>(supportActionBar).hide()
+
+        binding.nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
             if (buttonView.isPressed) {
                 mainViewModel.toggleNightMode()
             }
         }
 
-        mainButton.setOnClickListener {
+        binding.mainButton.setOnClickListener {
             mainViewModel.calibrateThreshold()
             toast(R.string.remember_that)
         }
@@ -66,32 +71,32 @@ class MainActivity : AppCompatActivity() {
             it?.let {
                 when (it) {
                     PANTS -> {
-                        clothingImageView.tag = getString(R.string.pants)
-                        clothingImageView.setImageResource(R.drawable.pants)
+                        binding.clothingImageView.tag = getString(R.string.pants)
+                        binding.clothingImageView.setImageResource(R.drawable.pants)
 
-                        mainButton.text = getString(R.string.too_hot)
-                        mainButton.setBackgroundResource(R.drawable.my_button_red)
+                        binding.mainButton.text = getString(R.string.too_hot)
+                        binding.mainButton.setBackgroundResource(R.drawable.my_button_red)
                         val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny, null)
-                        mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
+                        binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
 
-                        shouldWearTextView.text = getString(R.string.feels_like_pants)
+                        binding.shouldWearTextView.text = getString(R.string.feels_like_pants)
                     }
                     SHORTS -> {
-                        clothingImageView.tag = getString(R.string.shorts)
-                        clothingImageView.setImageResource(R.drawable.shorts)
+                        binding.clothingImageView.tag = getString(R.string.shorts)
+                        binding.clothingImageView.setImageResource(R.drawable.shorts)
 
-                        mainButton.text = getString(R.string.too_cold)
+                        binding.mainButton.text = getString(R.string.too_cold)
                         val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit, null)
-                        mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
-                        mainButton.setBackgroundResource(R.drawable.my_button_blue)
+                        binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
+                        binding.mainButton.setBackgroundResource(R.drawable.my_button_blue)
 
-                        shouldWearTextView.text = getString(R.string.feels_like_shorts)
+                        binding.shouldWearTextView.text = getString(R.string.feels_like_shorts)
                     }
                     UNKNOWN -> TODO()
                 }
-                clothingImageView.invalidate()
-                mainButton.invalidate()
-                shouldWearTextView.invalidate()
+                binding.clothingImageView.invalidate()
+                binding.mainButton.invalidate()
+                binding.shouldWearTextView.invalidate()
             }
         })
 
@@ -99,31 +104,31 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 null -> createLocationRequest()
                 else -> {
-                    city_name.text = it
-                    city_name.invalidate()
+                    binding.cityName.text = it
+                    binding.cityName.invalidate()
                 }
             }
         })
 
         mainViewModel.currentTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
-                temperatureTextView.text = "$it\u00B0C"
+                binding.temperatureTextView.text = "$it\u00B0C"
             }
-            temperatureTextView.invalidate()
+            binding.temperatureTextView.invalidate()
         })
 
         mainViewModel.highTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
-                temperatureHighTextView.text = "$it\u00B0C"
+                binding.temperatureHighTextView.text = "$it\u00B0C"
             }
-            temperatureHighTextView.invalidate()
+            binding.temperatureHighTextView.invalidate()
         })
 
         mainViewModel.lowTemp.observe(this, androidx.lifecycle.Observer {
             it?.let {
-                temperatureLowTextView.text = "$it\u00B0C"
+                binding.temperatureLowTextView.text = "$it\u00B0C"
             }
-            temperatureLowTextView.invalidate()
+            binding.temperatureLowTextView.invalidate()
         })
 
         mainViewModel.isNightMode.observe(this, androidx.lifecycle.Observer {
@@ -150,6 +155,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == MainViewModel.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
@@ -218,8 +224,7 @@ class MainActivity : AppCompatActivity() {
                         if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             requestPermissions()
                         }
-                    }
-                    else {
+                    } else {
                         LocationServices
                                 .getFusedLocationProviderClient(applicationContext)
                                 .requestLocationUpdates(locationRequest, locationCallback, null)
@@ -243,18 +248,18 @@ class MainActivity : AppCompatActivity() {
         val lightColor = Color.parseColor("#FAFAFA")
         when {
             isNightMode -> {
-                rootLayout.setBackgroundColor(darkColor)
-                city_name.setTextColor(lightColor)
-                shouldWearTextView.setTextColor(lightColor)
-                nightModeImage.setColorFilter(lightColor)
+                binding.rootLayout.setBackgroundColor(darkColor)
+                binding.cityName.setTextColor(lightColor)
+                binding.shouldWearTextView.setTextColor(lightColor)
+                binding.nightModeImage.setColorFilter(lightColor)
             }
             else -> {
-                rootLayout.setBackgroundColor(lightColor)
-                city_name.setTextColor(darkColor)
-                shouldWearTextView.setTextColor(darkColor)
-                nightModeImage.setColorFilter(darkColor)
+                binding.rootLayout.setBackgroundColor(lightColor)
+                binding.cityName.setTextColor(darkColor)
+                binding.shouldWearTextView.setTextColor(darkColor)
+                binding.nightModeImage.setColorFilter(darkColor)
             }
         }
-        nightModeSwitch.isChecked = isNightMode
+        binding.nightModeSwitch.isChecked = isNightMode
     }
 }
