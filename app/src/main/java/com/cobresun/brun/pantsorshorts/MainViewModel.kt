@@ -8,23 +8,20 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 class MainViewModel(
-        private val userDataRepository: UserDataRepository,
-        private val weatherRepository: WeatherRepository,
-        private val geocoder: Geocoder) : ViewModel() {
+    private val userDataRepository: UserDataRepository,
+    private val weatherRepository: WeatherRepository,
+    private val geocoder: Geocoder
+) : ViewModel() {
 
     private val _currentTemp: MutableLiveData<Int> = MutableLiveData()
     val currentTemp: LiveData<Int> = _currentTemp

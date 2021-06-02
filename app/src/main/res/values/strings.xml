@@ -15,4 +15,5 @@
     <string name="pants">pants</string>
     <string name="shorts">shorts</string>
     <string name="slash">/</string>
+    <string name="celsius">"%1$d\u00B0C"</string>
 </resources>

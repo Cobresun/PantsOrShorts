@@ -11,7 +11,6 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
@@ -23,6 +22,7 @@ import android.util.Log
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.res.ResourcesCompat
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -66,8 +65,7 @@ class MainActivity : AppCompatActivity() {
             toast(R.string.remember_that)
         }
 
-        // TODO: Use Data Binding to clean up all this observing
-        mainViewModel.clothingSuggestion.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.clothingSuggestion.observe(this, {
             it?.let {
                 when (it) {
                     PANTS -> {
@@ -76,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
                         binding.mainButton.text = getString(R.string.too_hot)
                         binding.mainButton.setBackgroundResource(R.drawable.my_button_red)
-                        val sun = applicationContext.resources.getDrawable(R.drawable.ic_wb_sunny, null)
+                        val sun = ResourcesCompat.getDrawable(resources, R.drawable.ic_wb_sunny, null)
                         binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
 
                         binding.shouldWearTextView.text = getString(R.string.feels_like_pants)
@@ -86,13 +84,13 @@ class MainActivity : AppCompatActivity() {
                         binding.clothingImageView.setImageResource(R.drawable.shorts)
 
                         binding.mainButton.text = getString(R.string.too_cold)
-                        val snow = applicationContext.resources.getDrawable(R.drawable.ic_ac_unit, null)
+                        val snow = ResourcesCompat.getDrawable(resources ,R.drawable.ic_ac_unit, null)
                         binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
                         binding.mainButton.setBackgroundResource(R.drawable.my_button_blue)
 
                         binding.shouldWearTextView.text = getString(R.string.feels_like_shorts)
                     }
-                    UNKNOWN -> TODO()
+                    UNKNOWN -> toast("Unidentified state...")
                 }
                 binding.clothingImageView.invalidate()
                 binding.mainButton.invalidate()
@@ -100,7 +98,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        mainViewModel.cityName.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.cityName.observe(this, {
             when (it) {
                 null -> createLocationRequest()
                 else -> {
@@ -110,28 +108,28 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        mainViewModel.currentTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.currentTemp.observe(this, {
             it?.let {
-                binding.temperatureTextView.text = "$it\u00B0C"
+                binding.temperatureTextView.text = getString(R.string.celsius, it)
             }
             binding.temperatureTextView.invalidate()
         })
 
-        mainViewModel.highTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.highTemp.observe(this, {
             it?.let {
-                binding.temperatureHighTextView.text = "$it\u00B0C"
+                binding.temperatureHighTextView.text = getString(R.string.celsius, it)
             }
             binding.temperatureHighTextView.invalidate()
         })
 
-        mainViewModel.lowTemp.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.lowTemp.observe(this, {
             it?.let {
-                binding.temperatureLowTextView.text = "$it\u00B0C"
+                binding.temperatureLowTextView.text = getString(R.string.celsius, it)
             }
             binding.temperatureLowTextView.invalidate()
         })
 
-        mainViewModel.isNightMode.observe(this, androidx.lifecycle.Observer {
+        mainViewModel.isNightMode.observe(this, {
             it?.let {
                 displayNightMode(it)
             }
@@ -181,7 +179,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Where is the right place for this?
     private fun createLocationRequest() {
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -242,7 +239,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    // TODO: Replace with material theming
+    // TODO: Replace with material theme-ing
     private fun displayNightMode(isNightMode: Boolean) {
         val darkColor = Color.parseColor("#212121")
         val lightColor = Color.parseColor("#FAFAFA")

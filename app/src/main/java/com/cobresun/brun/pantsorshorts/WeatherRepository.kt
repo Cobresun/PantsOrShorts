@@ -14,5 +14,4 @@ class WeatherRepository(private val weatherApiKey: String) {
     suspend fun getWeather(latitude: Double, longitude: Double): ForecastResponse {
         return apiService.getForecastResponse(weatherApiKey, latitude, longitude)
     }
-
 }
