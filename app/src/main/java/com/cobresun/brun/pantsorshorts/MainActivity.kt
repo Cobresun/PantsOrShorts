@@ -11,11 +11,11 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
-import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.ConnectivityManager
+import android.net.Network
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.ActionBar
@@ -36,6 +36,8 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var connectivityManager: ConnectivityManager
+    private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
     private val mainViewModel: MainViewModel by lazy {
         MainViewModel(
@@ -52,6 +54,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
+
+        connectivityManager = getSystemService(ConnectivityManager::class.java)
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                createLocationRequest()
+            }
+
+            override fun onLost(network: Network) {
+                toast("The application no longer has access to the internet.")
+            }
+
+            override fun onUnavailable() {
+                toast("There is simply no internet!")
+            }
+        }
 
         binding.mainButton.setOnClickListener {
             mainViewModel.calibrateThreshold()
@@ -121,13 +138,16 @@ class MainActivity : AppCompatActivity() {
             }
             binding.temperatureLowTextView.invalidate()
         })
-
-        checkInternet(applicationContext)
-        createLocationRequest()
     }
 
-    private fun displayNoInternet() {
-        toast(R.string.internet_unavailable)
+    override fun onResume() {
+        super.onResume()
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
     private fun requestPermissions() {
@@ -143,25 +163,11 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == MainViewModel.INITIAL_REQUEST) {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission has been granted.
-                checkInternet(applicationContext)
                 createLocationRequest()
             } else {
                 displayNoPermissionsEnabled()
                 requestPermissions()
             }
-        }
-    }
-
-    private fun isNetworkStatusAvailable(context: Context): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.activeNetwork?.let { return true }
-        return false
-    }
-
-    // TODO: BUG - If user connects after opening the app, we don't respond! They stay disconnected until they restart the app
-    private fun checkInternet(context: Context) {
-        if (!isNetworkStatusAvailable(context)) {
-            displayNoInternet()
         }
     }
 

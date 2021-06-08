@@ -5,6 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class WeatherRepository(private val weatherApiKey: String) {
 
+    // TODO: Should be a dependency injection
     private val apiService = Retrofit.Builder()
         .addConverterFactory(GsonConverterFactory.create())
         .baseUrl("https://api.darksky.net/")
