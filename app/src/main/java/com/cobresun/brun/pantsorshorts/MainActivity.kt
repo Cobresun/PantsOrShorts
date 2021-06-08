@@ -17,6 +17,7 @@ import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -211,7 +212,7 @@ class MainActivity : AppCompatActivity() {
                         binding.mainGroup.visibility = VISIBLE
                         LocationServices
                             .getFusedLocationProviderClient(applicationContext)
-                            .requestLocationUpdates(locationRequest, locationCallback, null)
+                            .requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
                     }
                     shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
                         binding.mainGroup.visibility = GONE
