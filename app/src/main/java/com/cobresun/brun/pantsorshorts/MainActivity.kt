@@ -14,7 +14,6 @@ import android.Manifest
 import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.os.Bundle
@@ -53,12 +52,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
-
-        binding.nightModeSwitch.setOnCheckedChangeListener { buttonView, _ ->
-            if (buttonView.isPressed) {
-                mainViewModel.toggleNightMode()
-            }
-        }
 
         binding.mainButton.setOnClickListener {
             mainViewModel.calibrateThreshold()
@@ -129,15 +122,8 @@ class MainActivity : AppCompatActivity() {
             binding.temperatureLowTextView.invalidate()
         })
 
-        mainViewModel.isNightMode.observe(this, {
-            it?.let {
-                displayNightMode(it)
-            }
-        })
-
         checkInternet(applicationContext)
         createLocationRequest()
-        mainViewModel.setupNightMode()
     }
 
     private fun displayNoInternet() {
@@ -236,27 +222,5 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 }
-    }
-
-
-    // TODO: Replace with material theme-ing
-    private fun displayNightMode(isNightMode: Boolean) {
-        val darkColor = Color.parseColor("#212121")
-        val lightColor = Color.parseColor("#FAFAFA")
-        when {
-            isNightMode -> {
-                binding.rootLayout.setBackgroundColor(darkColor)
-                binding.cityName.setTextColor(lightColor)
-                binding.shouldWearTextView.setTextColor(lightColor)
-                binding.nightModeImage.setColorFilter(lightColor)
-            }
-            else -> {
-                binding.rootLayout.setBackgroundColor(lightColor)
-                binding.cityName.setTextColor(darkColor)
-                binding.shouldWearTextView.setTextColor(darkColor)
-                binding.nightModeImage.setColorFilter(darkColor)
-            }
-        }
-        binding.nightModeSwitch.isChecked = isNightMode
     }
 }

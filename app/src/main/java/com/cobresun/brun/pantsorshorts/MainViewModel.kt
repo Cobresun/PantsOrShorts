@@ -38,9 +38,6 @@ class MainViewModel(
     private val _cityName: MutableLiveData<String> = MutableLiveData()
     val cityName: LiveData<String> = _cityName
 
-    private val _isNightMode: MutableLiveData<Boolean> = MutableLiveData()
-    val isNightMode: LiveData<Boolean> = _isNightMode
-
     private var hourlyTemps = IntArray(24)
 
     private fun updateUserThreshold(howTheyFelt: Feeling) {
@@ -138,17 +135,6 @@ class MainViewModel(
         _lowTemp.value = userDataRepository.lastFetchedTempLow
         hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
         updateClothing()
-    }
-
-    fun setupNightMode() {
-        val isNightMode = userDataRepository.isNightMode
-        _isNightMode.value = isNightMode
-    }
-
-    fun toggleNightMode() {
-        val isNightMode = userDataRepository.isNightMode
-        userDataRepository.isNightMode = !isNightMode
-        _isNightMode.value = !isNightMode
     }
 
     fun setCityName(city: String) {

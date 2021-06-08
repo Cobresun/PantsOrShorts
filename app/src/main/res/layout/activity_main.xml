@@ -20,8 +20,7 @@
         android:textAppearance="@android:style/TextAppearance.Material.Body1"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/clothingImageView"
-        app:layout_constraintEnd_toEndOf="@+id/nightModeSwitch"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/temperatureTextView" />
 
 
@@ -161,27 +160,5 @@
         app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
         app:layout_constraintVertical_bias="0.111"
         tools:textAlignment="center" />
-
-    <Switch
-        android:id="@+id/nightModeSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:drawablePadding="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/nightModeImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/nightModeImage" />
-
-    <ImageView
-        android:id="@+id/nightModeImage"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:contentDescription="@string/night_mode_content_desc"
-        app:layout_constraintBottom_toBottomOf="@+id/slash"
-        app:layout_constraintEnd_toStartOf="@+id/nightModeSwitch"
-        app:layout_constraintTop_toTopOf="@+id/temperatureTextView"
-        app:srcCompat="@drawable/ic_brightness_contrast" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
