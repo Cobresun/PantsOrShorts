@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun isNetworkStatusAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.activeNetworkInfo?.let { return it.isConnected }
+        connectivityManager.activeNetwork?.let { return true }
         return false
     }
 
