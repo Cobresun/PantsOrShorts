@@ -18,9 +18,13 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
 import android.util.Log
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
@@ -29,13 +33,13 @@ import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import splitties.toast.longToast
 import splitties.toast.toast
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
@@ -55,6 +59,16 @@ class MainActivity : AppCompatActivity() {
 
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
 
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                binding.requestPermissionGroup.visibility = GONE
+                binding.mainGroup.visibility = VISIBLE
+            } else {
+                binding.requestPermissionGroup.visibility = VISIBLE
+                binding.mainGroup.visibility = GONE
+            }
+        }
+
         connectivityManager = getSystemService(ConnectivityManager::class.java)
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
@@ -73,6 +87,10 @@ class MainActivity : AppCompatActivity() {
         binding.mainButton.setOnClickListener {
             mainViewModel.calibrateThreshold()
             toast(R.string.remember_that)
+        }
+
+        binding.permissionButton.setOnClickListener {
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         mainViewModel.clothingSuggestion.observe(this, {
@@ -150,27 +168,6 @@ class MainActivity : AppCompatActivity() {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, MainViewModel.INITIAL_PERMS, MainViewModel.INITIAL_REQUEST)
-    }
-
-    private fun displayNoPermissionsEnabled() {
-        longToast(R.string.enable_permission)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == MainViewModel.INITIAL_REQUEST) {
-            if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission has been granted.
-                createLocationRequest()
-            } else {
-                displayNoPermissionsEnabled()
-                requestPermissions()
-            }
-        }
-    }
-
     private fun createLocationRequest() {
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -205,28 +202,34 @@ class MainActivity : AppCompatActivity() {
                 .build()
 
         LocationServices
-                .getSettingsClient(applicationContext)
-                .checkLocationSettings(locationSettingsRequest)
-                .addOnSuccessListener {
-                    // All location settings are satisfied. The client can initialize location requests here.
-                    if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        if (ActivityCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            requestPermissions()
-                        }
-                    } else {
+            .getSettingsClient(applicationContext)
+            .checkLocationSettings(locationSettingsRequest)
+            .addOnSuccessListener {
+                when {
+                    ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                        binding.requestPermissionGroup.visibility = GONE
+                        binding.mainGroup.visibility = VISIBLE
                         LocationServices
-                                .getFusedLocationProviderClient(applicationContext)
-                                .requestLocationUpdates(locationRequest, locationCallback, null)
+                            .getFusedLocationProviderClient(applicationContext)
+                            .requestLocationUpdates(locationRequest, locationCallback, null)
+                    }
+                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                        binding.mainGroup.visibility = GONE
+                        binding.requestPermissionGroup.visibility = VISIBLE
+                    }
+                    else -> {
+                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
                     }
                 }
-                .addOnFailureListener { e ->
-                    if (e is ResolvableApiException) {
-                        try {
-                            e.startResolutionForResult(this, MainViewModel.REQUEST_CHECK_SETTINGS)
-                        } catch (sendEx: IntentSender.SendIntentException) {
-                            Log.e(this.toString(), sendEx.toString())
-                        }
+            }
+            .addOnFailureListener { e ->
+                if (e is ResolvableApiException) {
+                    try {
+                        e.startResolutionForResult(this, MainViewModel.REQUEST_CHECK_SETTINGS)
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        Log.e(this.toString(), sendEx.toString())
                     }
                 }
+            }
     }
 }
