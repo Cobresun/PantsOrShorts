@@ -1,6 +1,5 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -107,7 +106,6 @@ class MainViewModel(
         return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
     }
 
-    // TODO: Leverage Room for built-in logic to refresh data after it gets stale
     suspend fun fetchWeather(location: Location) {
         val forecastResponse = withContext(Dispatchers.IO) {
             weatherRepository.getWeather(location.latitude, location.longitude)
@@ -145,8 +143,6 @@ class MainViewModel(
         const val HOURS_SPENT_OUT = 4
         const val AVERAGE_HOME_TIME = 18
 
-        val INITIAL_PERMS = arrayOf(ACCESS_FINE_LOCATION)
-        const val INITIAL_REQUEST = 1337
         const val REQUEST_CHECK_SETTINGS = 8888
 
         private const val SECOND_MILLIS = 1000

@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">PantsOrShorts</string>
-    <string name="night_mode_content_desc">This button will make the app dark</string>
     <string name="loading">Loading</string>
     <string name="loading_highLow">NA</string>
     <string name="loading_shouldWear_text">You should wear something today</string>
@@ -11,7 +10,6 @@
     <string name="too_cold">It\'s too cold for shorts</string>
     <string name="remember_that">Pants or Shorts will remember that.</string>
     <string name="internet_unavailable">Internet unavailable, please connect.</string>
-    <string name="enable_permission">This app won\'t even work if you don\'t enable permission…</string>
     <string name="pants">pants</string>
     <string name="shorts">shorts</string>
     <string name="slash">/</string>

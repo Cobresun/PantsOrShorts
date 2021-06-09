@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onUnavailable() {
-                toast("There is simply no internet!")
+                toast(R.string.internet_unavailable)
             }
         }
 
@@ -126,6 +126,7 @@ class MainActivity : AppCompatActivity() {
                 binding.clothingImageView.invalidate()
                 binding.mainButton.invalidate()
                 binding.shouldWearTextView.invalidate()
+                binding.mainGroup.visibility = VISIBLE
             }
         })
 
@@ -212,7 +213,6 @@ class MainActivity : AppCompatActivity() {
                     ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
                         binding.requestPermissionGroup.visibility = GONE
                         binding.loadingGroup.visibility = GONE
-                        binding.mainGroup.visibility = VISIBLE
                         LocationServices
                             .getFusedLocationProviderClient(applicationContext)
                             .requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
