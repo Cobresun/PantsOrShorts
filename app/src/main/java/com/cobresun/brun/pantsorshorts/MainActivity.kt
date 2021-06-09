@@ -62,11 +62,13 @@ class MainActivity : AppCompatActivity() {
 
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
+                binding.loadingGroup.visibility = GONE
                 binding.requestPermissionGroup.visibility = GONE
                 binding.mainGroup.visibility = VISIBLE
             } else {
                 binding.requestPermissionGroup.visibility = VISIBLE
                 binding.mainGroup.visibility = GONE
+                binding.loadingGroup.visibility = GONE
             }
         }
 
@@ -209,6 +211,7 @@ class MainActivity : AppCompatActivity() {
                 when {
                     ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
                         binding.requestPermissionGroup.visibility = GONE
+                        binding.loadingGroup.visibility = GONE
                         binding.mainGroup.visibility = VISIBLE
                         LocationServices
                             .getFusedLocationProviderClient(applicationContext)
@@ -216,6 +219,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
                         binding.mainGroup.visibility = GONE
+                        binding.loadingGroup.visibility = GONE
                         binding.requestPermissionGroup.visibility = VISIBLE
                     }
                     else -> {
