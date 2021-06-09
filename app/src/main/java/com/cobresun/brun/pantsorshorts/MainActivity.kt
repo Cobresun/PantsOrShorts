@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     private val mainViewModel: MainViewModel by lazy {
         MainViewModel(
                 SharedPrefsUserDataRepository(applicationContext),
-                WeatherRepository(applicationContext.resources.getString(R.string.dark_sky)),
+                WeatherRepository(BuildConfig.DarkSkyAPIKey),
                 Geocoder(applicationContext, Locale.getDefault())
         )
     }

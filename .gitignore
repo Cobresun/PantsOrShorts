@@ -104,3 +104,4 @@ fastlane/readme.md
 
 # For storing api key
 app/src/main/res/values/secrets.xml
+/gradle.properties

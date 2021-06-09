@@ -18,3 +18,7 @@ Tells you whether you should wear pants or shorts today based on the local weath
 
 ## Official iOS Port 
 [PantsOrShorts-iOS Repository](https://github.com/Cobresun/PantsOrShorts-iOS)
+
+## Setup
+You'll have to add the following line to your gradle.properties file:
+`DarkSkyAPIKey="cobresun_key_here"`
