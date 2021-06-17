@@ -8,25 +8,12 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
 
     private val sharedPreferences = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
 
-    override val isFirstTimeLaunching: Boolean
-        get() {
-            val isFirstTime = sharedPreferences.getBoolean("isFirstTime", true)
-
-            if (isFirstTime) {
-                val editor = sharedPreferences.edit()
-                editor.putBoolean("isFirstTime", false)
-                editor.apply()
-            }
-
-            return isFirstTime
-        }
-
     override var userThreshold: Int
         get() = sharedPreferences.getInt("userThreshold", 21)
         set(value) = sharedPreferences.edit { putInt("userThreshold", value) }
 
     override var lastTimeFetchedWeather: Long
-        get() = sharedPreferences.getLong("timeLastFetched", System.currentTimeMillis())
+        get() = sharedPreferences.getLong("timeLastFetched", System.currentTimeMillis() - (1 * 60 * 60 * 1000)) // Default is 1 hour ago
         set(value) = sharedPreferences.edit { putLong("timeLastFetched", value) }
 
     override var lastFetchedTemp: Int

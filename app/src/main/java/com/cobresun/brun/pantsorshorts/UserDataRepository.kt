@@ -1,12 +1,9 @@
 package com.cobresun.brun.pantsorshorts
 
 interface UserDataRepository {
-
-    val isFirstTimeLaunching: Boolean
-
     var userThreshold: Int
 
-    var lastTimeFetchedWeather: Long    // TODO: Replace with type Duration from kotlin
+    var lastTimeFetchedWeather: Long
 
     var lastFetchedTemp: Int
 

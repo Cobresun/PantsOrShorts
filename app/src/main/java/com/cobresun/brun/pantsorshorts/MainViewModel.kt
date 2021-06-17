@@ -100,10 +100,9 @@ class MainViewModel(
     fun shouldFetchWeather(): Boolean {
         val lastFetched = userDataRepository.lastTimeFetchedWeather
         val timeSinceFetched = System.currentTimeMillis() - lastFetched
-        val isFirstTime = userDataRepository.isFirstTimeLaunching
 
         // Rate limiting to fetching only after 10 minutes
-        return (timeSinceFetched > MINUTE_MILLIS * 10) || isFirstTime
+        return (timeSinceFetched > MINUTE_MILLIS * 10)
     }
 
     suspend fun fetchWeather(location: Location) {
