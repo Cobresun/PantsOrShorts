@@ -4,8 +4,6 @@ interface UserDataRepository {
 
     val isFirstTimeLaunching: Boolean
 
-    var isNightMode: Boolean
-
     var userThreshold: Int
 
     var lastTimeFetchedWeather: Long    // TODO: Replace with type Duration from kotlin
