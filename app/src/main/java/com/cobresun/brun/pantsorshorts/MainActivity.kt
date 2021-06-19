@@ -58,7 +58,9 @@ class MainActivity : AppCompatActivity() {
 
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
 
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
             if (isGranted) {
                 binding.loadingGroup.visibility = GONE
                 binding.requestPermissionGroup.visibility = GONE
@@ -107,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    fun setupViews() {
+    private fun setupViews() {
         mainViewModel.clothingSuggestion.observe(this, {
             it?.let {
                 when (it) {
@@ -133,7 +135,6 @@ class MainActivity : AppCompatActivity() {
 
                         binding.shouldWearTextView.text = getString(R.string.feels_like_shorts)
                     }
-                    Clothing.UNKNOWN -> toast("Unidentified state...")
                 }
                 binding.clothingImageView.invalidate()
                 binding.mainButton.invalidate()
@@ -175,7 +176,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun createLocationRequest() {
-        val REQUEST_CHECK_SETTINGS = 8888
         val locator = Locator(Geocoder(applicationContext, Locale.getDefault()))
 
         val locationCallback: LocationCallback = object : LocationCallback() {
@@ -190,7 +190,9 @@ class MainActivity : AppCompatActivity() {
                 when (mainViewModel.shouldFetchWeather()) {
                     true -> {
                         CoroutineScope(Dispatchers.Main).launch {
-                            mainViewModel.fetchWeather(locationResult.lastLocation)
+                            val latitude = locationResult.lastLocation.latitude
+                            val longitude = locationResult.lastLocation.longitude
+                            mainViewModel.fetchWeather(latitude, longitude)
                             mainViewModel.writeAndDisplayNewData()
                         }
                     }
@@ -215,12 +217,19 @@ class MainActivity : AppCompatActivity() {
             .checkLocationSettings(locationSettingsRequest)
             .addOnSuccessListener {
                 when {
-                    ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+                    ContextCompat.checkSelfPermission(
+                        applicationContext,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED -> {
                         binding.requestPermissionGroup.visibility = GONE
                         binding.loadingGroup.visibility = GONE
                         LocationServices
                             .getFusedLocationProviderClient(applicationContext)
-                            .requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
+                            .requestLocationUpdates(
+                                locationRequest,
+                                locationCallback,
+                                Looper.getMainLooper()
+                            )
                     }
                     shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
                         binding.mainGroup.visibility = GONE
@@ -235,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 if (e is ResolvableApiException) {
                     try {
-                        e.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
+                        e.startResolutionForResult(this, 8888)
                     } catch (sendEx: IntentSender.SendIntentException) {
                         Log.e(this.toString(), sendEx.toString())
                     }

@@ -1,11 +1,10 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.location.Location
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.cobresun.brun.pantsorshorts.Clothing.*
+import com.cobresun.brun.pantsorshorts.Clothing.PANTS
+import com.cobresun.brun.pantsorshorts.Clothing.SHORTS
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +69,6 @@ class MainViewModel(
         when (clothingSuggestion.value) {
             PANTS -> updateUserThreshold(HOT)
             SHORTS -> updateUserThreshold(COLD)
-            UNKNOWN -> Log.e(this.toString(), "calibrateThreshold() but current suggestion unknown")
         }
         updateClothing()
     }
@@ -91,9 +89,9 @@ class MainViewModel(
         return (timeSinceFetched > millisecondsInAMinute * 10)
     }
 
-    suspend fun fetchWeather(location: Location) {
+    suspend fun fetchWeather(latitude: Double, longitude: Double) {
         val forecastResponse = withContext(Dispatchers.IO) {
-            weatherRepository.getWeather(location.latitude, location.longitude)
+            weatherRepository.getWeather(latitude, longitude)
         }
         _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
         _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
@@ -124,7 +122,3 @@ class MainViewModel(
         _cityName.value = city
     }
 }
-
-enum class Clothing { PANTS, SHORTS, UNKNOWN }
-
-enum class Feeling { COLD, HOT }
