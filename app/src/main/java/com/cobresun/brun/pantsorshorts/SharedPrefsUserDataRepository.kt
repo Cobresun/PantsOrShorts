@@ -13,7 +13,12 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
         set(value) = sharedPreferences.edit { putInt("userThreshold", value) }
 
     override var lastTimeFetchedWeather: Long
-        get() = sharedPreferences.getLong("timeLastFetched", System.currentTimeMillis() - (1 * 60 * 60 * 1000)) // Default is 1 hour ago
+        get() {
+            return sharedPreferences.getLong(
+                "timeLastFetched",
+                System.currentTimeMillis() - (1 * 60 * 60 * 1000)  // Default is 1 hour ago
+            )
+        }
         set(value) = sharedPreferences.edit { putLong("timeLastFetched", value) }
 
     override var lastFetchedTemp: Int

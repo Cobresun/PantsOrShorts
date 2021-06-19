@@ -27,7 +27,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import com.cobresun.brun.pantsorshorts.Clothing.*
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -46,9 +45,8 @@ class MainActivity : AppCompatActivity() {
 
     private val mainViewModel: MainViewModel by lazy {
         MainViewModel(
-                SharedPrefsUserDataRepository(applicationContext),
-                WeatherRepository(BuildConfig.DarkSkyAPIKey),
-                Geocoder(applicationContext, Locale.getDefault())
+            SharedPrefsUserDataRepository(applicationContext),
+            WeatherRepository(BuildConfig.DarkSkyAPIKey),
         )
     }
 
@@ -96,10 +94,24 @@ class MainActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
+        setupViews()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        connectivityManager.unregisterNetworkCallback(networkCallback)
+    }
+
+    fun setupViews() {
         mainViewModel.clothingSuggestion.observe(this, {
             it?.let {
                 when (it) {
-                    PANTS -> {
+                    Clothing.PANTS -> {
                         binding.clothingImageView.tag = getString(R.string.pants)
                         binding.clothingImageView.setImageResource(R.drawable.pants)
 
@@ -110,7 +122,7 @@ class MainActivity : AppCompatActivity() {
 
                         binding.shouldWearTextView.text = getString(R.string.feels_like_pants)
                     }
-                    SHORTS -> {
+                    Clothing.SHORTS -> {
                         binding.clothingImageView.tag = getString(R.string.shorts)
                         binding.clothingImageView.setImageResource(R.drawable.shorts)
 
@@ -121,7 +133,7 @@ class MainActivity : AppCompatActivity() {
 
                         binding.shouldWearTextView.text = getString(R.string.feels_like_shorts)
                     }
-                    UNKNOWN -> toast("Unidentified state...")
+                    Clothing.UNKNOWN -> toast("Unidentified state...")
                 }
                 binding.clothingImageView.invalidate()
                 binding.mainButton.invalidate()
@@ -162,24 +174,17 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        connectivityManager.registerDefaultNetworkCallback(networkCallback)
-    }
+    fun createLocationRequest() {
+        val REQUEST_CHECK_SETTINGS = 8888
+        val locator = Locator(Geocoder(applicationContext, Locale.getDefault()))
 
-    override fun onPause() {
-        super.onPause()
-        connectivityManager.unregisterNetworkCallback(networkCallback)
-    }
-
-    private fun createLocationRequest() {
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 LocationServices
-                        .getFusedLocationProviderClient(applicationContext)
-                        .removeLocationUpdates(this)
+                    .getFusedLocationProviderClient(applicationContext)
+                    .removeLocationUpdates(this)
 
-                val city = mainViewModel.getCity(locationResult.lastLocation)
+                val city = locator.getCityName(locationResult.lastLocation)
                 city?.let { mainViewModel.setCityName(city) }
 
                 when (mainViewModel.shouldFetchWeather()) {
@@ -195,15 +200,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         val locationRequest = LocationRequest
-                .create()
-                .setInterval(1000)
-                .setFastestInterval(5000)
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .create()
+            .setInterval(1000)
+            .setFastestInterval(5000)
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
         val locationSettingsRequest = LocationSettingsRequest
-                .Builder()
-                .addLocationRequest(locationRequest)
-                .build()
+            .Builder()
+            .addLocationRequest(locationRequest)
+            .build()
 
         LocationServices
             .getSettingsClient(applicationContext)
@@ -230,7 +235,7 @@ class MainActivity : AppCompatActivity() {
             .addOnFailureListener { e ->
                 if (e is ResolvableApiException) {
                     try {
-                        e.startResolutionForResult(this, MainViewModel.REQUEST_CHECK_SETTINGS)
+                        e.startResolutionForResult(this, REQUEST_CHECK_SETTINGS)
                     } catch (sendEx: IntentSender.SendIntentException) {
                         Log.e(this.toString(), sendEx.toString())
                     }

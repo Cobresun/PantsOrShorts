@@ -1,7 +1,5 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -19,7 +17,6 @@ import kotlin.math.roundToInt
 class MainViewModel(
     private val userDataRepository: UserDataRepository,
     private val weatherRepository: WeatherRepository,
-    private val geocoder: Geocoder
 ) : ViewModel() {
 
     private val _currentTemp: MutableLiveData<Int> = MutableLiveData()
@@ -48,10 +45,13 @@ class MainViewModel(
     }
 
     private fun pantsOrShorts(preference: Int): Clothing {
+        val hoursSpentOut = 4
+        val averageHomeTime = 18
+
         val currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         var average = 0
 
-        val hoursToInclude = max(HOURS_SPENT_OUT, AVERAGE_HOME_TIME - currentHour)
+        val hoursToInclude = max(hoursSpentOut, averageHomeTime - currentHour)
 
         for (i in 0 until hoursToInclude) {
             when {
@@ -80,29 +80,15 @@ class MainViewModel(
         _clothingSuggestion.value = clothing
     }
 
-    fun getCity(location: Location): String? {
-        var addresses: List<Address> = emptyList()
-
-        try {
-            addresses = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-        } catch (e: Exception) {
-            Log.e(this@MainViewModel.toString(), e.toString())
-        }
-
-        return if (addresses.isEmpty()) {
-            Log.e(this@MainViewModel.toString(), "No location found")
-            null
-        } else {
-            addresses[0].locality
-        }
-    }
-
     fun shouldFetchWeather(): Boolean {
+        val millisecondsInASecond = 1000
+        val millisecondsInAMinute = 60 * millisecondsInASecond
+
         val lastFetched = userDataRepository.lastTimeFetchedWeather
         val timeSinceFetched = System.currentTimeMillis() - lastFetched
 
         // Rate limiting to fetching only after 10 minutes
-        return (timeSinceFetched > MINUTE_MILLIS * 10)
+        return (timeSinceFetched > millisecondsInAMinute * 10)
     }
 
     suspend fun fetchWeather(location: Location) {
@@ -136,16 +122,6 @@ class MainViewModel(
 
     fun setCityName(city: String) {
         _cityName.value = city
-    }
-
-    companion object {
-        const val HOURS_SPENT_OUT = 4
-        const val AVERAGE_HOME_TIME = 18
-
-        const val REQUEST_CHECK_SETTINGS = 8888
-
-        private const val SECOND_MILLIS = 1000
-        private const val MINUTE_MILLIS = 60 * SECOND_MILLIS
     }
 }
 

@@ -1,31 +1,31 @@
 package com.cobresun.brun.pantsorshorts
 
 data class ForecastResponse(
-        val currently: CurrentlyResponse,
-        val daily: DailyResponse,
-        val hourly: HourlyResponse
+    val currently: CurrentlyResponse,
+    val daily: DailyResponse,
+    val hourly: HourlyResponse
 )
 
 data class CurrentlyResponse(
-        val temperature: Double,
-        val apparentTemperature: Double
+    val temperature: Double,
+    val apparentTemperature: Double
 )
 
 data class DailyResponse(
-        val data: List<DayResponse>
+    val data: List<DayResponse>
 )
 
 data class HourlyResponse(
-        val data: List<HourResponse>
+    val data: List<HourResponse>
 )
 
 data class HourResponse(
-        val apparentTemperature: Double
+    val apparentTemperature: Double
 )
 
 data class DayResponse(
-        val temperatureMax: Double,
-        val temperatureMin: Double,
-        val apparentTemperatureMax: Double,
-        val apparentTemperatureMin: Double
+    val temperatureMax: Double,
+    val temperatureMin: Double,
+    val apparentTemperatureMax: Double,
+    val apparentTemperatureMin: Double
 )
