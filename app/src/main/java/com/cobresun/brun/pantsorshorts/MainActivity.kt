@@ -33,8 +33,6 @@ import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import splitties.toast.toast
 import java.util.*
 
@@ -45,31 +43,17 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
-    private val sharedPrefsUserDataRepository by lazy {
-        SharedPrefsUserDataRepository(
-            applicationContext.getSharedPreferences("userPrefs", MODE_PRIVATE)
-        )
-    }
-
-    private val apiService = Retrofit.Builder()
-        .addConverterFactory(GsonConverterFactory.create())
-        .baseUrl("https://api.darksky.net/")
-        .build()
-        .create(WeatherAPIService::class.java)
-
-    private val weatherRepository = WeatherRepository(BuildConfig.DarkSkyAPIKey, apiService)
-
-    private val mainViewModel: MainViewModel by lazy {
-        MainViewModel(sharedPrefsUserDataRepository, weatherRepository)
-    }
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
+
+        val appContainer = (application as MyApplication).appContainer
+        viewModel = appContainer.mainViewModelFactory.create()
 
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -101,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.mainButton.setOnClickListener {
-            mainViewModel.calibrateThreshold()
+            viewModel.calibrateThreshold()
             toast(R.string.remember_that)
         }
 
@@ -123,7 +107,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViews() {
-        mainViewModel.clothingSuggestion.observe(this, {
+        viewModel.clothingSuggestion.observe(this, {
             it?.let {
                 when (it) {
                     Clothing.PANTS -> {
@@ -156,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        mainViewModel.cityName.observe(this, {
+        viewModel.cityName.observe(this, {
             when (it) {
                 null -> createLocationRequest()
                 else -> {
@@ -166,21 +150,21 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        mainViewModel.currentTemp.observe(this, {
+        viewModel.currentTemp.observe(this, {
             it?.let {
                 binding.temperatureTextView.text = getString(R.string.celsius, it)
             }
             binding.temperatureTextView.invalidate()
         })
 
-        mainViewModel.highTemp.observe(this, {
+        viewModel.highTemp.observe(this, {
             it?.let {
                 binding.temperatureHighTextView.text = getString(R.string.celsius, it)
             }
             binding.temperatureHighTextView.invalidate()
         })
 
-        mainViewModel.lowTemp.observe(this, {
+        viewModel.lowTemp.observe(this, {
             it?.let {
                 binding.temperatureLowTextView.text = getString(R.string.celsius, it)
             }
@@ -198,18 +182,18 @@ class MainActivity : AppCompatActivity() {
                     .removeLocationUpdates(this)
 
                 val city = locator.getCityName(locationResult.lastLocation)
-                city?.let { mainViewModel.setCityName(city) }
+                city?.let { viewModel.setCityName(city) }
 
-                when (mainViewModel.shouldFetchWeather()) {
+                when (viewModel.shouldFetchWeather()) {
                     true -> {
                         CoroutineScope(Dispatchers.Main).launch {
                             val latitude = locationResult.lastLocation.latitude
                             val longitude = locationResult.lastLocation.longitude
-                            mainViewModel.fetchWeather(latitude, longitude)
-                            mainViewModel.writeAndDisplayNewData()
+                            viewModel.fetchWeather(latitude, longitude)
+                            viewModel.writeAndDisplayNewData()
                         }
                     }
-                    false -> mainViewModel.loadAndDisplayPreviousData()
+                    false -> viewModel.loadAndDisplayPreviousData()
                 }
             }
         }
