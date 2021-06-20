@@ -13,7 +13,6 @@ package com.cobresun.brun.pantsorshorts
 import android.Manifest
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.location.Geocoder
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
@@ -37,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import splitties.toast.toast
 import java.util.*
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    @Inject lateinit var locator: Locator
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -173,8 +174,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun createLocationRequest() {
-        val locator = Locator(Geocoder(applicationContext, Locale.getDefault()))
-
         val locationCallback: LocationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 LocationServices

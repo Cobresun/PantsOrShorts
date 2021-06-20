@@ -66,9 +66,7 @@ object SharedPrefsUserDataRepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSharedPreferences(
-            @ApplicationContext context: Context
-    ): SharedPreferences {
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences("userPrefs", AppCompatActivity.MODE_PRIVATE)
     }
 }
