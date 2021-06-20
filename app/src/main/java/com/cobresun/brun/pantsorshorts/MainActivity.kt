@@ -33,6 +33,8 @@ import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import splitties.toast.toast
 import java.util.*
 
@@ -43,11 +45,22 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
-    private val mainViewModel: MainViewModel by lazy {
-        MainViewModel(
-            SharedPrefsUserDataRepository(applicationContext),
-            WeatherRepository(BuildConfig.DarkSkyAPIKey),
+    private val sharedPrefsUserDataRepository by lazy {
+        SharedPrefsUserDataRepository(
+            applicationContext.getSharedPreferences("userPrefs", MODE_PRIVATE)
         )
+    }
+
+    private val apiService = Retrofit.Builder()
+        .addConverterFactory(GsonConverterFactory.create())
+        .baseUrl("https://api.darksky.net/")
+        .build()
+        .create(WeatherAPIService::class.java)
+
+    private val weatherRepository = WeatherRepository(BuildConfig.DarkSkyAPIKey, apiService)
+
+    private val mainViewModel: MainViewModel by lazy {
+        MainViewModel(sharedPrefsUserDataRepository, weatherRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

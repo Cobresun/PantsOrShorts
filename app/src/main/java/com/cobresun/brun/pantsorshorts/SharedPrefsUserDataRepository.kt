@@ -1,12 +1,11 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
+import android.content.SharedPreferences
 import androidx.core.content.edit
 
-class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
-
-    private val sharedPreferences = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+class SharedPrefsUserDataRepository(
+    private val sharedPreferences: SharedPreferences
+) : UserDataRepository {
 
     override var userThreshold: Int
         get() = sharedPreferences.getInt("userThreshold", 21)
@@ -48,9 +47,5 @@ class SharedPrefsUserDataRepository(context: Context) : UserDataRepository {
             editor.putInt("tempHourlyLastFetched$i", temps[i])
         }
         editor.apply()
-    }
-
-    companion object {
-        private const val PREFS_NAME = "userPrefs"
     }
 }
