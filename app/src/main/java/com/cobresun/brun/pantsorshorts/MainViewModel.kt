@@ -7,14 +7,17 @@ import com.cobresun.brun.pantsorshorts.Clothing.PANTS
 import com.cobresun.brun.pantsorshorts.Clothing.SHORTS
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.*
+import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-class MainViewModel(
-    private val userDataRepository: UserDataRepository,
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    private val userDataRepository: SharedPrefsUserDataRepository,
     private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
 

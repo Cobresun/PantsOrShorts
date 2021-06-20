@@ -23,6 +23,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -30,12 +31,14 @@ import androidx.core.content.res.ResourcesCompat
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import splitties.toast.toast
 import java.util.*
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -43,7 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
-    private lateinit var viewModel: MainViewModel
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +54,6 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
         Objects.requireNonNull<ActionBar>(supportActionBar).hide()
-
-        val appContainer = (application as MyApplication).appContainer
-        viewModel = appContainer.mainViewModelFactory.create()
 
         requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
