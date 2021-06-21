@@ -11,13 +11,11 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
-import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
-import android.os.Looper
-import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.activity.result.ActivityResultLauncher
@@ -28,8 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +42,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
+    private val fusedLocationClient by lazy {
+        LocationServices.getFusedLocationProviderClient(this)
+    }
     @Inject lateinit var locator: Locator
 
     private val viewModel: MainViewModel by viewModels()
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.permissionButton.setOnClickListener {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
         setupViews()
@@ -174,77 +174,41 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun createLocationRequest() {
-        val locationCallback: LocationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                LocationServices
-                    .getFusedLocationProviderClient(applicationContext)
-                    .removeLocationUpdates(this)
+        when {
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { location : Location? ->
+                        location?.let {
+                            val city = locator.getCityName(location)
+                            city?.let { viewModel.setCityName(city) }
 
-                val city = locator.getCityName(locationResult.lastLocation)
-                city?.let { viewModel.setCityName(city) }
-
-                when (viewModel.shouldFetchWeather()) {
-                    true -> {
-                        CoroutineScope(Dispatchers.Main).launch {
-                            val latitude = locationResult.lastLocation.latitude
-                            val longitude = locationResult.lastLocation.longitude
-                            viewModel.fetchWeather(latitude, longitude)
-                            viewModel.writeAndDisplayNewData()
+                            when (viewModel.shouldFetchWeather()) {
+                                true -> {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        val latitude = location.latitude
+                                        val longitude = location.longitude
+                                        viewModel.fetchWeather(latitude, longitude)
+                                        viewModel.writeAndDisplayNewData()
+                                    }
+                                }
+                                false -> viewModel.loadAndDisplayPreviousData()
+                            }
                         }
-                    }
-                    false -> viewModel.loadAndDisplayPreviousData()
-                }
-            }
-        }
-
-        val locationRequest = LocationRequest
-            .create()
-            .setInterval(1000)
-            .setFastestInterval(5000)
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-
-        val locationSettingsRequest = LocationSettingsRequest
-            .Builder()
-            .addLocationRequest(locationRequest)
-            .build()
-
-        LocationServices
-            .getSettingsClient(applicationContext)
-            .checkLocationSettings(locationSettingsRequest)
-            .addOnSuccessListener {
-                when {
-                    ContextCompat.checkSelfPermission(
-                        applicationContext,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ) == PackageManager.PERMISSION_GRANTED -> {
                         binding.requestPermissionGroup.visibility = GONE
                         binding.loadingGroup.visibility = GONE
-                        LocationServices
-                            .getFusedLocationProviderClient(applicationContext)
-                            .requestLocationUpdates(
-                                locationRequest,
-                                locationCallback,
-                                Looper.getMainLooper()
-                            )
                     }
-                    shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                        binding.mainGroup.visibility = GONE
-                        binding.loadingGroup.visibility = GONE
-                        binding.requestPermissionGroup.visibility = VISIBLE
-                    }
-                    else -> {
-                        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-                    }
-                }
             }
-            .addOnFailureListener { e ->
-                if (e is ResolvableApiException) {
-                    try {
-                        e.startResolutionForResult(this, 8888)
-                    } catch (sendEx: IntentSender.SendIntentException) {
-                        Log.e(this.toString(), sendEx.toString())
-                    }
-                }
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
+                binding.mainGroup.visibility = GONE
+                binding.loadingGroup.visibility = GONE
+                binding.requestPermissionGroup.visibility = VISIBLE
             }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            }
+        }
     }
 }
