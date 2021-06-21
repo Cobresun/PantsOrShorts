@@ -151,21 +151,34 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.currentTemp.observe(this, {
             it?.let {
-                binding.temperatureTextView.text = getString(R.string.celsius, it)
+                if (it.unit == TemperatureUnit.CELSIUS) {
+                    binding.temperatureTextView.text = getString(R.string.celsius, it.value)
+                } else {
+                    binding.temperatureTextView.text = getString(R.string.fahrenheit, it.value)
+                }
+
             }
             binding.temperatureTextView.invalidate()
         })
 
         viewModel.highTemp.observe(this, {
             it?.let {
-                binding.temperatureHighTextView.text = getString(R.string.celsius, it)
+                if (it.unit == TemperatureUnit.CELSIUS) {
+                    binding.temperatureHighTextView.text = getString(R.string.celsius, it.value)
+                } else {
+                    binding.temperatureHighTextView.text = getString(R.string.fahrenheit, it.value)
+                }
             }
             binding.temperatureHighTextView.invalidate()
         })
 
         viewModel.lowTemp.observe(this, {
             it?.let {
-                binding.temperatureLowTextView.text = getString(R.string.celsius, it)
+                if (it.unit == TemperatureUnit.CELSIUS) {
+                    binding.temperatureLowTextView.text = getString(R.string.celsius, it.value)
+                } else {
+                    binding.temperatureLowTextView.text = getString(R.string.celsius, it.value)
+                }
             }
             binding.temperatureLowTextView.invalidate()
         })

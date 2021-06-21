@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.weather
 
 import dagger.Module
 import dagger.Provides

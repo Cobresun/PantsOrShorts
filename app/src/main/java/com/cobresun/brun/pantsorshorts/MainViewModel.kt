@@ -7,6 +7,8 @@ import com.cobresun.brun.pantsorshorts.Clothing.PANTS
 import com.cobresun.brun.pantsorshorts.Clothing.SHORTS
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
+import com.cobresun.brun.pantsorshorts.preferences.SharedPrefsUserDataRepository
+import com.cobresun.brun.pantsorshorts.weather.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,14 +23,14 @@ class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
 
-    private val _currentTemp: MutableLiveData<Int> = MutableLiveData()
-    val currentTemp: LiveData<Int> = _currentTemp
+    private val _currentTemp: MutableLiveData<Temperature> = MutableLiveData()
+    val currentTemp: LiveData<Temperature> = _currentTemp
 
-    private val _highTemp: MutableLiveData<Int> = MutableLiveData()
-    val highTemp: LiveData<Int> = _highTemp
+    private val _highTemp: MutableLiveData<Temperature> = MutableLiveData()
+    val highTemp: LiveData<Temperature> = _highTemp
 
-    private val _lowTemp: MutableLiveData<Int> = MutableLiveData()
-    val lowTemp: LiveData<Int> = _lowTemp
+    private val _lowTemp: MutableLiveData<Temperature> = MutableLiveData()
+    val lowTemp: LiveData<Temperature> = _lowTemp
 
     private val _clothingSuggestion: MutableLiveData<Clothing> = MutableLiveData()
     val clothingSuggestion: LiveData<Clothing> = _clothingSuggestion
@@ -36,7 +38,7 @@ class MainViewModel @Inject constructor(
     private val _cityName: MutableLiveData<String> = MutableLiveData()
     val cityName: LiveData<String> = _cityName
 
-    private var hourlyTemps = IntArray(24)
+    private var hourlyTemps = IntArray(24) // TODO: Must change to account for TemperatureUnit
 
     private fun updateUserThreshold(howTheyFelt: Feeling) {
         val currentPreference = userDataRepository.userThreshold
@@ -96,27 +98,27 @@ class MainViewModel @Inject constructor(
         val forecastResponse = withContext(Dispatchers.IO) {
             weatherRepository.getWeather(latitude, longitude)
         }
-        _currentTemp.value = forecastResponse.currently.apparentTemperature.roundToInt()
-        _highTemp.value = forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt()
-        _lowTemp.value = forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt()
+        _currentTemp.value = Temperature(forecastResponse.currently.apparentTemperature.roundToInt(), TemperatureUnit.CELSIUS)
+        _highTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt(), TemperatureUnit.CELSIUS)
+        _lowTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt(), TemperatureUnit.CELSIUS)
         for (i in hourlyTemps.indices) {
             hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
         }
     }
 
     fun writeAndDisplayNewData() {
-        userDataRepository.lastFetchedTemp = currentTemp.value!!
-        userDataRepository.lastFetchedTempHigh = highTemp.value!!
-        userDataRepository.lastFetchedTempLow = lowTemp.value!!
+        userDataRepository.lastFetchedTemp = currentTemp.value!!.value
+        userDataRepository.lastFetchedTempHigh = highTemp.value!!.value
+        userDataRepository.lastFetchedTempLow = lowTemp.value!!.value
         userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
         userDataRepository.lastTimeFetchedWeather = System.currentTimeMillis()
         updateClothing()
     }
 
     fun loadAndDisplayPreviousData() {
-        _currentTemp.value = userDataRepository.lastFetchedTemp
-        _highTemp.value = userDataRepository.lastFetchedTempHigh
-        _lowTemp.value = userDataRepository.lastFetchedTempLow
+        _currentTemp.value = Temperature(userDataRepository.lastFetchedTemp, TemperatureUnit.CELSIUS)
+        _highTemp.value = Temperature(userDataRepository.lastFetchedTempHigh, TemperatureUnit.CELSIUS)
+        _lowTemp.value = Temperature(userDataRepository.lastFetchedTempLow, TemperatureUnit.CELSIUS)
         hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
         updateClothing()
     }

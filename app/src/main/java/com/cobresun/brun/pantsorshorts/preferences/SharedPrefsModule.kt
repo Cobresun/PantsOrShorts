@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.preferences
 
 import android.content.Context
 import android.content.SharedPreferences

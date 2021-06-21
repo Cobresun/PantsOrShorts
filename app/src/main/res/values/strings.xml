@@ -14,6 +14,7 @@
     <string name="shorts">shorts</string>
     <string name="slash">/</string>
     <string name="celsius">"%1$d\u00B0C"</string>
+    <string name="fahrenheit">"%1$d\u00B0F"</string>
     <string name="permission_explanation">In order to provide temperature measurements, the app needs location permissions!</string>
     <string name="accept_permission">Accept Permission</string>
 </resources>

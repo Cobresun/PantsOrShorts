@@ -1,6 +1,6 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.weather
 
-data class ForecastResponse(
+data class DarkSkyResponse(
     val currently: CurrentlyResponse,
     val daily: DailyResponse,
     val hourly: HourlyResponse
