@@ -26,7 +26,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.FusedLocationProviderClient
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,14 +38,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    @Inject lateinit var connectivityManager: ConnectivityManager
+    @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
+    @Inject lateinit var locator: Locator
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    private lateinit var connectivityManager: ConnectivityManager
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
-    private val fusedLocationClient by lazy {
-        LocationServices.getFusedLocationProviderClient(this)
-    }
-    @Inject lateinit var locator: Locator
 
     private val viewModel: MainViewModel by viewModels()
 
@@ -70,7 +69,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        connectivityManager = getSystemService(ConnectivityManager::class.java)
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 createLocationRequest()

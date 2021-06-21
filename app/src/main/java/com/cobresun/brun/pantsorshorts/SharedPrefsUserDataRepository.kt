@@ -1,14 +1,7 @@
 package com.cobresun.brun.pantsorshorts
 
-import android.content.Context
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,16 +50,5 @@ class SharedPrefsUserDataRepository @Inject constructor(
             editor.putInt("tempHourlyLastFetched$i", temps[i])
         }
         editor.apply()
-    }
-}
-
-@Module
-@InstallIn(SingletonComponent::class)
-object SharedPrefsUserDataRepositoryModule {
-
-    @Singleton
-    @Provides
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences("userPrefs", AppCompatActivity.MODE_PRIVATE)
     }
 }
