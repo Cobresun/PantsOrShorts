@@ -41,16 +41,16 @@ class MainViewModel @Inject constructor(
     private var hourlyTemps = IntArray(24) // TODO: Must change to account for TemperatureUnit
 
     private fun updateUserThreshold(howTheyFelt: Feeling) {
-        val currentPreference = userDataRepository.userThreshold
+        var currentPreference = userDataRepository.userThreshold
         when (howTheyFelt) {
             COLD -> {
                 while (pantsOrShorts(currentPreference) == SHORTS) {
-                    currentPreference = currentPreference + 1
+                    currentPreference += 1
                 }
             }
             HOT -> {
                 while (pantsOrShorts(currentPreference) == PANTS) {
-                    currentPreference = currentPreference - 1
+                    currentPreference -= 1
                 }
             }
         }
