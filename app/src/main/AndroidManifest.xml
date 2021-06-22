@@ -21,6 +21,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".widget.UpdateWidgetService" />
+        <receiver android:name=".widget.MyAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/app_widget_provider_info" />
+        </receiver>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
