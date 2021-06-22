@@ -43,8 +43,16 @@ class MainViewModel @Inject constructor(
     private fun updateUserThreshold(howTheyFelt: Feeling) {
         val currentPreference = userDataRepository.userThreshold
         when (howTheyFelt) {
-            COLD -> userDataRepository.userThreshold = currentPreference + 1
-            HOT -> userDataRepository.userThreshold = currentPreference - 1
+            COLD -> {
+                while (pantsOrShorts(currentPreference) == SHORTS) {
+                    userDataRepository.userThreshold = currentPreference + 1
+                }
+            }
+            HOT -> {
+                while (pantsOrShorts(currentPreference) == PANTS) {
+                    userDataRepository.userThreshold = currentPreference - 1
+                }
+            }
         }
     }
 
