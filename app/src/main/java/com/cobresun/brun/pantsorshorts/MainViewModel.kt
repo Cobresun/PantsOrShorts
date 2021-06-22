@@ -45,15 +45,16 @@ class MainViewModel @Inject constructor(
         when (howTheyFelt) {
             COLD -> {
                 while (pantsOrShorts(currentPreference) == SHORTS) {
-                    userDataRepository.userThreshold = currentPreference + 1
+                    currentPreference = currentPreference + 1
                 }
             }
             HOT -> {
                 while (pantsOrShorts(currentPreference) == PANTS) {
-                    userDataRepository.userThreshold = currentPreference - 1
+                    currentPreference = currentPreference - 1
                 }
             }
         }
+        userDataRepository.userThreshold = currentPreference
     }
 
     private fun pantsOrShorts(preference: Int): Clothing {
