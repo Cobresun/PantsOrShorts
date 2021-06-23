@@ -22,8 +22,3 @@ fun Temperature.toCelsius(): Temperature {
         this
     }
 }
-
-enum class TemperatureUnit {
-    CELSIUS,
-    FAHRENHEIT
-}
