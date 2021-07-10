@@ -18,6 +18,7 @@ import android.net.Network
 import android.os.Bundle
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -31,7 +32,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import splitties.toast.toast
 import java.util.*
 import javax.inject.Inject
 
@@ -75,17 +75,17 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onLost(network: Network) {
-                toast("The application no longer has access to the internet.")
+                Toast.makeText(applicationContext, "The application no longer has access to the internet.", Toast.LENGTH_SHORT).show()
             }
 
             override fun onUnavailable() {
-                toast(R.string.internet_unavailable)
+                Toast.makeText(applicationContext, R.string.internet_unavailable, Toast.LENGTH_SHORT).show()
             }
         }
 
         binding.mainButton.setOnClickListener {
             viewModel.calibrateThreshold()
-            toast(R.string.remember_that)
+            Toast.makeText(applicationContext, R.string.remember_that, Toast.LENGTH_SHORT).show()
         }
 
         binding.permissionButton.setOnClickListener {
