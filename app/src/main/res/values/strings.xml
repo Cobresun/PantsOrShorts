@@ -4,8 +4,8 @@
     <string name="loading_highLow">NA</string>
     <string name="loading_shouldWear_text">You should wear something today</string>
     <string name="clothingImage_content_desc">This is the image you should wear</string>
-    <string name="feels_like_pants">For the next few hours, it feels like pants weather</string>
-    <string name="feels_like_shorts">For the next few hours, it feels like shorts weather</string>
+    <string name="feels_like_pants">For the next few hours, it feels like pants weather.</string>
+    <string name="feels_like_shorts">For the next few hours, it feels like shorts weather.</string>
     <string name="too_hot">It\'s too hot for pants</string>
     <string name="too_cold">It\'s too cold for shorts</string>
     <string name="remember_that">Pants or Shorts will remember that.</string>
@@ -17,4 +17,10 @@
     <string name="fahrenheit">"%1$d\u00B0F"</string>
     <string name="permission_explanation">In order to provide temperature measurements, the app needs location permissions!</string>
     <string name="accept_permission">Accept Permission</string>
+    <string name="need_permission">Location is important for this app. Please grant the location permission. We don\'t keep track of any data, and it is all local to your device. In fact, we don\'t even ask for an exact location, this permission simply gives us an approximate vicinity to use to find the weather in your area.</string>
+    <string name="nope">Nope</string>
+    <string name="location_denied">Location permission denied. We can\'t get the temperature of your location without your location…</string>
+    <string name="button_icon_desc">Icon of snow or sun depending on hot or cold</string>
+    <string name="image_content_desc">Image of suggested clothing</string>
+    <string name="ok">Ok!</string>
 </resources>

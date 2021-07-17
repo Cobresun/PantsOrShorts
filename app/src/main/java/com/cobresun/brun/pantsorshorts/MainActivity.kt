@@ -16,23 +16,39 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
-import com.cobresun.brun.pantsorshorts.databinding.ActivityMainBinding
-import com.google.android.gms.location.FusedLocationProviderClient
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionRequired
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -42,30 +58,223 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
     @Inject lateinit var locator: Locator
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
     private val viewModel: MainViewModel by viewModels()
 
+    private val _isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
+
+    @Composable
+    fun LoadingView() {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+
+    @Composable
+    fun MainView(
+        viewModel: MainViewModel = viewModel()
+    ) {
+        val city: String by viewModel.cityName.observeAsState("No City Found")
+        val currentTemp: Temperature by viewModel.currentTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
+        val highTemp: Temperature by viewModel.highTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
+        val lowTemp: Temperature by viewModel.lowTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
+        val clothingSuggestion: Clothing by viewModel.clothingSuggestion.observeAsState(Clothing.PANTS)
+        Column(
+            Modifier.padding(64.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                City(city)
+                CurrentTemp(currentTemp)
+                Spacer(modifier = Modifier.height(16.dp))
+                HighLowTemp(highTemp, lowTemp)
+                Spacer(modifier = Modifier.height(32.dp))
+                ClothingSuggestion(clothingSuggestion)
+                Spacer(modifier = Modifier.height(32.dp))
+                ClothingImage(clothingSuggestion)
+            }
+            MainButton(clothingSuggestion)
+        }
+    }
+
+    @Composable
+    fun City(
+        city: String
+    ) {
+        Text(
+            city,
+            fontSize = 30.sp,
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun CurrentTemp(
+        currentTemp: Temperature,
+    ) {
+        Text(
+            stringResource(
+                if (currentTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
+                currentTemp.value
+            ),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun HighLowTemp(
+        highTemp: Temperature,
+        lowTemp: Temperature
+    ) {
+        Row {
+            Text(
+                stringResource(
+                    if (lowTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
+                    lowTemp.value
+                ),
+                fontSize = 20.sp,
+                color = Color.Blue
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                "/",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                stringResource(
+                    if (highTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
+                    highTemp.value
+                ),
+                fontSize = 20.sp,
+                color = Color.Red
+            )
+        }
+    }
+
+    @Composable
+    fun ClothingSuggestion(
+        clothing: Clothing
+    ) {
+        Text(
+            if (clothing == Clothing.PANTS) stringResource(R.string.feels_like_pants) else stringResource(R.string.feels_like_shorts),
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun ClothingImage(
+        clothing: Clothing
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                if (clothing == Clothing.PANTS) painterResource(R.drawable.pants) else painterResource(R.drawable.shorts),
+                stringResource(R.string.image_content_desc)
+            )
+        }
+    }
+
+    @Composable
+    fun MainButton(
+        clothing: Clothing
+    ) {
+        Button(
+            onClick = {
+                viewModel.calibrateThreshold()
+                Toast.makeText(applicationContext, R.string.remember_that, Toast.LENGTH_SHORT).show()
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (clothing == Clothing.PANTS) Color.Red else Color.Blue,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = if (clothing == Clothing.PANTS) painterResource(id = R.drawable.ic_wb_sunny) else painterResource(id = R.drawable.ic_ac_unit),
+                contentDescription = stringResource(R.string.button_icon_desc)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                if (clothing == Clothing.PANTS) stringResource(R.string.too_hot) else stringResource(R.string.too_cold)
+            )
+        }
+    }
+
+    @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-        Objects.requireNonNull<ActionBar>(supportActionBar).hide()
 
-        requestPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            if (isGranted) {
-                binding.loadingGroup.visibility = GONE
-                binding.requestPermissionGroup.visibility = GONE
-                binding.mainGroup.visibility = VISIBLE
-            } else {
-                binding.requestPermissionGroup.visibility = VISIBLE
-                binding.mainGroup.visibility = GONE
-                binding.loadingGroup.visibility = GONE
+        val darkColors = darkColors(
+            primary = Color.White,
+        )
+        val lightColors = lightColors(
+            primary = Color.Black,
+        )
+
+        setContent {
+            MaterialTheme(
+                colors = if (isSystemInDarkTheme()) darkColors else lightColors
+            ) {
+                val isLoading by _isLoading.observeAsState()
+
+                val doNotShowRationale by rememberSaveable { mutableStateOf(false) }
+                val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_COARSE_LOCATION)
+
+                PermissionRequired(
+                    permissionState = locationPermissionState,
+                    permissionNotGrantedContent = {
+                        if (doNotShowRationale) {
+                            Text(getString(R.string.permission_explanation), color = MaterialTheme.colors.primary)
+                        } else {
+                            Column(
+                                modifier = Modifier.padding(64.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    getString(R.string.need_permission),
+                                    color = MaterialTheme.colors.primary
+                                )
+                                Spacer(modifier = Modifier.height(32.dp))
+                                Button(
+                                    onClick = { locationPermissionState.launchPermissionRequest() },
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = Color.Green,
+                                        contentColor = Color.Black
+                                    )
+                                ) {
+                                    Text(
+                                        getString(R.string.ok),
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    permissionNotAvailableContent = {
+                        Column (Modifier.padding(64.dp)) {
+                            Text(
+                                getString(R.string.location_denied),
+                                color = MaterialTheme.colors.primary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                ) {
+                    if (isLoading != false) {
+                        LoadingView()
+                    } else {
+                        MainView()
+                    }
+                }
             }
         }
 
@@ -82,17 +291,6 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, R.string.internet_unavailable, Toast.LENGTH_SHORT).show()
             }
         }
-
-        binding.mainButton.setOnClickListener {
-            viewModel.calibrateThreshold()
-            Toast.makeText(applicationContext, R.string.remember_that, Toast.LENGTH_SHORT).show()
-        }
-
-        binding.permissionButton.setOnClickListener {
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
-        }
-
-        setupViews()
     }
 
     override fun onResume() {
@@ -105,93 +303,28 @@ class MainActivity : AppCompatActivity() {
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    private fun setupViews() {
-        viewModel.clothingSuggestion.observe(this, {
-            it?.let {
-                when (it) {
-                    Clothing.PANTS -> {
-                        binding.clothingImageView.tag = getString(R.string.pants)
-                        binding.clothingImageView.setImageResource(R.drawable.pants)
-
-                        binding.mainButton.text = getString(R.string.too_hot)
-                        binding.mainButton.setBackgroundResource(R.drawable.my_button_red)
-                        val sun = ResourcesCompat.getDrawable(resources, R.drawable.ic_wb_sunny, null)
-                        binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(sun, null, null, null)
-
-                        binding.shouldWearTextView.text = getString(R.string.feels_like_pants)
-                    }
-                    Clothing.SHORTS -> {
-                        binding.clothingImageView.tag = getString(R.string.shorts)
-                        binding.clothingImageView.setImageResource(R.drawable.shorts)
-
-                        binding.mainButton.text = getString(R.string.too_cold)
-                        val snow = ResourcesCompat.getDrawable(resources ,R.drawable.ic_ac_unit, null)
-                        binding.mainButton.setCompoundDrawablesWithIntrinsicBounds(snow, null, null, null)
-                        binding.mainButton.setBackgroundResource(R.drawable.my_button_blue)
-
-                        binding.shouldWearTextView.text = getString(R.string.feels_like_shorts)
-                    }
-                }
-                binding.clothingImageView.invalidate()
-                binding.mainButton.invalidate()
-                binding.shouldWearTextView.invalidate()
-                binding.mainGroup.visibility = VISIBLE
-            }
-        })
-
-        viewModel.cityName.observe(this, {
-            when (it) {
-                null -> createLocationRequest()
-                else -> {
-                    binding.cityName.text = it
-                    binding.cityName.invalidate()
-                }
-            }
-        })
-
-        viewModel.currentTemp.observe(this, {
-            it?.let {
-                if (it.unit == TemperatureUnit.CELSIUS) {
-                    binding.temperatureTextView.text = getString(R.string.celsius, it.value)
-                } else {
-                    binding.temperatureTextView.text = getString(R.string.fahrenheit, it.value)
-                }
-
-            }
-            binding.temperatureTextView.invalidate()
-        })
-
-        viewModel.highTemp.observe(this, {
-            it?.let {
-                if (it.unit == TemperatureUnit.CELSIUS) {
-                    binding.temperatureHighTextView.text = getString(R.string.celsius, it.value)
-                } else {
-                    binding.temperatureHighTextView.text = getString(R.string.fahrenheit, it.value)
-                }
-            }
-            binding.temperatureHighTextView.invalidate()
-        })
-
-        viewModel.lowTemp.observe(this, {
-            it?.let {
-                if (it.unit == TemperatureUnit.CELSIUS) {
-                    binding.temperatureLowTextView.text = getString(R.string.celsius, it.value)
-                } else {
-                    binding.temperatureLowTextView.text = getString(R.string.celsius, it.value)
-                }
-            }
-            binding.temperatureLowTextView.invalidate()
-        })
-    }
-
     fun createLocationRequest() {
-        when {
-            ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_LOW_POWER
+        }
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            if (
+                ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED) {
                 fusedLocationClient.lastLocation
                     .addOnSuccessListener { location : Location? ->
+                        // Got last known location. In some rare situations this can be null.
                         location?.let {
                             val city = locator.getCityName(location)
                             city?.let { viewModel.setCityName(city) }
@@ -207,18 +340,10 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 false -> viewModel.loadAndDisplayPreviousData()
                             }
+
+                            _isLoading.value = false
                         }
-                        binding.requestPermissionGroup.visibility = GONE
-                        binding.loadingGroup.visibility = GONE
                     }
-            }
-            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION) -> {
-                binding.mainGroup.visibility = GONE
-                binding.loadingGroup.visibility = GONE
-                binding.requestPermissionGroup.visibility = VISIBLE
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
             }
         }
     }
