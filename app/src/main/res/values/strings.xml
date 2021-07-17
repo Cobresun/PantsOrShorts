@@ -23,4 +23,6 @@
     <string name="button_icon_desc">Icon of snow or sun depending on hot or cold</string>
     <string name="image_content_desc">Image of suggested clothing</string>
     <string name="ok">Ok!</string>
+    <string name="no_city_found">No City Found</string>
+    <string name="no_internet">The application no longer has access to the internet.</string>
 </resources>

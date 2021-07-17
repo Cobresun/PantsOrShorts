@@ -35,13 +35,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
@@ -64,162 +65,17 @@ class MainActivity : AppCompatActivity() {
 
     private val _isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
 
-    @Composable
-    fun LoadingView() {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    }
+    private val darkColors = darkColors(
+        primary = Color.White,
+    )
 
-    @Composable
-    fun MainView(
-        viewModel: MainViewModel = viewModel()
-    ) {
-        val city: String by viewModel.cityName.observeAsState("No City Found")
-        val currentTemp: Temperature by viewModel.currentTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
-        val highTemp: Temperature by viewModel.highTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
-        val lowTemp: Temperature by viewModel.lowTemp.observeAsState(Temperature(0, TemperatureUnit.CELSIUS))
-        val clothingSuggestion: Clothing by viewModel.clothingSuggestion.observeAsState(Clothing.PANTS)
-        Column(
-            Modifier.padding(64.dp)
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                City(city)
-                CurrentTemp(currentTemp)
-                Spacer(modifier = Modifier.height(16.dp))
-                HighLowTemp(highTemp, lowTemp)
-                Spacer(modifier = Modifier.height(32.dp))
-                ClothingSuggestion(clothingSuggestion)
-                Spacer(modifier = Modifier.height(32.dp))
-                ClothingImage(clothingSuggestion)
-            }
-            MainButton(clothingSuggestion)
-        }
-    }
-
-    @Composable
-    fun City(
-        city: String
-    ) {
-        Text(
-            city,
-            fontSize = 30.sp,
-            color = MaterialTheme.colors.primary
-        )
-    }
-
-    @Composable
-    fun CurrentTemp(
-        currentTemp: Temperature,
-    ) {
-        Text(
-            stringResource(
-                if (currentTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
-                currentTemp.value
-            ),
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colors.primary
-        )
-    }
-
-    @Composable
-    fun HighLowTemp(
-        highTemp: Temperature,
-        lowTemp: Temperature
-    ) {
-        Row {
-            Text(
-                stringResource(
-                    if (lowTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
-                    lowTemp.value
-                ),
-                fontSize = 20.sp,
-                color = Color.Blue
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                "/",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colors.primary
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                stringResource(
-                    if (highTemp.unit == TemperatureUnit.CELSIUS) R.string.celsius else R.string.fahrenheit,
-                    highTemp.value
-                ),
-                fontSize = 20.sp,
-                color = Color.Red
-            )
-        }
-    }
-
-    @Composable
-    fun ClothingSuggestion(
-        clothing: Clothing
-    ) {
-        Text(
-            if (clothing == Clothing.PANTS) stringResource(R.string.feels_like_pants) else stringResource(R.string.feels_like_shorts),
-            color = MaterialTheme.colors.primary
-        )
-    }
-
-    @Composable
-    fun ClothingImage(
-        clothing: Clothing
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(
-                if (clothing == Clothing.PANTS) painterResource(R.drawable.pants) else painterResource(R.drawable.shorts),
-                stringResource(R.string.image_content_desc)
-            )
-        }
-    }
-
-    @Composable
-    fun MainButton(
-        clothing: Clothing
-    ) {
-        Button(
-            onClick = {
-                viewModel.calibrateThreshold()
-                Toast.makeText(applicationContext, R.string.remember_that, Toast.LENGTH_SHORT).show()
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (clothing == Clothing.PANTS) Color.Red else Color.Blue,
-                contentColor = Color.White
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(
-                painter = if (clothing == Clothing.PANTS) painterResource(id = R.drawable.ic_wb_sunny) else painterResource(id = R.drawable.ic_ac_unit),
-                contentDescription = stringResource(R.string.button_icon_desc)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                if (clothing == Clothing.PANTS) stringResource(R.string.too_hot) else stringResource(R.string.too_cold)
-            )
-        }
-    }
+    private val lightColors = lightColors(
+        primary = Color.Black,
+    )
 
     @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val darkColors = darkColors(
-            primary = Color.White,
-        )
-        val lightColors = lightColors(
-            primary = Color.Black,
-        )
 
         setContent {
             MaterialTheme(
@@ -228,35 +84,20 @@ class MainActivity : AppCompatActivity() {
                 val isLoading by _isLoading.observeAsState()
 
                 val doNotShowRationale by rememberSaveable { mutableStateOf(false) }
-                val locationPermissionState = rememberPermissionState(Manifest.permission.ACCESS_COARSE_LOCATION)
+                val locationPermissionState = rememberPermissionState(
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
 
                 PermissionRequired(
                     permissionState = locationPermissionState,
                     permissionNotGrantedContent = {
                         if (doNotShowRationale) {
-                            Text(getString(R.string.permission_explanation), color = MaterialTheme.colors.primary)
+                            Text(
+                                getString(R.string.permission_explanation),
+                                color = MaterialTheme.colors.primary
+                            )
                         } else {
-                            Column(
-                                modifier = Modifier.padding(64.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    getString(R.string.need_permission),
-                                    color = MaterialTheme.colors.primary
-                                )
-                                Spacer(modifier = Modifier.height(32.dp))
-                                Button(
-                                    onClick = { locationPermissionState.launchPermissionRequest() },
-                                    colors = ButtonDefaults.buttonColors(
-                                        backgroundColor = Color.Green,
-                                        contentColor = Color.Black
-                                    )
-                                ) {
-                                    Text(
-                                        getString(R.string.ok),
-                                    )
-                                }
-                            }
+                            LocationRationale(locationPermissionState)
                         }
                     },
                     permissionNotAvailableContent = {
@@ -272,7 +113,23 @@ class MainActivity : AppCompatActivity() {
                     if (isLoading != false) {
                         LoadingView()
                     } else {
-                        MainView()
+                        val city: String by viewModel.cityName.observeAsState(
+                            stringResource(R.string.no_city_found)
+                        )
+                        val currentTemp: Temperature by viewModel.currentTemp.observeAsState(
+                            Temperature(0, TemperatureUnit.CELSIUS)
+                        )
+                        val highTemp: Temperature by viewModel.highTemp.observeAsState(
+                            Temperature(0, TemperatureUnit.CELSIUS)
+                        )
+                        val lowTemp: Temperature by viewModel.lowTemp.observeAsState(
+                            Temperature(0, TemperatureUnit.CELSIUS)
+                        )
+                        val clothing: Clothing by viewModel.clothingSuggestion.observeAsState(
+                            Clothing.PANTS
+                        )
+
+                        MainView(city, currentTemp, highTemp, lowTemp, clothing)
                     }
                 }
             }
@@ -284,11 +141,19 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onLost(network: Network) {
-                Toast.makeText(applicationContext, "The application no longer has access to the internet.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    getString(R.string.no_internet),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             override fun onUnavailable() {
-                Toast.makeText(applicationContext, R.string.internet_unavailable, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext,
+                    R.string.internet_unavailable,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -345,6 +210,251 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
             }
+        }
+    }
+
+    @Composable
+    fun LoadingView() {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    }
+
+    @Composable
+    fun MainView(
+        city: String,
+        currentTemp: Temperature,
+        highTemp: Temperature,
+        lowTemp: Temperature,
+        clothing: Clothing
+    ) {
+        Column(
+            Modifier.padding(64.dp)
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                City(city)
+                CurrentTemp(currentTemp)
+                Spacer(modifier = Modifier.height(16.dp))
+                HighLowTemp(highTemp, lowTemp)
+                Spacer(modifier = Modifier.height(32.dp))
+                ClothingSuggestion(clothing)
+                Spacer(modifier = Modifier.height(32.dp))
+                ClothingImage(clothing)
+            }
+            MainButton(clothing)
+        }
+    }
+
+    @Composable
+    fun City(
+        city: String
+    ) {
+        Text(
+            city,
+            fontSize = 30.sp,
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun CurrentTemp(
+        currentTemp: Temperature,
+    ) {
+        Text(
+            text = stringResource(
+                if (currentTemp.unit == TemperatureUnit.CELSIUS) {
+                    R.string.celsius
+                } else {
+                    R.string.fahrenheit
+                },
+                currentTemp.value
+            ),
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun HighLowTemp(
+        highTemp: Temperature,
+        lowTemp: Temperature
+    ) {
+        Row {
+            Text(
+                text = stringResource(
+                    if (lowTemp.unit == TemperatureUnit.CELSIUS) {
+                        R.string.celsius
+                    } else {
+                        R.string.fahrenheit
+                    },
+                    lowTemp.value
+                ),
+                fontSize = 20.sp,
+                color = Color.Blue
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                "/",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(
+                    if (highTemp.unit == TemperatureUnit.CELSIUS) {
+                        R.string.celsius
+                    } else {
+                        R.string.fahrenheit
+                    },
+                    highTemp.value
+                ),
+                fontSize = 20.sp,
+                color = Color.Red
+            )
+        }
+    }
+
+    @Composable
+    fun ClothingSuggestion(
+        clothing: Clothing
+    ) {
+        Text(
+            text = stringResource(
+                if (clothing == Clothing.PANTS) {
+                    R.string.feels_like_pants
+                } else {
+                    R.string.feels_like_shorts
+                }
+            ),
+            color = MaterialTheme.colors.primary
+        )
+    }
+
+    @Composable
+    fun ClothingImage(
+        clothing: Clothing
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(
+                    if (clothing == Clothing.PANTS) {
+                        R.drawable.pants
+                    } else {
+                        R.drawable.shorts
+                    }
+                ),
+                contentDescription = stringResource(R.string.image_content_desc)
+            )
+        }
+    }
+
+    @Composable
+    fun MainButton(
+        clothing: Clothing
+    ) {
+        Button(
+            onClick = {
+                viewModel.calibrateThreshold()
+                Toast.makeText(
+                    applicationContext,
+                    R.string.remember_that,
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (clothing == Clothing.PANTS) Color.Red else Color.Blue,
+                contentColor = Color.White
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(
+                    if (clothing == Clothing.PANTS) {
+                        R.drawable.ic_wb_sunny
+                    } else {
+                        R.drawable.ic_ac_unit
+                    }
+                ),
+                contentDescription = stringResource(R.string.button_icon_desc)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(
+                    if (clothing == Clothing.PANTS) {
+                        R.string.too_hot
+                    } else {
+                        R.string.too_cold
+                    }
+                )
+            )
+        }
+    }
+
+    @ExperimentalPermissionsApi
+    @Composable
+    private fun LocationRationale(
+        locationPermissionState: PermissionState
+    ) {
+        Column(
+            modifier = Modifier.padding(64.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                getString(R.string.need_permission),
+                color = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(
+                onClick = { locationPermissionState.launchPermissionRequest() },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.Green,
+                    contentColor = Color.Black
+                )
+            ) {
+                Text(
+                    getString(R.string.ok),
+                )
+            }
+        }
+    }
+
+    @Preview(name = "Main View Light Mode Shorts", showSystemUi = true)
+    @Composable
+    fun MainViewLightShortsPreview() {
+        MaterialTheme(
+            colors = lightColors
+        ) {
+            MainView(
+                city = "Calgary",
+                currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+                highTemp = Temperature(88, TemperatureUnit.CELSIUS),
+                lowTemp = Temperature(-8, TemperatureUnit.CELSIUS),
+                clothing = Clothing.SHORTS
+            )
+        }
+    }
+
+    @Preview(name = "Main View Light Mode Pants", showSystemUi = true)
+    @Composable
+    fun MainViewLightPantsPreview() {
+        MaterialTheme(
+            colors = lightColors
+        ) {
+            MainView(
+                city = "Calgary",
+                currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+                highTemp = Temperature(88, TemperatureUnit.CELSIUS),
+                lowTemp = Temperature(-8, TemperatureUnit.CELSIUS),
+                clothing = Clothing.PANTS
+            )
         }
     }
 }
