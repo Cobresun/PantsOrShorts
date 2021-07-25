@@ -23,6 +23,9 @@ class MainViewModel @Inject constructor(
     private val weatherRepository: WeatherRepository,
 ) : ViewModel() {
 
+    private val _isLoading: MutableLiveData<Boolean> = MutableLiveData()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     private val _currentTemp: MutableLiveData<Temperature> = MutableLiveData()
     val currentTemp: LiveData<Temperature> = _currentTemp
 
@@ -122,6 +125,7 @@ class MainViewModel @Inject constructor(
         userDataRepository.writeLastFetchedHourlyTemps(hourlyTemps)
         userDataRepository.lastTimeFetchedWeather = System.currentTimeMillis()
         updateClothing()
+        _isLoading.value = false
     }
 
     fun loadAndDisplayPreviousData() {
@@ -130,6 +134,7 @@ class MainViewModel @Inject constructor(
         _lowTemp.value = Temperature(userDataRepository.lastFetchedTempLow, TemperatureUnit.CELSIUS)
         hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
         updateClothing()
+        _isLoading.value = false
     }
 
     fun setCityName(city: String) {

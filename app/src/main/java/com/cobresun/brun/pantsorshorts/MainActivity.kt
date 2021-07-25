@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.MutableLiveData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.PermissionState
@@ -63,8 +62,6 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    private val _isLoading: MutableLiveData<Boolean> = MutableLiveData(true)
-
     private val darkColors = darkColors(
         primary = Color.White,
     )
@@ -81,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             MaterialTheme(
                 colors = if (isSystemInDarkTheme()) darkColors else lightColors
             ) {
-                val isLoading by _isLoading.observeAsState()
+                val isLoading by viewModel.isLoading.observeAsState(initial = true)
 
                 val doNotShowRationale by rememberSaveable { mutableStateOf(false) }
                 val locationPermissionState = rememberPermissionState(
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 ) {
-                    if (isLoading != false) {
+                    if (isLoading) {
                         LoadingView()
                     } else {
                         val city: String by viewModel.cityName.observeAsState(
@@ -205,8 +202,6 @@ class MainActivity : AppCompatActivity() {
                                 }
                                 false -> viewModel.loadAndDisplayPreviousData()
                             }
-
-                            _isLoading.value = false
                         }
                     }
             }
