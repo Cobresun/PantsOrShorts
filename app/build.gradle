@@ -9,8 +9,8 @@ android {
         applicationId "com.cobresun.brun.pantsorshorts"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 16
-        versionName "2.2"
+        versionCode 17
+        versionName "2.2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         buildConfigField("String", "DarkSkyAPIKey", DarkSkyAPIKey)
@@ -23,11 +23,11 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
-            minifyEnabled true
+            minifyEnabled false
 
             // Enables resource shrinking, which is performed by the
             // Android Gradle plugin.
-            shrinkResources true
+            shrinkResources false
 
             // Includes the default ProGuard rules files that are packaged with
             // the Android Gradle plugin. To learn more, go to the section about
@@ -56,7 +56,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "com.google.android.gms:play-services-location:18.0.0"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.android.material:material:1.4.0'
@@ -64,7 +63,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation "androidx.core:core-ktx:1.6.0"
-    implementation 'androidx.activity:activity-ktx:1.2.4'
+    implementation 'androidx.activity:activity-ktx:1.3.0'
 
     // Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
@@ -79,23 +78,22 @@ dependencies {
     kapt 'com.google.dagger:hilt-compiler:2.37'
 
     // Compose
-    implementation 'androidx.compose.ui:ui:1.0.0-rc02'
+    implementation 'androidx.compose.ui:ui:1.0.0'
         // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.0.0-beta09'
+    implementation 'androidx.compose.ui:ui-tooling:1.0.0'
         // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation 'androidx.compose.foundation:foundation:1.0.0-rc02'
+    implementation 'androidx.compose.foundation:foundation:1.0.0'
         // Material Design
-    implementation 'androidx.compose.material:material:1.0.0-rc02'
+    implementation 'androidx.compose.material:material:1.0.0'
         // Material design icons
-    implementation 'androidx.compose.material:material-icons-core:1.0.0-rc02'
-    implementation 'androidx.compose.material:material-icons-extended:1.0.0-rc02'
+    implementation 'androidx.compose.material:material-icons-core:1.0.0'
+    implementation 'androidx.compose.material:material-icons-extended:1.0.0'
         // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.3.0-rc02'
+    implementation 'androidx.activity:activity-compose:1.3.0'
         // Integration with ViewModels
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
         // Integration with observables
-    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0-rc02'
-    implementation 'androidx.compose.runtime:runtime-rxjava2:1.0.0-rc02'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0'
         // Accompanist
     implementation "com.google.accompanist:accompanist-permissions:0.14.0"
 
