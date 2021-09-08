@@ -61,39 +61,39 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation "androidx.core:core-ktx:1.6.0"
-    implementation 'androidx.activity:activity-ktx:1.3.0'
+    implementation 'androidx.activity:activity-ktx:1.3.1'
 
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1'
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha02"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha03"
 
     // Hilt
     implementation 'com.google.dagger:hilt-android:2.37'
     kapt 'com.google.dagger:hilt-compiler:2.37'
 
     // Compose
-    implementation 'androidx.compose.ui:ui:1.0.0'
+    implementation 'androidx.compose.ui:ui:1.0.2'
         // Tooling support (Previews, etc.)
-    implementation 'androidx.compose.ui:ui-tooling:1.0.0'
+    implementation 'androidx.compose.ui:ui-tooling:1.0.2'
         // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation 'androidx.compose.foundation:foundation:1.0.0'
+    implementation 'androidx.compose.foundation:foundation:1.0.2'
         // Material Design
-    implementation 'androidx.compose.material:material:1.0.0'
+    implementation 'androidx.compose.material:material:1.0.2'
         // Material design icons
-    implementation 'androidx.compose.material:material-icons-core:1.0.0'
-    implementation 'androidx.compose.material:material-icons-extended:1.0.0'
+    implementation 'androidx.compose.material:material-icons-core:1.0.2'
+    implementation 'androidx.compose.material:material-icons-extended:1.0.2'
         // Integration with activities
-    implementation 'androidx.activity:activity-compose:1.3.0'
+    implementation 'androidx.activity:activity-compose:1.3.1'
         // Integration with ViewModels
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07'
         // Integration with observables
-    implementation 'androidx.compose.runtime:runtime-livedata:1.0.0'
+    implementation 'androidx.compose.runtime:runtime-livedata:1.0.2'
         // Accompanist
     implementation "com.google.accompanist:accompanist-permissions:0.14.0"
 
