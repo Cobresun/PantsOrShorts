@@ -346,7 +346,8 @@ class MainActivity : AppCompatActivity() {
                         R.drawable.shorts
                     }
                 ),
-                contentDescription = stringResource(R.string.image_content_desc)
+                contentDescription = stringResource(R.string.image_content_desc),
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
