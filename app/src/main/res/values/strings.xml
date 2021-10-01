@@ -17,7 +17,7 @@
     <string name="fahrenheit">"%1$d\u00B0F"</string>
     <string name="permission_explanation">In order to provide temperature measurements, the app needs location permissions!</string>
     <string name="accept_permission">Accept Permission</string>
-    <string name="need_permission">Location is important for this app. Please grant the location permission. We don\'t keep track of any data, and it is all local to your device. In fact, we don\'t even ask for an exact location, this permission simply gives us an approximate vicinity to use to find the weather in your area.</string>
+    <string name="need_permission">The location permission is needed to determine weather in your area. Preferences are stored locally and no other data is tracked or stored.</string>
     <string name="nope">Nope</string>
     <string name="location_denied">Location permission denied. We can\'t get the temperature of your location without your location…</string>
     <string name="button_icon_desc">Icon of snow or sun depending on hot or cold</string>

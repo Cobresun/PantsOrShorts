@@ -62,6 +62,10 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    private val lowBlue = Color(0xff80cee1)
+    private val highRed = Color(0xffff6961)
+    private val pastelGreen = Color(0xff77dd77)
+
     private val darkColors = darkColors(
         primary = Color.White,
     )
@@ -289,7 +293,7 @@ class MainActivity : AppCompatActivity() {
                     lowTemp.value
                 ),
                 fontSize = 20.sp,
-                color = Color.Blue
+                color = lowBlue
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -309,7 +313,7 @@ class MainActivity : AppCompatActivity() {
                     highTemp.value
                 ),
                 fontSize = 20.sp,
-                color = Color.Red
+                color = highRed
             )
         }
     }
@@ -366,7 +370,7 @@ class MainActivity : AppCompatActivity() {
                 ).show()
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (clothing == Clothing.PANTS) Color.Red else Color.Blue,
+                backgroundColor = if (clothing == Clothing.PANTS) highRed else lowBlue,
                 contentColor = Color.White
             ),
             modifier = Modifier.fillMaxWidth()
@@ -411,7 +415,7 @@ class MainActivity : AppCompatActivity() {
             Button(
                 onClick = { locationPermissionState.launchPermissionRequest() },
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.Green,
+                    backgroundColor = pastelGreen,
                     contentColor = Color.Black
                 )
             ) {
