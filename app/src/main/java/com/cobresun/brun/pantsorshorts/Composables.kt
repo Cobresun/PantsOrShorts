@@ -1,6 +1,7 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -308,5 +310,79 @@ fun LocationRationale(
                 stringResource(id = R.string.ok),
             )
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun Loading() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        LoadingView()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainViewHot() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        MainView(
+            city = "Calgary",
+            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
+            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            clothing = Clothing.SHORTS
+        ) { }
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun MainViewHotNight() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        MainView(
+            city = "Calgary",
+            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
+            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            clothing = Clothing.SHORTS
+        ) { }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainViewCold() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        MainView(
+            city = "Calgary",
+            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
+            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            clothing = Clothing.PANTS
+        ) { }
+    }
+}
+
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun MainViewColdNight() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        MainView(
+            city = "Calgary",
+            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
+            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
+            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            clothing = Clothing.PANTS
+        ) { }
     }
 }
