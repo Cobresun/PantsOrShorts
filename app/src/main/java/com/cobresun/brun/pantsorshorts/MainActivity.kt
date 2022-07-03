@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         primary = Color.Black,
     )
 
-    @ExperimentalPermissionsApi
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

@@ -86,6 +86,7 @@ class MainViewModel @Inject constructor(
         when (clothingSuggestion.value) {
             PANTS -> updateUserThreshold(HOT)
             SHORTS -> updateUserThreshold(COLD)
+            null -> TODO()
         }
         updateClothing()
     }
