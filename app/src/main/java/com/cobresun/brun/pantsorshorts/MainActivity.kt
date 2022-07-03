@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
@@ -49,7 +50,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            EntryView(viewModel = viewModel)
+
+            EntryView(
+                isLoading = viewModel.isLoading.observeAsState(true),
+                cityName = viewModel.cityName.observeAsState(),
+                currentTemp = viewModel.currentTemp.observeAsState(),
+                highTemp = viewModel.highTemp.observeAsState(),
+                lowTemp = viewModel.lowTemp.observeAsState(),
+                clothing = viewModel.clothingSuggestion.observeAsState()
+            ) { viewModel.calibrateThreshold() }
         }
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {

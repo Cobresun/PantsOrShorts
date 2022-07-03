@@ -7,8 +7,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -39,13 +39,18 @@ private val lightColors = lightColors(
 
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
-fun EntryView(viewModel: MainViewModel) {
-
+fun EntryView(
+    isLoading: State<Boolean>,
+    cityName: State<String?>,
+    currentTemp: State<Temperature?>,
+    highTemp: State<Temperature?>,
+    lowTemp: State<Temperature?>,
+    clothing: State<Clothing?>,
+    mainButtonCallback: () -> Unit
+) {
     MaterialTheme(
         colors = if (isSystemInDarkTheme()) darkColors else lightColors
     ) {
-        val isLoading by viewModel.isLoading.observeAsState(initial = true)
-
         val doNotShowRationale by rememberSaveable { mutableStateOf(false) }
         val locationPermissionState = rememberPermissionState(
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -73,26 +78,17 @@ fun EntryView(viewModel: MainViewModel) {
                 }
             }
         ) {
-            if (isLoading) {
+            if (isLoading.value) {
                 LoadingView()
             } else {
-                val city: String by viewModel.cityName.observeAsState(
-                    stringResource(R.string.no_city_found)
+                MainView(
+                    city = cityName.value ?: stringResource(R.string.no_city_found),
+                    currentTemp = currentTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                    highTemp = highTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                    lowTemp = lowTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                    clothing = clothing.value ?: Clothing.PANTS,
+                    mainButtonCallback = { mainButtonCallback() }
                 )
-                val currentTemp: Temperature by viewModel.currentTemp.observeAsState(
-                    Temperature(0, TemperatureUnit.CELSIUS)
-                )
-                val highTemp: Temperature by viewModel.highTemp.observeAsState(
-                    Temperature(0, TemperatureUnit.CELSIUS)
-                )
-                val lowTemp: Temperature by viewModel.lowTemp.observeAsState(
-                    Temperature(0, TemperatureUnit.CELSIUS)
-                )
-                val clothing: Clothing by viewModel.clothingSuggestion.observeAsState(
-                    Clothing.PANTS
-                )
-
-                MainView(city, currentTemp, highTemp, lowTemp, clothing, viewModel)
             }
         }
     }
@@ -115,7 +111,7 @@ fun MainView(
     highTemp: Temperature,
     lowTemp: Temperature,
     clothing: Clothing,
-    viewModel: MainViewModel
+    mainButtonCallback: () -> Unit
 ) {
     Column(
         Modifier.padding(64.dp)
@@ -130,7 +126,7 @@ fun MainView(
             Spacer(modifier = Modifier.height(32.dp))
             ClothingImage(clothing)
         }
-        MainButton(clothing, viewModel)
+        MainButton(clothing = clothing, mainButtonCallback = { mainButtonCallback() })
     }
 }
 
@@ -246,12 +242,12 @@ fun ClothingImage(
 @Composable
 fun MainButton(
     clothing: Clothing,
-    viewModel: MainViewModel
+    mainButtonCallback: () -> Unit
 ) {
     val context = LocalContext.current
     Button(
         onClick = {
-            viewModel.calibrateThreshold()
+            mainButtonCallback()
             Toast.makeText(
                 context,
                 R.string.remember_that,
