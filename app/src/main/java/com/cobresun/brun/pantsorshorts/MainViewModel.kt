@@ -41,7 +41,7 @@ class MainViewModel @Inject constructor(
     private val _cityName: MutableLiveData<String> = MutableLiveData()
     val cityName: LiveData<String> = _cityName
 
-    private var hourlyTemps = IntArray(24) // TODO: Must change to account for TemperatureUnit
+    private var hourlyTemps = IntArray(24)
 
     private fun updateUserThreshold(howTheyFelt: Feeling) {
         var currentPreference = userDataRepository.userThreshold
@@ -91,6 +91,15 @@ class MainViewModel @Inject constructor(
         updateClothing()
     }
 
+    fun toggleTemperatureUnit() {
+        val newUnit = when (userDataRepository.temperatureUnit) {
+            TemperatureUnit.CELSIUS -> TemperatureUnit.FAHRENHEIT
+            TemperatureUnit.FAHRENHEIT -> TemperatureUnit.CELSIUS
+        }
+        userDataRepository.temperatureUnit = newUnit
+        loadAndDisplayPreviousData()
+    }
+
     private fun updateClothing() {
         val clothing = pantsOrShorts(userDataRepository.userThreshold)
         _clothingSuggestion.value = clothing
@@ -111,9 +120,19 @@ class MainViewModel @Inject constructor(
         val forecastResponse = withContext(Dispatchers.IO) {
             weatherRepository.getWeather(latitude, longitude)
         }
-        _currentTemp.value = Temperature(forecastResponse.currently.apparentTemperature.roundToInt(), TemperatureUnit.CELSIUS)
-        _highTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt(), TemperatureUnit.CELSIUS)
-        _lowTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt(), TemperatureUnit.CELSIUS)
+        when (userDataRepository.temperatureUnit) {
+            TemperatureUnit.CELSIUS -> {
+                _currentTemp.value = Temperature(forecastResponse.currently.apparentTemperature.roundToInt(), TemperatureUnit.CELSIUS)
+                _highTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt(), TemperatureUnit.CELSIUS)
+                _lowTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt(), TemperatureUnit.CELSIUS)
+            }
+            TemperatureUnit.FAHRENHEIT -> {
+                _currentTemp.value = Temperature(forecastResponse.currently.apparentTemperature.roundToInt(), TemperatureUnit.CELSIUS).toFahrenheit()
+                _highTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMax.roundToInt(), TemperatureUnit.CELSIUS).toFahrenheit()
+                _lowTemp.value = Temperature(forecastResponse.daily.data[0].apparentTemperatureMin.roundToInt(), TemperatureUnit.CELSIUS).toFahrenheit()
+            }
+        }
+
         for (i in hourlyTemps.indices) {
             hourlyTemps[i] = forecastResponse.hourly.data[i].apparentTemperature.roundToInt()
         }
@@ -130,9 +149,18 @@ class MainViewModel @Inject constructor(
     }
 
     fun loadAndDisplayPreviousData() {
-        _currentTemp.value = Temperature(userDataRepository.lastFetchedTemp, TemperatureUnit.CELSIUS)
-        _highTemp.value = Temperature(userDataRepository.lastFetchedTempHigh, TemperatureUnit.CELSIUS)
-        _lowTemp.value = Temperature(userDataRepository.lastFetchedTempLow, TemperatureUnit.CELSIUS)
+        when (userDataRepository.temperatureUnit) {
+            TemperatureUnit.CELSIUS -> {
+                _currentTemp.value = Temperature(userDataRepository.lastFetchedTemp, TemperatureUnit.CELSIUS)
+                _highTemp.value = Temperature(userDataRepository.lastFetchedTempHigh, TemperatureUnit.CELSIUS)
+                _lowTemp.value = Temperature(userDataRepository.lastFetchedTempLow, TemperatureUnit.CELSIUS)
+            }
+            TemperatureUnit.FAHRENHEIT -> {
+                _currentTemp.value = Temperature(userDataRepository.lastFetchedTemp, TemperatureUnit.CELSIUS).toFahrenheit()
+                _highTemp.value = Temperature(userDataRepository.lastFetchedTempHigh, TemperatureUnit.CELSIUS).toFahrenheit()
+                _lowTemp.value = Temperature(userDataRepository.lastFetchedTempLow, TemperatureUnit.CELSIUS).toFahrenheit()
+            }
+        }
         hourlyTemps = userDataRepository.readLastFetchedHourlyTemps()
         updateClothing()
         _isLoading.value = false

@@ -2,6 +2,7 @@ package com.cobresun.brun.pantsorshorts.preferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.cobresun.brun.pantsorshorts.TemperatureUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -9,6 +10,9 @@ import javax.inject.Singleton
 class SharedPrefsUserDataRepository @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {
+    var temperatureUnit: TemperatureUnit
+        get() = TemperatureUnit.valueOf(sharedPreferences.getString("temperatureUnit", TemperatureUnit.CELSIUS.name)!!)
+        set(value) = sharedPreferences.edit { putString("temperatureUnit", value.name) }
 
     var userThreshold: Int
         get() = sharedPreferences.getInt("userThreshold", 21)

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +46,8 @@ fun EntryView(
     highTemp: State<Temperature?>,
     lowTemp: State<Temperature?>,
     clothing: State<Clothing?>,
-    mainButtonCallback: () -> Unit
+    mainButtonCallback: () -> Unit,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     MaterialTheme(
         colors = if (isSystemInDarkTheme()) darkColors else lightColors
@@ -71,7 +73,8 @@ fun EntryView(
                         highTemp = highTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
                         lowTemp = lowTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
                         clothing = clothing.value ?: Clothing.PANTS,
-                        mainButtonCallback = { mainButtonCallback() }
+                        mainButtonCallback = { mainButtonCallback() },
+                        toggleTemperatureUnitCallback = { toggleTemperatureUnitCallback() }
                     )
                 }
             }
@@ -126,16 +129,17 @@ fun MainView(
     highTemp: Temperature,
     lowTemp: Temperature,
     clothing: Clothing,
-    mainButtonCallback: () -> Unit
+    mainButtonCallback: () -> Unit,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     Column(
         Modifier.padding(64.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
             City(city)
-            CurrentTemp(currentTemp)
+            CurrentTemp(currentTemp) { toggleTemperatureUnitCallback() }
             Spacer(modifier = Modifier.height(16.dp))
-            HighLowTemp(highTemp, lowTemp)
+            HighLowTemp(highTemp, lowTemp) { toggleTemperatureUnitCallback() }
             Spacer(modifier = Modifier.height(32.dp))
             ClothingSuggestion(clothing)
             Spacer(modifier = Modifier.height(32.dp))
@@ -159,6 +163,7 @@ fun City(
 @Composable
 fun CurrentTemp(
     currentTemp: Temperature,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     Text(
         text = stringResource(
@@ -169,6 +174,7 @@ fun CurrentTemp(
             },
             currentTemp.value
         ),
+        modifier = Modifier.clickable { toggleTemperatureUnitCallback() },
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colors.primary
@@ -178,9 +184,12 @@ fun CurrentTemp(
 @Composable
 fun HighLowTemp(
     highTemp: Temperature,
-    lowTemp: Temperature
+    lowTemp: Temperature,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
-    Row {
+    Row(
+        modifier = Modifier.clickable { toggleTemperatureUnitCallback() }
+    ) {
         Text(
             text = stringResource(
                 if (lowTemp.unit == TemperatureUnit.CELSIUS) {
@@ -343,8 +352,10 @@ fun MainViewHot() {
             currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
             highTemp = Temperature(12, TemperatureUnit.CELSIUS),
             lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
-            clothing = Clothing.SHORTS
-        ) { }
+            clothing = Clothing.SHORTS,
+            mainButtonCallback = { },
+            toggleTemperatureUnitCallback = {}
+        )
     }
 }
 
@@ -359,8 +370,10 @@ fun MainViewHotNight() {
             currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
             highTemp = Temperature(12, TemperatureUnit.CELSIUS),
             lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
-            clothing = Clothing.SHORTS
-        ) { }
+            clothing = Clothing.SHORTS,
+            mainButtonCallback = { },
+            toggleTemperatureUnitCallback = {}
+        )
     }
 }
 
@@ -375,8 +388,10 @@ fun MainViewCold() {
             currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
             highTemp = Temperature(12, TemperatureUnit.CELSIUS),
             lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
-            clothing = Clothing.PANTS
-        ) { }
+            clothing = Clothing.PANTS,
+            mainButtonCallback = { },
+            toggleTemperatureUnitCallback = {}
+        )
     }
 }
 
@@ -391,7 +406,9 @@ fun MainViewColdNight() {
             currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
             highTemp = Temperature(12, TemperatureUnit.CELSIUS),
             lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
-            clothing = Clothing.PANTS
-        ) { }
+            clothing = Clothing.PANTS,
+            mainButtonCallback = { },
+            toggleTemperatureUnitCallback = {}
+        )
     }
 }

@@ -56,8 +56,10 @@ class MainActivity : AppCompatActivity() {
                 currentTemp = viewModel.currentTemp.observeAsState(),
                 highTemp = viewModel.highTemp.observeAsState(),
                 lowTemp = viewModel.lowTemp.observeAsState(),
-                clothing = viewModel.clothingSuggestion.observeAsState()
-            ) { viewModel.calibrateThreshold() }
+                clothing = viewModel.clothingSuggestion.observeAsState(),
+                mainButtonCallback = { viewModel.calibrateThreshold() },
+                toggleTemperatureUnitCallback = { viewModel.toggleTemperatureUnit() }
+            )
         }
 
         networkCallback = object : ConnectivityManager.NetworkCallback() {
