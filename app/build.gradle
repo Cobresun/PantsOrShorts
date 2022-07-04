@@ -97,7 +97,7 @@ dependencies {
         // Integration with observables
     implementation 'androidx.compose.runtime:runtime-livedata:1.1.1'
         // Accompanist
-    implementation "com.google.accompanist:accompanist-permissions:0.14.0"
+    implementation "com.google.accompanist:accompanist-permissions:0.24.13-rc"
 
     // Testing
     testImplementation 'junit:junit:4.13.2'

@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,10 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionRequired
-import com.google.accompanist.permissions.PermissionState
-import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.*
 
 private val lowBlue = Color(0xff80cee1)
 private val highRed = Color(0xffff6961)
@@ -53,15 +47,13 @@ fun EntryView(
     MaterialTheme(
         colors = if (isSystemInDarkTheme()) darkColors else lightColors
     ) {
-        val doNotShowRationale by rememberSaveable { mutableStateOf(false) }
         val locationPermissionState = rememberPermissionState(
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
 
-        PermissionRequired(
-            permissionState = locationPermissionState,
-            permissionNotGrantedContent = {
-                if (doNotShowRationale) {
+        when (locationPermissionState.status) {
+            is PermissionStatus.Denied -> {
+                if (!locationPermissionState.status.shouldShowRationale) {
                     Text(
                         stringResource(id = R.string.permission_explanation),
                         color = MaterialTheme.colors.primary
@@ -69,28 +61,20 @@ fun EntryView(
                 } else {
                     LocationRationale(locationPermissionState)
                 }
-            },
-            permissionNotAvailableContent = {
-                Column(Modifier.padding(64.dp)) {
-                    Text(
-                        stringResource(id = R.string.location_denied),
-                        color = MaterialTheme.colors.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
             }
-        ) {
-            if (isLoading.value) {
-                LoadingView()
-            } else {
-                MainView(
-                    city = cityName.value ?: stringResource(R.string.no_city_found),
-                    currentTemp = currentTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                    highTemp = highTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                    lowTemp = lowTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                    clothing = clothing.value ?: Clothing.PANTS,
-                    mainButtonCallback = { mainButtonCallback() }
-                )
+            is PermissionStatus.Granted -> {
+                if (isLoading.value) {
+                    LoadingView()
+                } else {
+                    MainView(
+                        city = cityName.value ?: stringResource(R.string.no_city_found),
+                        currentTemp = currentTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                        highTemp = highTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                        lowTemp = lowTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
+                        clothing = clothing.value ?: Clothing.PANTS,
+                        mainButtonCallback = { mainButtonCallback() }
+                    )
+                }
             }
         }
     }

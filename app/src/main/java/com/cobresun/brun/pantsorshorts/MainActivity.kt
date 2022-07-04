@@ -50,7 +50,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-
             EntryView(
                 isLoading = viewModel.isLoading.observeAsState(true),
                 cityName = viewModel.cityName.observeAsState(),
