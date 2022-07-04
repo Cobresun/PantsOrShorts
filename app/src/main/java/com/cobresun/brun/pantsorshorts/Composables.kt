@@ -19,7 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.permissions.*
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
 private val lowBlue = Color(0xff80cee1)
 private val highRed = Color(0xffff6961)
@@ -53,14 +56,23 @@ fun EntryView(
 
         when (locationPermissionState.status) {
             is PermissionStatus.Denied -> {
-                if (!locationPermissionState.status.shouldShowRationale) {
-                    Text(
-                        stringResource(id = R.string.permission_explanation),
-                        color = MaterialTheme.colors.primary
-                    )
-                } else {
-                    LocationRationale(locationPermissionState)
-                }
+                AlertDialog(
+                    onDismissRequest = { /* Can't be dismissed */ },
+                    confirmButton = {
+                        if (!locationPermissionState.status.shouldShowRationale) {
+                            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
+                                Text(text = stringResource(id = R.string.accept))
+                            }
+                        }
+                    },
+                    title = { Text(text = stringResource(R.string.location_request), fontWeight = FontWeight.Bold) },
+                    text = {
+                        Text(
+                            text = stringResource(id = R.string.need_permission),
+                            color = MaterialTheme.colors.primary
+                        )
+                    }
+                )
             }
             is PermissionStatus.Granted -> {
                 if (isLoading.value) {
@@ -266,34 +278,6 @@ fun MainButton(
                 }
             )
         )
-    }
-}
-
-@ExperimentalPermissionsApi
-@Composable
-fun LocationRationale(
-    locationPermissionState: PermissionState
-) {
-    Column(
-        modifier = Modifier.padding(64.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(id = R.string.need_permission),
-            color = MaterialTheme.colors.primary
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-        Button(
-            onClick = { locationPermissionState.launchPermissionRequest() },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = pastelGreen,
-                contentColor = Color.Black
-            )
-        ) {
-            Text(
-                stringResource(id = R.string.ok),
-            )
-        }
     }
 }
 
