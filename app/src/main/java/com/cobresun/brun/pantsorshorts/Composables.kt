@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -26,7 +27,6 @@ import com.google.accompanist.permissions.shouldShowRationale
 
 private val lowBlue = Color(0xff80cee1)
 private val highRed = Color(0xffff6961)
-private val pastelGreen = Color(0xff77dd77)
 
 private val darkColors = darkColors(
     primary = Color.White,
@@ -56,22 +56,9 @@ fun EntryView(
 
         when (locationPermissionState.status) {
             is PermissionStatus.Denied -> {
-                AlertDialog(
-                    onDismissRequest = { /* Can't be dismissed */ },
-                    confirmButton = {
-                        if (!locationPermissionState.status.shouldShowRationale) {
-                            Button(onClick = { locationPermissionState.launchPermissionRequest() }) {
-                                Text(text = stringResource(id = R.string.accept))
-                            }
-                        }
-                    },
-                    title = { Text(text = stringResource(R.string.location_request), fontWeight = FontWeight.Bold) },
-                    text = {
-                        Text(
-                            text = stringResource(id = R.string.need_permission),
-                            color = MaterialTheme.colors.primary
-                        )
-                    }
+                LocationPermissionDialog(
+                    shouldShowRationale = locationPermissionState.status.shouldShowRationale,
+                    launchPermissionRequest = { locationPermissionState.launchPermissionRequest() }
                 )
             }
             is PermissionStatus.Granted -> {
@@ -90,6 +77,36 @@ fun EntryView(
             }
         }
     }
+}
+
+@Composable
+fun LocationPermissionDialog(shouldShowRationale: Boolean, launchPermissionRequest: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { /* Can't be dismissed */ },
+        confirmButton = {
+            if (!shouldShowRationale) {
+                Button(onClick = { launchPermissionRequest() }) {
+                    Text(
+                        text = stringResource(id = R.string.accept),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        },
+        title = {
+            Text(
+                text = stringResource(R.string.location_request),
+                fontWeight = FontWeight.Bold,
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(id = R.string.need_permission),
+                fontWeight = FontWeight.Medium
+            )
+        },
+        shape = RoundedCornerShape(16.dp)
+    )
 }
 
 @Composable
@@ -278,6 +295,30 @@ fun MainButton(
                 }
             )
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PermissionDialogShouldShowRationale() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        LocationPermissionDialog(
+            shouldShowRationale = true
+        ) { }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PermissionDialogShouldNotShowRationale() {
+    MaterialTheme(
+        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+    ) {
+        LocationPermissionDialog(
+            shouldShowRationale = false
+        ) { }
     }
 }
 
