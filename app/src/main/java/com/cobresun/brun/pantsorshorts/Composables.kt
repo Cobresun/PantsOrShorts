@@ -2,7 +2,8 @@ package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
 import android.content.res.Configuration
-import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,7 +15,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -241,70 +241,78 @@ fun ClothingSuggestion(
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClothingImage(
     clothing: Clothing
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            painter = painterResource(
-                if (clothing == Clothing.PANTS) {
-                    R.drawable.pants
-                } else {
-                    R.drawable.shorts
-                }
-            ),
-            contentDescription = stringResource(R.string.image_content_desc),
-            modifier = Modifier.fillMaxSize()
-        )
+    AnimatedContent(targetState = clothing) { targetClothing ->
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(
+                    if (targetClothing == Clothing.PANTS) {
+                        R.drawable.pants
+                    } else {
+                        R.drawable.shorts
+                    }
+                ),
+                contentDescription = stringResource(R.string.image_content_desc),
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
+
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainButton(
     clothing: Clothing,
     mainButtonCallback: () -> Unit
 ) {
-    val context = LocalContext.current
-    Button(
-        onClick = {
-            mainButtonCallback()
-            Toast.makeText(
-                context,
-                R.string.remember_that,
-                Toast.LENGTH_SHORT
-            ).show()
-        },
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = if (clothing == Clothing.PANTS) highRed else lowBlue,
-            contentColor = Color.White
-        ),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            painter = painterResource(
-                if (clothing == Clothing.PANTS) {
-                    R.drawable.ic_wb_sunny
-                } else {
-                    R.drawable.ic_ac_unit
-                }
+    AnimatedContent(targetState = clothing) { targetClothing ->
+        Button(
+            onClick = {
+                mainButtonCallback()
+                // TODO: Move this text to be a popup message that doesn't cover up content
+//                Toast.makeText(
+//                    context,
+//                    R.string.remember_that,
+//                    Toast.LENGTH_SHORT
+//                ).show()
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (targetClothing == Clothing.PANTS) highRed else lowBlue,
+                contentColor = Color.White
             ),
-            contentDescription = stringResource(R.string.button_icon_desc)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = stringResource(
-                if (clothing == Clothing.PANTS) {
-                    R.string.too_hot
-                } else {
-                    R.string.too_cold
-                }
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                painter = painterResource(
+                    if (targetClothing == Clothing.PANTS) {
+                        R.drawable.ic_wb_sunny
+                    } else {
+                        R.drawable.ic_ac_unit
+                    }
+                ),
+                contentDescription = stringResource(R.string.button_icon_desc)
             )
-        )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(
+                    if (targetClothing == Clothing.PANTS) {
+                        R.string.too_hot
+                    } else {
+                        R.string.too_cold
+                    }
+                )
+            )
+        }
     }
+
 }
 
 @Preview(showBackground = true)
