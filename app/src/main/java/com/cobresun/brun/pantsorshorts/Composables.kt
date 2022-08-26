@@ -225,20 +225,19 @@ fun HighLowTemp(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClothingSuggestion(
     clothing: Clothing
 ) {
-    Text(
-        text = stringResource(
-            if (clothing == Clothing.PANTS) {
-                R.string.feels_like_pants
-            } else {
-                R.string.feels_like_shorts
-            }
-        ),
-        color = MaterialTheme.colors.primary
-    )
+    AnimatedContent(targetState = clothing) { targetClothing ->
+        Text(
+            text = stringResource(
+                if (targetClothing == Clothing.PANTS) R.string.feels_like_pants else R.string.feels_like_shorts
+            ),
+            color = MaterialTheme.colors.primary
+        )
+    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -253,18 +252,13 @@ fun ClothingImage(
         ) {
             Image(
                 painter = painterResource(
-                    if (targetClothing == Clothing.PANTS) {
-                        R.drawable.pants
-                    } else {
-                        R.drawable.shorts
-                    }
+                    if (targetClothing == Clothing.PANTS) R.drawable.pants else R.drawable.shorts
                 ),
                 contentDescription = stringResource(R.string.image_content_desc),
                 modifier = Modifier.fillMaxSize()
             )
         }
     }
-
 }
 
 @OptIn(ExperimentalAnimationApi::class)
