@@ -21,6 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cobresun.brun.pantsorshorts.weather.Clothing
+import com.cobresun.brun.pantsorshorts.weather.Temperature
+import com.cobresun.brun.pantsorshorts.weather.TemperatureUnit
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -40,14 +43,14 @@ private val lightColors = lightColors(
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
 fun EntryView(
-    isLoading: State<Boolean>,
-    cityName: State<String?>,
-    currentTemp: State<Temperature?>,
-    highTemp: State<Temperature?>,
-    lowTemp: State<Temperature?>,
-    clothing: State<Clothing?>,
-    mainButtonCallback: () -> Unit,
-    toggleTemperatureUnitCallback: () -> Unit
+        isLoading: State<Boolean>,
+        cityName: State<String?>,
+        currentTemp: State<Temperature?>,
+        highTemp: State<Temperature?>,
+        lowTemp: State<Temperature?>,
+        clothing: State<Clothing?>,
+        mainButtonCallback: () -> Unit,
+        toggleTemperatureUnitCallback: () -> Unit
 ) {
     MaterialTheme(
         colors = if (isSystemInDarkTheme()) darkColors else lightColors
@@ -124,13 +127,13 @@ fun LoadingView() {
 
 @Composable
 fun MainView(
-    city: String,
-    currentTemp: Temperature,
-    highTemp: Temperature,
-    lowTemp: Temperature,
-    clothing: Clothing,
-    mainButtonCallback: () -> Unit,
-    toggleTemperatureUnitCallback: () -> Unit
+        city: String,
+        currentTemp: Temperature,
+        highTemp: Temperature,
+        lowTemp: Temperature,
+        clothing: Clothing,
+        mainButtonCallback: () -> Unit,
+        toggleTemperatureUnitCallback: () -> Unit
 ) {
     Column(
         Modifier.padding(64.dp)
@@ -162,8 +165,8 @@ fun City(
 
 @Composable
 fun CurrentTemp(
-    currentTemp: Temperature,
-    toggleTemperatureUnitCallback: () -> Unit
+        currentTemp: Temperature,
+        toggleTemperatureUnitCallback: () -> Unit
 ) {
     Text(
         text = stringResource(
@@ -183,9 +186,9 @@ fun CurrentTemp(
 
 @Composable
 fun HighLowTemp(
-    highTemp: Temperature,
-    lowTemp: Temperature,
-    toggleTemperatureUnitCallback: () -> Unit
+        highTemp: Temperature,
+        lowTemp: Temperature,
+        toggleTemperatureUnitCallback: () -> Unit
 ) {
     Row(
         modifier = Modifier.clickable { toggleTemperatureUnitCallback() }
@@ -264,8 +267,8 @@ fun ClothingImage(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainButton(
-    clothing: Clothing,
-    mainButtonCallback: () -> Unit
+        clothing: Clothing,
+        mainButtonCallback: () -> Unit
 ) {
     AnimatedContent(targetState = clothing) { targetClothing ->
         Button(

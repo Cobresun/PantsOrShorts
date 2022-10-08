@@ -1,5 +1,9 @@
 package com.cobresun.brun.pantsorshorts
 
+import com.cobresun.brun.pantsorshorts.weather.Temperature
+import com.cobresun.brun.pantsorshorts.weather.TemperatureUnit
+import com.cobresun.brun.pantsorshorts.weather.toCelsius
+import com.cobresun.brun.pantsorshorts.weather.toFahrenheit
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.location
 
 import android.content.Context
 import com.google.android.gms.location.FusedLocationProviderClient

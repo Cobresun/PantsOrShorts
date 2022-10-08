@@ -2,7 +2,7 @@ package com.cobresun.brun.pantsorshorts.preferences
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.cobresun.brun.pantsorshorts.TemperatureUnit
+import com.cobresun.brun.pantsorshorts.weather.TemperatureUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 

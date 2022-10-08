@@ -22,6 +22,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.app.ActivityCompat
+import com.cobresun.brun.pantsorshorts.location.Locator
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint

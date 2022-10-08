@@ -3,12 +3,12 @@ package com.cobresun.brun.pantsorshorts
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.cobresun.brun.pantsorshorts.Clothing.PANTS
-import com.cobresun.brun.pantsorshorts.Clothing.SHORTS
-import com.cobresun.brun.pantsorshorts.Feeling.COLD
-import com.cobresun.brun.pantsorshorts.Feeling.HOT
+import com.cobresun.brun.pantsorshorts.weather.Clothing.PANTS
+import com.cobresun.brun.pantsorshorts.weather.Clothing.SHORTS
+import com.cobresun.brun.pantsorshorts.weather.Feeling.COLD
+import com.cobresun.brun.pantsorshorts.weather.Feeling.HOT
 import com.cobresun.brun.pantsorshorts.preferences.SharedPrefsUserDataRepository
-import com.cobresun.brun.pantsorshorts.weather.WeatherRepository
+import com.cobresun.brun.pantsorshorts.weather.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

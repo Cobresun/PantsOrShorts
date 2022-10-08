@@ -11,7 +11,7 @@ import retrofit2.http.Path
  *   User can tap on temperature to change their preference.
  *   If not the first launch: use preference like temperature.toCelsius / temperature.toFahrenheit
  **/
-interface WeatherAPIService {
+interface DarkSkyAPIService {
     @GET("forecast/{appid}/{lat},{lon}?exclude=minutely,alerts,flags&units=ca")
     suspend fun getDarkSkyResponse(
         @Path("appid") appid: String,

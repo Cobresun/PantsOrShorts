@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.location
 
 import android.location.Geocoder
 import android.location.Location
@@ -7,8 +7,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class Locator @Inject constructor(private val geocoder: Geocoder) {
-
+class Locator @Inject constructor(
+    private val geocoder: Geocoder
+) {
     fun getCityName(location: Location): String? {
         return try {
             val address = geocoder.getFromLocation(location.latitude, location.longitude, 1)[0]

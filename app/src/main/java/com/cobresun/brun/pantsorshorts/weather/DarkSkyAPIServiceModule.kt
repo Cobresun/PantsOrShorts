@@ -9,14 +9,14 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
-object WeatherAPIServiceModule {
+object DarkSkyAPIServiceModule {
 
     @Provides
-    fun provideWeatherAPIService() : WeatherAPIService {
+    fun provideDarkSkyAPIService() : DarkSkyAPIService {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create())
             .baseUrl("https://api.darksky.net/")
             .build()
-            .create(WeatherAPIService::class.java)
+            .create(DarkSkyAPIService::class.java)
     }
 }
