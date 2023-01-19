@@ -12,7 +12,7 @@ class Locator @Inject constructor(
 ) {
     fun getCityName(location: Location): String? {
         return try {
-            val address = geocoder.getFromLocation(location.latitude, location.longitude, 1)[0]
+            val address = geocoder.getFromLocation(location.latitude, location.longitude, 1)?.get(0)
             address?.locality ?: address?.subLocality
         } catch (e: Exception) {
             Log.e(this@Locator.toString(), e.toString())
