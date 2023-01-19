@@ -1,5 +1,6 @@
-package com.cobresun.brun.pantsorshorts.weather
+package com.cobresun.brun.pantsorshorts.weather.api
 
+import com.cobresun.brun.pantsorshorts.weather.WeatherResponse
 import retrofit2.http.Path
 
 interface WeatherAPIService {

@@ -1,6 +1,7 @@
 package com.cobresun.brun.pantsorshorts.weather
 
 import com.cobresun.brun.pantsorshorts.BuildConfig
+import com.cobresun.brun.pantsorshorts.weather.api.PirateWeatherAPIService
 import javax.inject.Inject
 import javax.inject.Singleton
 

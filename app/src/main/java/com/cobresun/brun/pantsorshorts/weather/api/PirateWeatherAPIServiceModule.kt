@@ -1,4 +1,4 @@
-package com.cobresun.brun.pantsorshorts.weather
+package com.cobresun.brun.pantsorshorts.weather.api
 
 import dagger.Module
 import dagger.Provides
@@ -9,14 +9,14 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DarkSkyAPIServiceModule {
+object PirateWeatherAPIServiceModule {
 
     @Provides
-    fun provideDarkSkyAPIService() : DarkSkyAPIService {
+    fun providePirateWeatherAPIService() : PirateWeatherAPIService {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create())
-            .baseUrl("https://api.darksky.net/")
+            .baseUrl("https://dev.pirateweather.net")
             .build()
-            .create(DarkSkyAPIService::class.java)
+            .create(PirateWeatherAPIService::class.java)
     }
 }
