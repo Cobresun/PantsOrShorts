@@ -6,9 +6,9 @@ import javax.inject.Singleton
 
 @Singleton
 class WeatherRepository @Inject constructor(
-    private val apiService: DarkSkyAPIService
+    private val apiService: PirateWeatherAPIService
 ) {
-    suspend fun getWeather(latitude: Double, longitude: Double): DarkSkyResponse {
-        return apiService.getDarkSkyResponse(BuildConfig.DarkSkyAPIKey, latitude, longitude)
+    suspend fun getWeather(latitude: Double, longitude: Double): WeatherResponse {
+        return apiService.getWeatherResponse(BuildConfig.PirateWeatherAPIKey, latitude, longitude)
     }
 }

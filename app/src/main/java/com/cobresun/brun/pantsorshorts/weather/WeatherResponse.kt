@@ -3,7 +3,7 @@ package com.cobresun.brun.pantsorshorts.weather
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class DarkSkyResponse(
+data class WeatherResponse(
     val currently: CurrentlyResponse,
     val daily: DailyResponse,
     val hourly: HourlyResponse

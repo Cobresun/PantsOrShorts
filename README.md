@@ -16,9 +16,5 @@ Tells you whether you should wear pants or shorts today based on the local weath
 ## Download on Google Play
 [Download app here](https://play.google.com/store/apps/details?id=com.cobresun.brun.pantsorshorts). 
 
-## Official iOS Port 
-[PantsOrShorts-iOS Repository](https://github.com/Cobresun/PantsOrShorts-iOS)
-
-## Setup
-You'll have to add the following line to your gradle.properties file:
-`DarkSkyAPIKey="cobresun_key_here"`
+## Weather API
+The app uses [PirateWeather](https://pirateweather.net/) now as a drop-in replacement for DarkSky which we were using before that.
