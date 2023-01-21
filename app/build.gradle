@@ -51,6 +51,7 @@ android {
 
     useLibrary 'android.test.runner'
     useLibrary 'android.test.base'
+    namespace 'com.cobresun.brun.pantsorshorts'
 }
 
 dependencies {
