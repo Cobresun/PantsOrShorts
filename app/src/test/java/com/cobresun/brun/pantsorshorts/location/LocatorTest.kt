@@ -10,10 +10,10 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.mock
+import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.whenever
 
 class LocatorTest {
-
     @Mock
     private lateinit var geocoder: Geocoder
 
@@ -22,8 +22,7 @@ class LocatorTest {
 
     @Before
     fun setUp() {
-        geocoder = mock(Geocoder::class.java)
-        mockLocation = mock(Location::class.java)
+        MockitoAnnotations.openMocks(this)
 
         mockkStatic(Log::class)
         every { Log.v(any(), any()) } returns 0
@@ -34,9 +33,6 @@ class LocatorTest {
 
     @Test
     fun `getCityName() returns city name if one address is sent back`() {
-        whenever(mockLocation.latitude).thenReturn(0.0)
-        whenever(mockLocation.longitude).thenReturn(0.0)
-
         val address = mock(android.location.Address::class.java)
         whenever(address.locality).thenReturn("Calgary")
         whenever(address.subLocality).thenReturn("Kincora")
@@ -51,9 +47,6 @@ class LocatorTest {
 
     @Test
     fun `getCityName() returns sublocality name if one address is sent back without city name but sublocality exists`() {
-        whenever(mockLocation.latitude).thenReturn(0.0)
-        whenever(mockLocation.longitude).thenReturn(0.0)
-
         val address = mock(android.location.Address::class.java)
         whenever(address.locality).thenReturn(null)
         whenever(address.subLocality).thenReturn("Brooklyn")
@@ -68,9 +61,6 @@ class LocatorTest {
 
     @Test
     fun `getCityName() returns first address's city name if multiple addresses are sent back`() {
-        whenever(mockLocation.latitude).thenReturn(0.0)
-        whenever(mockLocation.longitude).thenReturn(0.0)
-
         val address1 = mock(android.location.Address::class.java)
         whenever(address1.locality).thenReturn("Calgary")
         whenever(address1.subLocality).thenReturn("Kincora")
@@ -89,9 +79,6 @@ class LocatorTest {
 
     @Test
     fun `getCityName() returns null if geocoder returns no address`() {
-        whenever(mockLocation.latitude).thenReturn(0.0)
-        whenever(mockLocation.longitude).thenReturn(0.0)
-
         whenever(geocoder.getFromLocation(mockLocation.latitude, mockLocation.longitude, 1)).thenReturn(emptyList())
 
         val locator = Locator(geocoder)
@@ -102,9 +89,6 @@ class LocatorTest {
 
     @Test
     fun `getCityName() returns null if address has null city and sublocality`() {
-        whenever(mockLocation.latitude).thenReturn(0.0)
-        whenever(mockLocation.longitude).thenReturn(0.0)
-
         val address = mock(android.location.Address::class.java)
         whenever(address.locality).thenReturn(null)
         whenever(address.subLocality).thenReturn(null)
