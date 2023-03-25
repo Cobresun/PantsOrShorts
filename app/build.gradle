@@ -110,6 +110,8 @@ dependencies {
         // Accompanist
     implementation "com.google.accompanist:accompanist-permissions:0.24.13-rc"
 
+    implementation 'com.valentinilk.shimmer:compose-shimmer:1.0.4'
+
     // Testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.truth:truth:1.1.3'

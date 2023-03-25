@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
+import com.valentinilk.shimmer.shimmer
 
 private val lowBlue = Color(0xff80cee1)
 private val highRed = Color(0xffff6961)
@@ -43,14 +45,14 @@ private val lightColors = lightColors(
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
 fun EntryView(
-        isLoading: State<Boolean>,
-        cityName: State<String?>,
-        currentTemp: State<Temperature?>,
-        highTemp: State<Temperature?>,
-        lowTemp: State<Temperature?>,
-        clothing: State<Clothing?>,
-        mainButtonCallback: () -> Unit,
-        toggleTemperatureUnitCallback: () -> Unit
+    isLoading: State<Boolean>,
+    cityName: State<String?>,
+    currentTemp: State<Temperature?>,
+    highTemp: State<Temperature?>,
+    lowTemp: State<Temperature?>,
+    clothing: State<Clothing?>,
+    mainButtonCallback: () -> Unit,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     MaterialTheme(
         colors = if (isSystemInDarkTheme()) darkColors else lightColors
@@ -68,6 +70,7 @@ fun EntryView(
             }
             is PermissionStatus.Granted -> {
                 if (isLoading.value) {
+//                if (true) {
                     LoadingView()
                 } else {
                     MainView(
@@ -117,23 +120,35 @@ fun LocationPermissionDialog(shouldShowRationale: Boolean, launchPermissionReque
 
 @Composable
 fun LoadingView() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+    val grayRoundedBoxModifier = Modifier.background(Color.Gray, RoundedCornerShape(16.dp))
+
+    Column(
+        Modifier
+            .padding(64.dp)
+            .shimmer()
     ) {
-        CircularProgressIndicator()
+        Column(modifier = Modifier.weight(1f)) {
+            Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 36.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(modifier = grayRoundedBoxModifier.size(width = 128.dp, height = 36.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Box(modifier = grayRoundedBoxModifier.size(width = 200.dp, height = 36.dp))
+            Spacer(modifier = Modifier.height(64.dp))
+            Box(modifier = grayRoundedBoxModifier.size(256.dp))
+        }
+        Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 64.dp))
     }
 }
 
 @Composable
 fun MainView(
-        city: String,
-        currentTemp: Temperature,
-        highTemp: Temperature,
-        lowTemp: Temperature,
-        clothing: Clothing,
-        mainButtonCallback: () -> Unit,
-        toggleTemperatureUnitCallback: () -> Unit
+    city: String,
+    currentTemp: Temperature,
+    highTemp: Temperature,
+    lowTemp: Temperature,
+    clothing: Clothing,
+    mainButtonCallback: () -> Unit,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     Column(
         Modifier.padding(64.dp)
@@ -165,8 +180,8 @@ fun City(
 
 @Composable
 fun CurrentTemp(
-        currentTemp: Temperature,
-        toggleTemperatureUnitCallback: () -> Unit
+    currentTemp: Temperature,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     Text(
         text = stringResource(
@@ -186,9 +201,9 @@ fun CurrentTemp(
 
 @Composable
 fun HighLowTemp(
-        highTemp: Temperature,
-        lowTemp: Temperature,
-        toggleTemperatureUnitCallback: () -> Unit
+    highTemp: Temperature,
+    lowTemp: Temperature,
+    toggleTemperatureUnitCallback: () -> Unit
 ) {
     Row(
         modifier = Modifier.clickable { toggleTemperatureUnitCallback() }
@@ -267,8 +282,8 @@ fun ClothingImage(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainButton(
-        clothing: Clothing,
-        mainButtonCallback: () -> Unit
+    clothing: Clothing,
+    mainButtonCallback: () -> Unit
 ) {
     AnimatedContent(targetState = clothing) { targetClothing ->
         Button(
