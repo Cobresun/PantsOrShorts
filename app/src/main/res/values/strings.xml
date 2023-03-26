@@ -16,4 +16,5 @@
     <string name="no_city_found">No City Found</string>
     <string name="no_internet">The application no longer has access to the internet.</string>
     <string name="location_request">LOCATION REQUEST</string>
+    <string name="location_not_found">Location not found</string>
 </resources>

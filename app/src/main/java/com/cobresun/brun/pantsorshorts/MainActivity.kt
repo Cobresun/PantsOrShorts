@@ -11,6 +11,7 @@
 package com.cobresun.brun.pantsorshorts
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.net.ConnectivityManager
@@ -21,7 +22,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.cobresun.brun.pantsorshorts.location.Locator
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
@@ -109,32 +110,53 @@ class MainActivity : AppCompatActivity() {
         val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener {
-            if (
-                ActivityCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED) {
-                fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location: Location? ->
-                        // Got last known location. In some rare situations this can be null.
-                        location?.let {
-                            val city = locator.getCityName(location)
-                            city?.let { viewModel.setCityName(city) }
-
-                            when (viewModel.shouldFetchWeather()) {
-                                true -> {
-                                    CoroutineScope(Dispatchers.Main).launch {
-                                        val latitude = location.latitude
-                                        val longitude = location.longitude
-                                        viewModel.fetchWeather(latitude, longitude)
-                                        viewModel.writeAndDisplayNewData()
-                                    }
-                                }
-                                false -> viewModel.loadAndDisplayPreviousData()
-                            }
-                        }
-                    }
-            }
+            handleLocationSettingsResponse()
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun handleLocationSettingsResponse() {
+        if (!isLocationPermissionGranted()) {
+            return
+        }
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+                location?.let {
+                    handleLocation(location)
+                } ?: showLocationNotFoundMessage()
+            }
+    }
+
+    private fun isLocationPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun handleLocation(location: Location) {
+        val city = locator.getCityName(location)
+        city?.let { viewModel.setCityName(city) }
+
+        when {
+            viewModel.shouldFetchWeather() -> fetchWeather(location)
+            else -> viewModel.loadAndDisplayPreviousData()
+        }
+    }
+
+    private fun fetchWeather(location: Location) {
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.fetchWeather(location.latitude, location.longitude)
+            viewModel.writeAndDisplayNewData()
+        }
+    }
+
+    private fun showLocationNotFoundMessage() {
+        Toast.makeText(
+            applicationContext,
+            getString(R.string.location_not_found),
+            Toast.LENGTH_LONG
+        ).show()
     }
 }
