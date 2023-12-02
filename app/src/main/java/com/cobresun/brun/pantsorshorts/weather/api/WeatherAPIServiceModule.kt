@@ -1,12 +1,14 @@
 package com.cobresun.brun.pantsorshorts.weather.api
 
 import com.cobresun.brun.pantsorshorts.BuildConfig
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -14,8 +16,12 @@ object WeatherAPIServiceModule {
 
     @Provides
     fun provideWeatherAPIService(): WeatherAPIService {
+        val json = Json {
+            ignoreUnknownKeys = true
+        }
+
         return Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create())
+            .addConverterFactory(json.asConverterFactory(contentType = "application/json".toMediaType()))
             .baseUrl("https://dev.pirateweather.net")
             .build()
             .create(PirateWeatherAPIService::class.java)
