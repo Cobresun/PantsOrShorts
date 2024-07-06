@@ -17,6 +17,7 @@ import android.location.Location
 import android.net.ConnectivityManager
 import android.net.Network
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -120,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        fusedLocationClient.lastLocation
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
             .addOnSuccessListener { location ->
                 location?.let {
                     handleLocation(location)
