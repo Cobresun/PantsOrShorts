@@ -1,6 +1,5 @@
 package com.cobresun.brun.pantsorshorts.view
 
-import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cobresun.brun.pantsorshorts.Clothing
@@ -10,7 +9,6 @@ import com.cobresun.brun.pantsorshorts.Feeling
 import com.cobresun.brun.pantsorshorts.Feeling.COLD
 import com.cobresun.brun.pantsorshorts.Feeling.HOT
 import com.cobresun.brun.pantsorshorts.UserPreferencesDataStore
-import com.cobresun.brun.pantsorshorts.location.Locator
 import com.cobresun.brun.pantsorshorts.weather.Temperature
 import com.cobresun.brun.pantsorshorts.weather.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,18 +28,17 @@ import kotlin.math.max
 class MainViewModel @Inject constructor(
     private val userPreferencesDataStore: UserPreferencesDataStore,
     private val weatherRepository: WeatherRepository,
-    private val locator: Locator
 ) : ViewModel() {
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
     private val _cityName: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    fun initializeUiState(location: Location) {
-        _cityName.update { locator.getCityName(location) }
+    fun initializeUiState(cityName: String?, latitude: Double, longitude: Double) {
+        _cityName.update { cityName }
 
         viewModelScope.launch {
-            weatherRepository.fetchWeather(location.latitude, location.longitude)
+            weatherRepository.fetchWeather(latitude, longitude)
         }
 
         combine(

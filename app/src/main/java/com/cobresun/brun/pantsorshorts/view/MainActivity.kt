@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.cobresun.brun.pantsorshorts.R
+import com.cobresun.brun.pantsorshorts.location.Locator
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
@@ -40,7 +41,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var connectivityManager: ConnectivityManager
     @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
-
+    @Inject lateinit var locator: Locator
+    
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
     private val viewModel: MainViewModel by viewModels()
@@ -120,7 +122,13 @@ class MainActivity : AppCompatActivity() {
 
         fusedLocationClient.getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, null)
             .addOnSuccessListener { location ->
-                location?.let { viewModel.initializeUiState(it) } ?: showLocationNotFoundMessage()
+                location?.let {
+                    viewModel.initializeUiState(
+                        cityName = locator.getCityName(location),
+                        latitude = location.latitude,
+                        longitude = location.longitude
+                    )
+                } ?: showLocationNotFoundMessage()
             }
     }
 
