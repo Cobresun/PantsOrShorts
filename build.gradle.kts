@@ -5,7 +5,7 @@ buildscript {
     val hiltVersion = "2.49"
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.2.0")
+        classpath("com.android.tools.build:gradle:8.5.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
         classpath("com.google.dagger:hilt-android-gradle-plugin:$hiltVersion")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
