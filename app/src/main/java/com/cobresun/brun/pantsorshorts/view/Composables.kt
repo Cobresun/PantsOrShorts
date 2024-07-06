@@ -1,18 +1,32 @@
-package com.cobresun.brun.pantsorshorts
+package com.cobresun.brun.pantsorshorts.view
 
 import android.Manifest
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,9 +36,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cobresun.brun.pantsorshorts.weather.Clothing
+import com.cobresun.brun.pantsorshorts.R
+import com.cobresun.brun.pantsorshorts.Clothing
 import com.cobresun.brun.pantsorshorts.weather.Temperature
 import com.cobresun.brun.pantsorshorts.weather.TemperatureUnit
+import com.cobresun.brun.pantsorshorts.weather.toFahrenheit
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -45,13 +61,8 @@ private val lightColors = lightColors(
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
 fun EntryView(
-    isLoading: State<Boolean>,
-    cityName: State<String?>,
-    currentTemp: State<Temperature?>,
-    highTemp: State<Temperature?>,
-    lowTemp: State<Temperature?>,
-    clothing: State<Clothing?>,
-    mainButtonCallback: () -> Unit,
+    uiState: UiState,
+    calibrateThresholdCallback: (Clothing) -> Unit,
     toggleTemperatureUnitCallback: () -> Unit
 ) {
     MaterialTheme(
@@ -68,18 +79,16 @@ fun EntryView(
                     launchPermissionRequest = { locationPermissionState.launchPermissionRequest() }
                 )
             }
+
             is PermissionStatus.Granted -> {
-                if (isLoading.value) {
-//                if (true) {
-                    LoadingView()
-                } else {
-                    MainView(
-                        city = cityName.value ?: stringResource(R.string.no_city_found),
-                        currentTemp = currentTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                        highTemp = highTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                        lowTemp = lowTemp.value ?: Temperature(0, TemperatureUnit.CELSIUS),
-                        clothing = clothing.value ?: Clothing.PANTS,
-                        mainButtonCallback = { mainButtonCallback() },
+                when (uiState) {
+                    is UiState.Loading -> LoadingView()
+
+                    is UiState.Loaded -> MainView(
+                        city = uiState.cityName ?: stringResource(R.string.no_city_found),
+                        temperatures = uiState.temperatures,
+                        clothing = uiState.clothing,
+                        calibrateThresholdCallback = { calibrateThresholdCallback(uiState.clothing) },
                         toggleTemperatureUnitCallback = { toggleTemperatureUnitCallback() }
                     )
                 }
@@ -143,11 +152,9 @@ fun LoadingView() {
 @Composable
 fun MainView(
     city: String,
-    currentTemp: Temperature,
-    highTemp: Temperature,
-    lowTemp: Temperature,
+    temperatures: UiState.Temperatures,
     clothing: Clothing,
-    mainButtonCallback: () -> Unit,
+    calibrateThresholdCallback: () -> Unit,
     toggleTemperatureUnitCallback: () -> Unit
 ) {
     Column(
@@ -155,15 +162,15 @@ fun MainView(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             City(city)
-            CurrentTemp(currentTemp) { toggleTemperatureUnitCallback() }
+            CurrentTemp(temperatures.current) { toggleTemperatureUnitCallback() }
             Spacer(modifier = Modifier.height(16.dp))
-            HighLowTemp(highTemp, lowTemp) { toggleTemperatureUnitCallback() }
+            HighLowTemp(temperatures.high, temperatures.low) { toggleTemperatureUnitCallback() }
             Spacer(modifier = Modifier.height(32.dp))
             ClothingSuggestion(clothing)
             Spacer(modifier = Modifier.height(32.dp))
             ClothingImage(clothing)
         }
-        MainButton(clothing = clothing, mainButtonCallback = { mainButtonCallback() })
+        MainButton(clothing = clothing, calibrateThresholdCallback = { calibrateThresholdCallback() })
     }
 }
 
@@ -184,14 +191,11 @@ fun CurrentTemp(
     toggleTemperatureUnitCallback: () -> Unit
 ) {
     Text(
-        text = stringResource(
-            if (currentTemp.unit == TemperatureUnit.CELSIUS) {
-                R.string.celsius
-            } else {
-                R.string.fahrenheit
-            },
-            currentTemp.value
-        ),
+        text = if (currentTemp.unit == TemperatureUnit.CELSIUS) {
+            stringResource(R.string.celsius, currentTemp.value)
+        } else {
+            stringResource(R.string.fahrenheit, currentTemp.value.toFahrenheit())
+        },
         modifier = Modifier.clickable { toggleTemperatureUnitCallback() },
         fontSize = 30.sp,
         fontWeight = FontWeight.Bold,
@@ -209,14 +213,11 @@ fun HighLowTemp(
         modifier = Modifier.clickable { toggleTemperatureUnitCallback() }
     ) {
         Text(
-            text = stringResource(
-                if (lowTemp.unit == TemperatureUnit.CELSIUS) {
-                    R.string.celsius
-                } else {
-                    R.string.fahrenheit
-                },
-                lowTemp.value
-            ),
+            text = if (lowTemp.unit == TemperatureUnit.CELSIUS) {
+                stringResource(R.string.celsius, lowTemp.value)
+            } else {
+                stringResource(R.string.fahrenheit, lowTemp.value.toFahrenheit())
+            },
             fontSize = 20.sp,
             color = lowBlue
         )
@@ -229,21 +230,17 @@ fun HighLowTemp(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(
-                if (highTemp.unit == TemperatureUnit.CELSIUS) {
-                    R.string.celsius
-                } else {
-                    R.string.fahrenheit
-                },
-                highTemp.value
-            ),
+            text = if (highTemp.unit == TemperatureUnit.CELSIUS) {
+                stringResource(R.string.celsius, highTemp.value)
+            } else {
+                stringResource(R.string.fahrenheit, highTemp.value.toFahrenheit())
+            },
             fontSize = 20.sp,
             color = highRed
         )
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClothingSuggestion(
     clothing: Clothing
@@ -258,7 +255,6 @@ fun ClothingSuggestion(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ClothingImage(
     clothing: Clothing
@@ -279,16 +275,15 @@ fun ClothingImage(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MainButton(
     clothing: Clothing,
-    mainButtonCallback: () -> Unit
+    calibrateThresholdCallback: () -> Unit
 ) {
     AnimatedContent(targetState = clothing) { targetClothing ->
         Button(
             onClick = {
-                mainButtonCallback()
+                calibrateThresholdCallback()
                 // TODO: Move this text to be a popup message that doesn't cover up content
 //                Toast.makeText(
 //                    context,
@@ -369,11 +364,13 @@ fun MainViewHot() {
     ) {
         MainView(
             city = "Calgary",
-            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
-            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
-            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            temperatures = UiState.Temperatures(
+                current = Temperature(8, TemperatureUnit.CELSIUS),
+                high = Temperature(12, TemperatureUnit.CELSIUS),
+                low = Temperature(-3, TemperatureUnit.CELSIUS)
+            ),
             clothing = Clothing.SHORTS,
-            mainButtonCallback = { },
+            calibrateThresholdCallback = { },
             toggleTemperatureUnitCallback = {}
         )
     }
@@ -387,11 +384,13 @@ fun MainViewHotNight() {
     ) {
         MainView(
             city = "Calgary",
-            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
-            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
-            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            temperatures = UiState.Temperatures(
+                current = Temperature(8, TemperatureUnit.CELSIUS),
+                high = Temperature(12, TemperatureUnit.CELSIUS),
+                low = Temperature(-3, TemperatureUnit.CELSIUS)
+            ),
             clothing = Clothing.SHORTS,
-            mainButtonCallback = { },
+            calibrateThresholdCallback = { },
             toggleTemperatureUnitCallback = {}
         )
     }
@@ -405,11 +404,13 @@ fun MainViewCold() {
     ) {
         MainView(
             city = "Calgary",
-            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
-            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
-            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            temperatures = UiState.Temperatures(
+                current = Temperature(8, TemperatureUnit.CELSIUS),
+                high = Temperature(12, TemperatureUnit.CELSIUS),
+                low = Temperature(-3, TemperatureUnit.CELSIUS)
+            ),
             clothing = Clothing.PANTS,
-            mainButtonCallback = { },
+            calibrateThresholdCallback = { },
             toggleTemperatureUnitCallback = {}
         )
     }
@@ -423,11 +424,13 @@ fun MainViewColdNight() {
     ) {
         MainView(
             city = "Calgary",
-            currentTemp = Temperature(8, TemperatureUnit.CELSIUS),
-            highTemp = Temperature(12, TemperatureUnit.CELSIUS),
-            lowTemp = Temperature(-3, TemperatureUnit.CELSIUS),
+            temperatures = UiState.Temperatures(
+                current = Temperature(8, TemperatureUnit.CELSIUS),
+                high = Temperature(12, TemperatureUnit.CELSIUS),
+                low = Temperature(-3, TemperatureUnit.CELSIUS)
+            ),
             clothing = Clothing.PANTS,
-            mainButtonCallback = { },
+            calibrateThresholdCallback = { },
             toggleTemperatureUnitCallback = {}
         )
     }
