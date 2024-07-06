@@ -32,11 +32,7 @@ class MainViewModel @Inject constructor(
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
 
-    private val _cityName: MutableStateFlow<String?> = MutableStateFlow(null)
-
     fun initializeUiState(cityName: String?, latitude: Double, longitude: Double) {
-        _cityName.update { cityName }
-
         viewModelScope.launch {
             weatherRepository.fetchWeather(latitude, longitude)
         }
@@ -45,8 +41,7 @@ class MainViewModel @Inject constructor(
             weatherRepository.temperatureDataFlow,
             userPreferencesDataStore.temperatureUnitFlow,
             userPreferencesDataStore.userThresholdFlow,
-            _cityName
-        ) { temperatureData, temperatureUnit, userThreshold, cityName ->
+        ) { temperatureData, temperatureUnit, userThreshold ->
             _uiState.update {
                 UiState.Loaded(
                     cityName = cityName,
