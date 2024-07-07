@@ -94,20 +94,16 @@ dependencies {
 
     // Compose
     api(platform("androidx.compose:compose-bom:2024.06.00"))
-    implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling")
-    implementation("androidx.compose.foundation:foundation")
     implementation("androidx.activity:activity-compose")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose")
-    implementation("androidx.compose.runtime:runtime-livedata")
+
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 
     // Material
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("androidx.compose.material3:material3-window-size-class-android:1.2.1")
     implementation("androidx.compose.material3.adaptive:adaptive-android:1.0.0-beta04")
-
-    implementation("com.google.accompanist:accompanist-permissions:0.24.13-rc")
 
     implementation("com.valentinilk.shimmer:compose-shimmer:1.0.4")
 

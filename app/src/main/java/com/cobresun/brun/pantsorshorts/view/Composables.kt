@@ -374,7 +374,6 @@ fun MainButton(
             )
         }
     }
-
 }
 
 @Preview(showBackground = true)
