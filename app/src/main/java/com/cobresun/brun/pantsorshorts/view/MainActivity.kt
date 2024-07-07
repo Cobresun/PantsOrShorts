@@ -39,10 +39,15 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject lateinit var connectivityManager: ConnectivityManager
-    @Inject lateinit var fusedLocationClient: FusedLocationProviderClient
-    @Inject lateinit var locator: Locator
-    
+    @Inject
+    lateinit var connectivityManager: ConnectivityManager
+
+    @Inject
+    lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    @Inject
+    lateinit var locator: Locator
+
     private lateinit var networkCallback: ConnectivityManager.NetworkCallback
 
     private val viewModel: MainViewModel by viewModels()

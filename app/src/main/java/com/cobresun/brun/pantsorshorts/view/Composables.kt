@@ -36,8 +36,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cobresun.brun.pantsorshorts.R
 import com.cobresun.brun.pantsorshorts.Clothing
+import com.cobresun.brun.pantsorshorts.R
 import com.cobresun.brun.pantsorshorts.weather.Temperature
 import com.cobresun.brun.pantsorshorts.weather.TemperatureUnit
 import com.cobresun.brun.pantsorshorts.weather.toFahrenheit
@@ -170,7 +170,9 @@ fun MainView(
             Spacer(modifier = Modifier.height(32.dp))
             ClothingImage(clothing)
         }
-        MainButton(clothing = clothing, calibrateThresholdCallback = { calibrateThresholdCallback() })
+        MainButton(
+            clothing = clothing,
+            calibrateThresholdCallback = { calibrateThresholdCallback() })
     }
 }
 
