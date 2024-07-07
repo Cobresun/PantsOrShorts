@@ -192,17 +192,19 @@ fun CurrentTemp(
     currentTemp: Temperature,
     toggleTemperatureUnitCallback: () -> Unit
 ) {
-    Text(
-        text = if (currentTemp.unit == TemperatureUnit.CELSIUS) {
-            stringResource(R.string.celsius, currentTemp.value)
-        } else {
-            stringResource(R.string.fahrenheit, currentTemp.value.toFahrenheit())
-        },
-        modifier = Modifier.clickable { toggleTemperatureUnitCallback() },
-        fontSize = 30.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colors.primary
-    )
+    AnimatedContent(targetState = currentTemp.unit, label = "Current temp") {
+        Text(
+            text = if (it == TemperatureUnit.CELSIUS) {
+                stringResource(R.string.celsius, currentTemp.value)
+            } else {
+                stringResource(R.string.fahrenheit, currentTemp.value.toFahrenheit())
+            },
+            modifier = Modifier.clickable { toggleTemperatureUnitCallback() },
+            fontSize = 30.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.primary
+        )
+    }
 }
 
 @Composable
@@ -214,15 +216,17 @@ fun HighLowTemp(
     Row(
         modifier = Modifier.clickable { toggleTemperatureUnitCallback() }
     ) {
-        Text(
-            text = if (lowTemp.unit == TemperatureUnit.CELSIUS) {
-                stringResource(R.string.celsius, lowTemp.value)
-            } else {
-                stringResource(R.string.fahrenheit, lowTemp.value.toFahrenheit())
-            },
-            fontSize = 20.sp,
-            color = lowBlue
-        )
+        AnimatedContent(targetState = lowTemp.unit, label = "Low temp") {
+            Text(
+                text = if (it == TemperatureUnit.CELSIUS) {
+                    stringResource(R.string.celsius, lowTemp.value)
+                } else {
+                    stringResource(R.string.fahrenheit, lowTemp.value.toFahrenheit())
+                },
+                fontSize = 20.sp,
+                color = lowBlue
+            )
+        }
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             "/",
@@ -231,15 +235,17 @@ fun HighLowTemp(
             color = MaterialTheme.colors.primary
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = if (highTemp.unit == TemperatureUnit.CELSIUS) {
-                stringResource(R.string.celsius, highTemp.value)
-            } else {
-                stringResource(R.string.fahrenheit, highTemp.value.toFahrenheit())
-            },
-            fontSize = 20.sp,
-            color = highRed
-        )
+        AnimatedContent(targetState = highTemp.unit, label = "High temp") {
+            Text(
+                text = if (it == TemperatureUnit.CELSIUS) {
+                    stringResource(R.string.celsius, highTemp.value)
+                } else {
+                    stringResource(R.string.fahrenheit, highTemp.value.toFahrenheit())
+                },
+                fontSize = 20.sp,
+                color = highRed
+            )
+        }
     }
 }
 
@@ -247,7 +253,7 @@ fun HighLowTemp(
 fun ClothingSuggestion(
     clothing: Clothing
 ) {
-    AnimatedContent(targetState = clothing) { targetClothing ->
+    AnimatedContent(targetState = clothing, label = "Clothing suggestion") { targetClothing ->
         Text(
             text = stringResource(
                 if (targetClothing == Clothing.PANTS) R.string.feels_like_pants else R.string.feels_like_shorts
@@ -261,7 +267,7 @@ fun ClothingSuggestion(
 fun ClothingImage(
     clothing: Clothing
 ) {
-    AnimatedContent(targetState = clothing) { targetClothing ->
+    AnimatedContent(targetState = clothing, label = "Clothing image") { targetClothing ->
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -282,17 +288,9 @@ fun MainButton(
     clothing: Clothing,
     calibrateThresholdCallback: () -> Unit
 ) {
-    AnimatedContent(targetState = clothing) { targetClothing ->
+    AnimatedContent(targetState = clothing, label = "Main button") { targetClothing ->
         Button(
-            onClick = {
-                calibrateThresholdCallback()
-                // TODO: Move this text to be a popup message that doesn't cover up content
-//                Toast.makeText(
-//                    context,
-//                    R.string.remember_that,
-//                    Toast.LENGTH_SHORT
-//                ).show()
-            },
+            onClick = { calibrateThresholdCallback() },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if (targetClothing == Clothing.PANTS) highRed else lowBlue,
                 contentColor = Color.White

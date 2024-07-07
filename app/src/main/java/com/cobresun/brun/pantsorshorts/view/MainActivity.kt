@@ -84,7 +84,14 @@ class MainActivity : AppCompatActivity() {
                     setContent {
                         EntryView(
                             uiState = it,
-                            calibrateThresholdCallback = { viewModel.calibrateThreshold(it) },
+                            calibrateThresholdCallback = {
+                                viewModel.calibrateThreshold(it)
+                                Toast.makeText(
+                                    applicationContext,
+                                    R.string.remember_that,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            },
                             toggleTemperatureUnitCallback = { viewModel.toggleTemperatureUnit() }
                         )
                     }
