@@ -18,14 +18,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,23 +50,24 @@ import com.valentinilk.shimmer.shimmer
 private val lowBlue = Color(0xff80cee1)
 private val highRed = Color(0xffff6961)
 
-private val darkColors = darkColors(
-    primary = Color.White,
+val AppLightColorScheme = lightColorScheme(
+    primary = Color.Black
 )
 
-private val lightColors = lightColors(
-    primary = Color.Black,
+val AppDarkColorScheme = darkColorScheme(
+    primary = Color.White
 )
 
 @Composable
 @OptIn(ExperimentalPermissionsApi::class)
 fun EntryView(
+    darkTheme: Boolean = isSystemInDarkTheme(),
     uiState: UiState,
     calibrateThresholdCallback: (Clothing) -> Unit,
     toggleTemperatureUnitCallback: () -> Unit
 ) {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (darkTheme) AppDarkColorScheme else AppLightColorScheme
     ) {
         val locationPermissionState = rememberPermissionState(
             Manifest.permission.ACCESS_COARSE_LOCATION
@@ -183,7 +184,7 @@ fun City(
     Text(
         city,
         fontSize = 30.sp,
-        color = MaterialTheme.colors.primary
+        color = MaterialTheme.colorScheme.primary
     )
 }
 
@@ -202,7 +203,7 @@ fun CurrentTemp(
             modifier = Modifier.clickable { toggleTemperatureUnitCallback() },
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colors.primary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -232,7 +233,7 @@ fun HighLowTemp(
             "/",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colors.primary
+            color = MaterialTheme.colorScheme.primary
         )
         Spacer(modifier = Modifier.width(8.dp))
         AnimatedContent(targetState = highTemp.unit, label = "High temp") {
@@ -258,7 +259,7 @@ fun ClothingSuggestion(
             text = stringResource(
                 if (targetClothing == Clothing.PANTS) R.string.feels_like_pants else R.string.feels_like_shorts
             ),
-            color = MaterialTheme.colors.primary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }
@@ -292,7 +293,7 @@ fun MainButton(
         Button(
             onClick = { calibrateThresholdCallback() },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (targetClothing == Clothing.PANTS) highRed else lowBlue,
+                containerColor = if (targetClothing == Clothing.PANTS) highRed else lowBlue,
                 contentColor = Color.White
             ),
             modifier = Modifier.fillMaxWidth()
@@ -326,7 +327,7 @@ fun MainButton(
 @Composable
 fun PermissionDialogShouldShowRationale() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         LocationPermissionDialog(
             shouldShowRationale = true
@@ -338,7 +339,7 @@ fun PermissionDialogShouldShowRationale() {
 @Composable
 fun PermissionDialogShouldNotShowRationale() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         LocationPermissionDialog(
             shouldShowRationale = false
@@ -350,7 +351,7 @@ fun PermissionDialogShouldNotShowRationale() {
 @Composable
 fun Loading() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         LoadingView()
     }
@@ -360,7 +361,7 @@ fun Loading() {
 @Composable
 fun MainViewHot() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         MainView(
             city = "Calgary",
@@ -380,7 +381,7 @@ fun MainViewHot() {
 @Composable
 fun MainViewHotNight() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         MainView(
             city = "Calgary",
@@ -400,7 +401,7 @@ fun MainViewHotNight() {
 @Composable
 fun MainViewCold() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         MainView(
             city = "Calgary",
@@ -420,7 +421,7 @@ fun MainViewCold() {
 @Composable
 fun MainViewColdNight() {
     MaterialTheme(
-        colors = if (isSystemInDarkTheme()) darkColors else lightColors
+        colorScheme = if (isSystemInDarkTheme()) AppDarkColorScheme else AppLightColorScheme
     ) {
         MainView(
             city = "Calgary",
