@@ -24,6 +24,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -33,9 +34,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.cobresun.brun.pantsorshorts.Clothing
 import com.cobresun.brun.pantsorshorts.R
 import com.cobresun.brun.pantsorshorts.weather.Temperature
@@ -129,51 +133,99 @@ fun LocationPermissionDialog(shouldShowRationale: Boolean, launchPermissionReque
 }
 
 @Composable
-fun LoadingView() {
+fun LoadingView(
+    modifier: Modifier = Modifier,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
+) {
     val grayRoundedBoxModifier = Modifier.background(Color.Gray, RoundedCornerShape(16.dp))
 
-    Column(
-        Modifier
-            .padding(64.dp)
-            .shimmer()
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 36.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Box(modifier = grayRoundedBoxModifier.size(width = 128.dp, height = 36.dp))
-            Spacer(modifier = Modifier.height(16.dp))
-            Box(modifier = grayRoundedBoxModifier.size(width = 200.dp, height = 36.dp))
-            Spacer(modifier = Modifier.height(64.dp))
-            Box(modifier = grayRoundedBoxModifier.size(256.dp))
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+        Column(
+            modifier
+                .padding(64.dp)
+                .shimmer()
+        ) {
+            Column(modifier = modifier.weight(1f)) {
+                Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(8.dp))
+                Box(modifier = grayRoundedBoxModifier.size(width = 128.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(16.dp))
+                Box(modifier = grayRoundedBoxModifier.size(width = 200.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(64.dp))
+                Box(modifier = grayRoundedBoxModifier.size(256.dp))
+            }
+            Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 64.dp))
         }
-        Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 64.dp))
+    } else {
+        Row(
+            modifier
+                .padding(64.dp)
+                .shimmer()
+        ) {
+            Column(modifier = modifier.weight(0.5f)) {
+                Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(8.dp))
+                Box(modifier = grayRoundedBoxModifier.size(width = 128.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(16.dp))
+                Box(modifier = grayRoundedBoxModifier.size(width = 200.dp, height = 36.dp))
+                Spacer(modifier = modifier.height(64.dp))
+                Box(modifier = grayRoundedBoxModifier.size(width = 256.dp, height = 64.dp))
+            }
+            Column(modifier = modifier.weight(0.5f)) {
+                Box(modifier = grayRoundedBoxModifier.size(256.dp))
+            }
+        }
     }
 }
 
 @Composable
 fun MainView(
+    modifier: Modifier = Modifier,
+    windowSizeClass: WindowSizeClass = currentWindowAdaptiveInfo().windowSizeClass,
     city: String,
     temperatures: UiState.Temperatures,
     clothing: Clothing,
     calibrateThresholdCallback: () -> Unit,
     toggleTemperatureUnitCallback: () -> Unit
 ) {
-    Column(
-        Modifier.padding(64.dp)
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            City(city)
-            CurrentTemp(temperatures.current) { toggleTemperatureUnitCallback() }
-            Spacer(modifier = Modifier.height(16.dp))
-            HighLowTemp(temperatures.high, temperatures.low) { toggleTemperatureUnitCallback() }
-            Spacer(modifier = Modifier.height(32.dp))
-            ClothingSuggestion(clothing)
-            Spacer(modifier = Modifier.height(32.dp))
-            ClothingImage(clothing)
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.COMPACT) {
+        Column(modifier.padding(vertical = 64.dp, horizontal = 32.dp)) {
+            Column(modifier = modifier.weight(1f)) {
+                City(city)
+                CurrentTemp(temperatures.current) { toggleTemperatureUnitCallback() }
+                Spacer(modifier = modifier.height(16.dp))
+                HighLowTemp(temperatures.high, temperatures.low) { toggleTemperatureUnitCallback() }
+                Spacer(modifier = modifier.height(32.dp))
+                ClothingSuggestion(clothing)
+                Spacer(modifier = modifier.height(32.dp))
+                ClothingImage(clothing)
+            }
+            MainButton(
+                modifier = modifier,
+                clothing = clothing,
+                calibrateThresholdCallback = { calibrateThresholdCallback() }
+            )
         }
-        MainButton(
-            clothing = clothing,
-            calibrateThresholdCallback = { calibrateThresholdCallback() })
+    } else {
+        Row(modifier = modifier.padding(vertical = 32.dp, horizontal = 64.dp)) {
+            Column(modifier = modifier.weight(0.5f)) {
+                City(city)
+                CurrentTemp(temperatures.current) { toggleTemperatureUnitCallback() }
+                Spacer(modifier = modifier.height(16.dp))
+                HighLowTemp(temperatures.high, temperatures.low) { toggleTemperatureUnitCallback() }
+                Spacer(modifier = modifier.height(32.dp))
+                ClothingSuggestion(clothing)
+                Spacer(modifier = modifier.height(32.dp))
+                MainButton(
+                    modifier = modifier,
+                    clothing = clothing,
+                    calibrateThresholdCallback = { calibrateThresholdCallback() }
+                )
+            }
+            Column(modifier = modifier.weight(0.5f)) {
+                ClothingImage(clothing)
+            }
+        }
     }
 }
 
@@ -259,7 +311,8 @@ fun ClothingSuggestion(
             text = stringResource(
                 if (targetClothing == Clothing.PANTS) R.string.feels_like_pants else R.string.feels_like_shorts
             ),
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -286,6 +339,7 @@ fun ClothingImage(
 
 @Composable
 fun MainButton(
+    modifier: Modifier = Modifier,
     clothing: Clothing,
     calibrateThresholdCallback: () -> Unit
 ) {
@@ -296,7 +350,7 @@ fun MainButton(
                 containerColor = if (targetClothing == Clothing.PANTS) highRed else lowBlue,
                 contentColor = Color.White
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth()
         ) {
             Icon(
                 painter = painterResource(
