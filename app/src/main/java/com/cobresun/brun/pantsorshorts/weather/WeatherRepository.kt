@@ -41,7 +41,7 @@ class WeatherRepository @Inject constructor(
         val millisecondsInASecond = 1000
         val millisecondsInAMinute = 60 * millisecondsInASecond
 
-        val lastFetched = weatherDataStore.temperatureDataFlow.first().timeFetched
+        val lastFetched = temperatureDataFlow.first().timeFetched
         val timeSinceFetched = System.currentTimeMillis() - lastFetched
 
         return (timeSinceFetched > millisecondsInAMinute * 10)
