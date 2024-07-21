@@ -14,8 +14,8 @@ android {
         applicationId = "com.cobresun.brun.pantsorshorts"
         minSdk = 24
         targetSdk = 34
-        versionCode = 25
-        versionName = "2.8"
+        versionCode = 26
+        versionName = "2.9"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
         buildConfigField("String", "PirateWeatherAPIKey", properties["PirateWeatherAPIKey"].toString())
