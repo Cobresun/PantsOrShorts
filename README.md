@@ -4,7 +4,7 @@
         src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png" />
 </a>
 <p align="center">
-  <img width="300" height="300" src="logo.png">
+  <img width="300" height="300" src="store-listing/logo.png">
 </p>
 
 # PantsOrShorts
