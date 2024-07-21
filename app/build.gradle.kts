@@ -4,6 +4,8 @@ plugins {
     id("kotlinx-serialization")
     id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
+    id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -128,6 +130,11 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
     // Mockk framework
     testImplementation("io.mockk:mockk:1.12.0")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
 }
 
 repositories {
